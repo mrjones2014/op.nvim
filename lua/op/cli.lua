@@ -60,7 +60,7 @@ local function build_cmd(full_cmd)
         stderr = non_empty_values(data)
       end,
     })
-    local status = vim.fn.jobwait({ job_id }, 5000)[1]
+    local status = vim.fn.jobwait({ job_id }, JOB_TIMEOUT)[1]
     -- see :h jobwait
     if status == -1 then
       vim.notify_once(

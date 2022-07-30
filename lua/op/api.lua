@@ -12,14 +12,17 @@ function M.op_new()
     end
 
     local field_cli_args = vim.tbl_map(function(field)
-      return string.format('"%s=%s"', field.name, field.value)
+      return string.format('%s=%s', field.name, field.value)
     end, fields)
 
     local args = vim.list_extend({
       '--dry-run',
-      '--category=login',
-      string.format('--title="%s"', item_title),
-      string.format('--vault="%s"', vault),
+      '--category',
+      'login',
+      '--title',
+      item_title,
+      '--vault',
+      vault,
     }, field_cli_args)
     op.item.create(args, function(stdout)
       print(vim.inspect(stdout))
