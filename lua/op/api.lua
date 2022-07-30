@@ -4,7 +4,7 @@ local global_args = {
   '--no-color',
 }
 
-local commands = {
+local OP_COMMANDS = {
   account = {
     'add',
     'get',
@@ -93,11 +93,4 @@ local function build_api(command_map, parent_key)
   return api
 end
 
-local api = build_api(commands)
-local output = ''
-api.account.list({}, function(stdout)
-  output = vim.inspect(stdout)
-end, function(stderr)
-  output = vim.inspect(stderr)
-end)
-return output
+return build_api(OP_COMMANDS)
