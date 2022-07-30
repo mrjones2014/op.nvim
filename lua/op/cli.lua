@@ -38,7 +38,7 @@ end
 local function build_cmd(full_cmd)
   return function(args, on_stdout, on_stderr)
     args = args or {}
-    local full_cmd_args = vim.list_extend(vim.list_extend(vim.list_extend({}, full_cmd), args), global_args)
+    local full_cmd_args = vim.list_extend(vim.list_extend(vim.deepcopy(full_cmd), args), global_args)
     table.insert(full_cmd_args, 1, 'op')
     local stdout = {}
     local stderr = {}

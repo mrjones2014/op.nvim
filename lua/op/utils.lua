@@ -18,12 +18,13 @@ end
 ---to the callback (via `unpack(inputs_tbl)`)
 function M.with_inputs(prompts, callback)
   return function(...)
-    if ... and #... >= #prompts then
+    local prompts_copy = vim.deepcopy(prompts)
+    if ... and #... >= #prompts_copy then
       callback(...)
       return
     end
 
-    collect_inputs(prompts, callback, { ... })
+    collect_inputs(prompts_copy, callback, { ... })
   end
 end
 
@@ -53,6 +54,14 @@ end
 function M.get_op_reference(stdout)
   local item = vim.json.decode(table.concat(stdout, ''))
   return item.reference
+end
+
+---Insert given text at cursor position.
+function M.insert_at_cursor(text)
+  local pos = vim.api.nvim_win_get_cursor(0)[2]
+  local line = vim.api.nvim_get_current_line()
+  local new_line = line:sub(0, pos + 1) .. text .. line:sub(pos + 2)
+  vim.api.nvim_set_current_line(new_line)
 end
 
 return M

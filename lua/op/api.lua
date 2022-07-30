@@ -6,7 +6,7 @@ local utils = require('op.utils')
 M.op_insert_reference = utils.with_inputs({ '1Password item name', 'Item field name' }, function(item_name, field_name)
   op.item.get({ item_name, '--fields', 'label=' .. field_name, '--format', 'json' }, function(stdout)
     local ref = utils.get_op_reference(stdout)
-    print(ref)
+    utils.insert_at_cursor(ref)
   end, function(stderr)
     if stderr[1]:find('More than one item matches') then
       table.remove(stderr, 1)
@@ -23,7 +23,7 @@ M.op_insert_reference = utils.with_inputs({ '1Password item name', 'Item field n
 
         op.item.get({ item.id, '--fields', 'label=' .. field_name, '--format', 'json' }, function(stdout)
           local ref = utils.get_op_reference(stdout)
-          print(ref)
+          utils.insert_at_cursor(ref)
         end, function(stderr_2)
           vim.notify(stderr_2[1])
         end)
@@ -33,7 +33,5 @@ M.op_insert_reference = utils.with_inputs({ '1Password item name', 'Item field n
     end
   end)
 end)
-
-M.op_insert_reference()
 
 return M
