@@ -4,7 +4,7 @@ local op = require('op.cli')
 local utils = require('op.utils')
 
 M.op_insert_reference = utils.with_inputs(
-  { { '1Password item name', find = true }, 'Item field name' },
+  { { 'Select 1Password item', find = true }, 'Enter item field name' },
   function(item_name, field_name)
     op.item.get({ item_name, '--fields', 'label=' .. field_name, '--format', 'json' }, function(stdout)
       local ref = utils.get_op_reference(stdout)

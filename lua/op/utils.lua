@@ -20,7 +20,7 @@ local function collect_inputs(prompts, callback, outputs)
   if type(prompt) == 'table' and prompt.find == true then
     with_item_overviews(function(items)
       vim.ui.select(items, {
-        prompt = 'Select 1Password item',
+        prompt = prompt[1],
         format_item = function(item)
           return string.format("'%s' in vault '%s' (UUID: %s)", item.title, item.vault.name, item.id)
         end,
@@ -31,7 +31,13 @@ local function collect_inputs(prompts, callback, outputs)
       end)
     end)
   else
-    vim.ui.input({ prompt = prompts[1] }, function(input)
+    local prompt_str
+    if type(prompt) == 'table' then
+      prompt_str = prompt[1]
+    else
+      prompt_str = prompt
+    end
+    vim.ui.input({ prompt = prompt_str }, function(input)
       table.insert(outputs, input)
       table.remove(prompts, 1)
       collect_inputs(prompts, callback, outputs)
