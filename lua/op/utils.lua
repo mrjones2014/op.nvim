@@ -22,7 +22,7 @@ local function collect_inputs(prompts, callback, outputs)
       vim.ui.select(items, {
         prompt = 'Select 1Password item',
         format_item = function(item)
-          return string.format("'%s' in vault '%s' (UUID %s)", item.title, item.vault.name, item.id)
+          return string.format("'%s' in vault '%s' (UUID: %s)", item.title, item.vault.name, item.id)
         end,
       }, function(selected)
         table.insert(outputs, selected.id)
