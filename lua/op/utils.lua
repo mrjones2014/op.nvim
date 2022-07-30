@@ -1,21 +1,50 @@
 local M = {}
 
+local op = require('op.cli')
+
+local function with_item_overviews(callback)
+  op.item.list({ '--format', 'json' }, function(stdout)
+    callback(vim.json.decode(table.concat(stdout, '')))
+  end, function(stderr)
+    vim.notify(stderr[1])
+  end)
+end
+
 local function collect_inputs(prompts, callback, outputs)
   outputs = outputs or {}
   if not prompts or #prompts == 0 then
     callback(unpack(outputs))
     return
   end
-  vim.ui.input({ prompt = prompts[1] }, function(input)
-    table.insert(outputs, input)
-    table.remove(prompts, 1)
-    collect_inputs(prompts, callback, outputs)
-  end)
+  local prompt = prompts[1]
+  if type(prompt) == 'table' and prompt.find == true then
+    with_item_overviews(function(items)
+      vim.ui.select(items, {
+        prompt = 'Select 1Password item',
+        format_item = function(item)
+          return string.format("'%s' in vault '%s' (UUID %s)", item.title, item.vault.name, item.id)
+        end,
+      }, function(selected)
+        table.insert(outputs, selected.id)
+        table.remove(prompts, 1)
+        collect_inputs(prompts, callback, outputs)
+      end)
+    end)
+  else
+    vim.ui.input({ prompt = prompts[1] }, function(input)
+      table.insert(outputs, input)
+      table.remove(prompts, 1)
+      collect_inputs(prompts, callback, outputs)
+    end)
+  end
 end
 
 ---Get one input per prompt, then call the callback
 ---with each input as passed as a separate parameter
----to the callback (via `unpack(inputs_tbl)`)
+---to the callback (via `unpack(inputs_tbl)`).
+---To use vim.ui.select() on all 1Password items,
+---pass the prompt as a table with `find=true`,
+---e.g. with_inputs({ 'Select 1Password item' find = true }, 'Field name')
 function M.with_inputs(prompts, callback)
   return function(...)
     local prompts_copy = vim.deepcopy(prompts)
