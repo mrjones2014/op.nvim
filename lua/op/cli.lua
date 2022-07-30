@@ -19,6 +19,13 @@ local OP_COMMANDS = {
     'list',
     'share',
   },
+  vault = {
+    'create',
+    'edit',
+    'get',
+    'delete',
+    'list',
+  },
 }
 
 local function non_empty_values(output)
@@ -40,6 +47,7 @@ local function build_cmd(full_cmd)
     args = args or {}
     local full_cmd_args = vim.list_extend(vim.list_extend(vim.deepcopy(full_cmd), args), global_args)
     table.insert(full_cmd_args, 1, 'op')
+    print(vim.inspect(full_cmd_args))
     local stdout = {}
     local stderr = {}
     local job_id = vim.fn.jobstart(full_cmd_args, {
