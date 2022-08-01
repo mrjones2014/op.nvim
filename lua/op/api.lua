@@ -24,21 +24,20 @@ function M.op_create()
       '--vault',
       vault,
     }, field_cli_args)
-    op.item.create(args, function(stdout)
-      print(vim.inspect(stdout))
-    end, function(stderr)
-      print(vim.inspect(stderr))
-    end)
+    local stdout, stderr, exit_code = op.item.create(args)
+    print(vim.inspect(stdout), vim.inspect(stderr), exit_code)
   end)
 end
 
 M.op_insert_reference = utils.with_inputs(
   { { 'Select 1Password item', find = true }, 'Enter item field name' },
   function(item_name, field_name)
-    op.item.get({ item_name, '--fields', string.format('label="%s"', field_name), '--format', 'json' }, function(stdout)
+    local stdout, stderr =
+      op.item.get({ item_name, '--fields', string.format('label=%s', field_name), '--format', 'json' })
+    if #stdout > 0 then
       local ref = utils.get_op_reference(stdout)
       utils.insert_at_cursor(ref)
-    end, function(stderr)
+    elseif #stderr > 0 then
       if stderr[1]:find('More than one item matches') then
         table.remove(stderr, 1)
         local vaults = utils.parse_vaults_from_more_than_one_match(stderr)
@@ -52,21 +51,19 @@ M.op_insert_reference = utils.with_inputs(
             return
           end
 
-          op.item.get(
-            { item.id, '--fields', string.format('label="%s"', field_name), '--format', 'json' },
-            function(stdout)
-              local ref = utils.get_op_reference(stdout)
-              utils.insert_at_cursor(ref)
-            end,
-            function(stderr_2)
-              vim.notify(stderr_2[1])
-            end
-          )
+          local stdout_2, stderr_2 =
+            op.item.get({ item.id, '--fields', string.format('label=%s', field_name), '--format', 'json' })
+          if #stdout_2 > 0 then
+            local ref = utils.get_op_reference(stdout)
+            utils.insert_at_cursor(ref)
+          elseif #stderr_2 > 0 then
+            vim.notify(stderr_2[1])
+          end
         end)
       else
         vim.notify(stderr[1])
       end
-    end)
+    end
   end
 )
 

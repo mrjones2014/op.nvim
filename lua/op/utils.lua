@@ -3,11 +3,12 @@ local M = {}
 local op = require('op.cli')
 
 local function with_item_overviews(callback)
-  op.item.list({ '--format', 'json' }, function(stdout)
+  local stdout, stderr = op.item.list({ '--format', 'json' })
+  if #stdout > 0 then
     callback(vim.json.decode(table.concat(stdout, '')))
-  end, function(stderr)
+  elseif #stderr > 0 then
     vim.notify(stderr[1])
-  end)
+  end
 end
 
 local function collect_inputs(prompts, callback, outputs)
@@ -25,6 +26,9 @@ local function collect_inputs(prompts, callback, outputs)
           return string.format("'%s' in vault '%s' (UUID: %s)", item.title, item.vault.name, item.id)
         end,
       }, function(selected)
+        if not selected then
+          return
+        end
         table.insert(outputs, selected.id)
         table.remove(prompts, 1)
         collect_inputs(prompts, callback, outputs)
@@ -105,7 +109,8 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 end
 
 local function select_vault(callback)
-  require('op.cli').vault.list({ '--format', 'json' }, function(stdout)
+  local stdout, stderr = op.vault.list({ '--format', 'json' })
+  if #stdout > 0 then
     local vaults = vim.json.decode(table.concat(stdout, ''))
     local vault_names = vim.tbl_map(function(vault)
       return vault.name
@@ -117,7 +122,9 @@ local function select_vault(callback)
       end
       callback(selected)
     end)
-  end)
+  elseif #stderr > 0 then
+    vim.notify(stderr[1])
+  end
 end
 local my_secret = 'xSuao479ac87!hfgsd'
 

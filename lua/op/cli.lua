@@ -43,13 +43,13 @@ local function non_empty_values(output)
 end
 
 local function build_cmd(full_cmd)
-  return function(args, on_stdout, on_stderr)
+  return function(args)
     args = args or {}
     local full_cmd_args = vim.list_extend(vim.list_extend(vim.deepcopy(full_cmd), args), global_args)
     table.insert(full_cmd_args, 1, 'op')
-    print(vim.inspect(full_cmd_args))
     local stdout = {}
     local stderr = {}
+    local exit_code = nil
     local job_id = vim.fn.jobstart(full_cmd_args, {
       stdout_buffered = true,
       stderr_buffered = true,
@@ -59,12 +59,10 @@ local function build_cmd(full_cmd)
       on_stderr = function(_, data)
         stderr = non_empty_values(data)
       end,
-      on_exit = function(...)
-        print(vim.inspect(...))
-        vim.notify(vim.inspect(full_cmd_args) .. ' exited')
+      on_exit = function(job_exit_code)
+        exit_code = job_exit_code
       end,
     })
-    print(job_id)
     local status = vim.fn.jobwait({ job_id }, JOB_TIMEOUT)[1]
     -- see :h jobwait
     if status == -1 then
@@ -72,12 +70,7 @@ local function build_cmd(full_cmd)
         'Command with args ' .. vim.inspect(full_cmd_args) .. ' timed out after ' .. (JOB_TIMEOUT / 1000) .. ' seconds'
       )
     end
-    if #stdout > 0 and on_stdout then
-      on_stdout(stdout)
-    end
-    if #stderr > 0 and on_stderr then
-      on_stderr(stderr)
-    end
+    return stdout, stderr, exit_code
   end
 end
 
