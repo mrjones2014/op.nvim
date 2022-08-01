@@ -5,6 +5,8 @@ local global_args = {
 }
 
 local OP_COMMANDS = {
+  'signin',
+  'whoami',
   account = {
     'add',
     'get',
@@ -45,7 +47,7 @@ end
 local function build_cmd(full_cmd)
   return function(args)
     args = args or {}
-    local full_cmd_args = vim.list_extend(vim.list_extend(vim.deepcopy(full_cmd), args), global_args)
+    local full_cmd_args = vim.list_extend(vim.deepcopy(global_args), vim.list_extend(vim.deepcopy(full_cmd), args))
     table.insert(full_cmd_args, 1, 'op')
     local stdout = {}
     local stderr = {}

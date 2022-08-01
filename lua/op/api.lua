@@ -29,6 +29,50 @@ function M.op_create()
   end)
 end
 
+function M.op_signin()
+  local stdout, stderr = op.account.list({ '--format', 'json' })
+  if #stderr > 0 then
+    vim.notify(stderr[1])
+    return
+  end
+
+  if #stdout == 0 then
+    return
+  end
+
+  local accounts = vim.json.decode(table.concat(stdout, ''))
+  if #accounts == 0 then
+    return
+  end
+
+  vim.ui.select(accounts, {
+    prompt = 'Select 1Password account',
+    format_item = function(account)
+      return string.format('%s (%s, UUID: %s)', account.email, account.url, account.user_uuid)
+    end,
+  }, function(selection)
+    if not selection then
+      return
+    end
+    local _, stderr_2 = op.signin({ '--account', selection.user_uuid })
+    if #stderr_2 > 0 then
+      vim.notify(stderr_2[1])
+    else
+      vim.notify(string.format('Signed in with %s (%s)', selection.email, selection.url))
+    end
+  end)
+end
+
+function M.op_whoami()
+  local stdout, stderr = op.whoami({ '--format', 'json' })
+  if #stderr > 0 then
+    vim.notify(stderr[1])
+  elseif #stdout > 0 then
+    local account = vim.json.decode(table.concat(stdout, ''))
+    vim.notify(string.format('Signed in with %s (%s)', account.email, account.url))
+  end
+end
+
 M.op_insert_reference = utils.with_inputs(
   { { 'Select 1Password item', find = true }, 'Enter item field name' },
   function(item_name, field_name)
