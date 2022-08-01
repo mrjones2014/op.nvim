@@ -59,7 +59,12 @@ local function build_cmd(full_cmd)
       on_stderr = function(_, data)
         stderr = non_empty_values(data)
       end,
+      on_exit = function(...)
+        print(vim.inspect(...))
+        vim.notify(vim.inspect(full_cmd_args) .. ' exited')
+      end,
     })
+    print(job_id)
     local status = vim.fn.jobwait({ job_id }, JOB_TIMEOUT)[1]
     -- see :h jobwait
     if status == -1 then

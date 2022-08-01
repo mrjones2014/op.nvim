@@ -4,7 +4,7 @@ local op = require('op.cli')
 local utils = require('op.utils')
 local ts = require('op.treesitter')
 
-function M.op_new()
+function M.op_create()
   local strings = ts.get_all_strings()
   utils.select_fields(strings, function(fields, item_title, vault)
     if not fields or #fields == 0 then
