@@ -1,12 +1,11 @@
 local JOB_TIMEOUT = 5000
 
 local global_args = {
+  '--cache',
   '--no-color',
 }
 
 local OP_COMMANDS = {
-  'signin',
-  'whoami',
   account = {
     'add',
     'get',
