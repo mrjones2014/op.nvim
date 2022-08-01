@@ -55,7 +55,7 @@ local function build_cmd(full_cmd)
     local job_id = vim.fn.jobstart(full_cmd_args, {
       stdout_buffered = true,
       stderr_buffered = true,
-      detach = true,
+      detach = false,
       on_stdout = function(_, data)
         stdout = vim.list_extend(stdout, non_empty_values(data))
       end,
