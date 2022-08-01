@@ -16,7 +16,8 @@ function M.op_create()
     end, fields)
 
     local args = vim.list_extend({
-      '--dry-run',
+      '--format',
+      'json',
       '--category',
       'login',
       '--title',
@@ -24,8 +25,15 @@ function M.op_create()
       '--vault',
       vault,
     }, field_cli_args)
-    local stdout, stderr, exit_code = op.item.create(args)
-    print(vim.inspect(stdout), vim.inspect(stderr), exit_code)
+    local stdout, stderr = op.item.create(args)
+    if #stderr > 0 then
+      vim.notify(stderr[1])
+    elseif #stdout > 0 then
+      local item = vim.json.decode(table.concat(stdout, ''))
+      vim.notify(
+        string.format("Created 1Password login item '%s' in vault '%s' (UUID %s)", item.title, item.vault.name, item.id)
+      )
+    end
   end)
 end
 

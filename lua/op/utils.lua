@@ -81,7 +81,7 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 
   vim.ui.select(
     items,
-    { prompt = 'Select field value for 1Password item, or press <ESC> to finish' },
+    { prompt = 'Select field value for 1Password item, or close this dialog to finish selecting fields' },
     function(selected)
       if not selected then
         return select_fields_inner(items, fields, callback, used_items, true)

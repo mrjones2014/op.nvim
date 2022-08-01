@@ -46,8 +46,26 @@ end
 local function build_cmd(full_cmd)
   return function(args)
     args = args or {}
-    local full_cmd_args = vim.list_extend(vim.deepcopy(global_args), vim.list_extend(vim.deepcopy(full_cmd), args))
+    local full_cmd_args = vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(global_args), args))
     table.insert(full_cmd_args, 1, 'op')
+
+    -- TODO remove this workaround
+    -- TODO for some reason `op item create` hangs when run through job control but not `vim.fn.system()`
+    if full_cmd_args[2] == 'item' and full_cmd_args[3] == 'create' then
+      local escaped_args = vim.tbl_map(function(arg)
+        return vim.fn.shellescape(arg)
+      end, full_cmd_args)
+      local output = vim.fn.systemlist(table.concat(escaped_args, ' '))
+      local exit_code = vim.deepcopy(vim.v.shell_error or 0)
+      if exit_code ~= 0 then
+        -- non-zero exit code, return output in stderr position
+        return {}, output, exit_code
+      else
+        -- zero exit code, return output in stdout position
+        return output, {}, exit_code
+      end
+    end
+
     local stdout = {}
     local stderr = {}
     local exit_code = nil
