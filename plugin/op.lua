@@ -1,8 +1,8 @@
-if vim.g.onepassword_loaded == true then
+if vim.g.op_nvim_loaded == true then
   return
 end
 
-vim.g.onepassword_loaded = true
+vim.g.op_nvim_loaded = true
 
 vim.api.nvim_create_user_command('OpInsert', function()
   require('op.api').op_insert_reference()
