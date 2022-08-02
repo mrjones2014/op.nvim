@@ -24,7 +24,7 @@ local function collect_inputs(prompts, callback, outputs)
       vim.ui.select(items, {
         prompt = prompt[1],
         format_item = function(item)
-          return string.format("'%s' in vault '%s' (UUID: %s)", item.title, item.vault.name, item.id)
+          return M.format_item_for_select(item)
         end,
       }, function(selected)
         if not selected then
@@ -48,6 +48,10 @@ local function collect_inputs(prompts, callback, outputs)
       collect_inputs(prompts, callback, outputs)
     end)
   end
+end
+
+function M.format_item_for_select(item)
+  return string.format("'%s' in vault '%s' (UUID: %s)", item.title, item.vault.name, item.id)
 end
 
 ---Get one input per prompt, then call the callback
@@ -224,6 +228,25 @@ function M.dedup_list(list)
   end
 
   return result
+end
+
+---Open URL in default handler
+function M.open_url(url)
+  local cmd = nil
+  if vim.fn.has('mac') == 1 then
+    cmd = 'open'
+  elseif vim.fn.has('unix') == 1 then
+    cmd = 'xdg-open'
+  elseif vim.fn.has('win32') == 1 then
+    cmd = 'start'
+  end
+
+  if not cmd then
+    vim.notify('Opening URLs is not supported on this OS.')
+    return
+  end
+
+  vim.fn.jobstart({ cmd, url }, { detach = true })
 end
 
 return M

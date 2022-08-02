@@ -52,3 +52,4 @@ require('op').setup({
 
 - `:OpInsert` &mdash; Insert an item reference at current cursor position
 - `:OpCreate` &mdash; Create a new item using strings in the current buffer as fields
+- `:OpOpen` &mdash; Open an item in the 1Password 8 desktop app

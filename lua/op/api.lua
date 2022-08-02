@@ -5,6 +5,34 @@ local utils = require('op.utils')
 local ts = require('op.treesitter')
 local opfields = require('op.fields')
 
+function M.op_open()
+  local stdout, stderr = op.item.list({ '--format', 'json' })
+  if #stderr > 0 then
+    vim.notify(stderr[1])
+  elseif #stdout > 0 then
+    local items = vim.json.decode(table.concat(stdout, ''))
+    vim.ui.select(items, {
+      prompt = 'Select 1Password item',
+      format_item = function(item)
+        return utils.format_item_for_select(item)
+      end,
+    }, function(item)
+      if not item then
+        return
+      end
+
+      local account_stdout, account_stderr = op.account.get({ '--format', 'json' })
+      if #account_stderr > 0 then
+        vim.notify(account_stderr[1])
+      elseif #account_stdout > 0 then
+        local account = vim.json.decode(table.concat(account_stdout, ''))
+        local url = string.format('onepassword://view-item?a=%s&v=%s&i=%s', account.id, item.vault.id, item.id)
+        utils.open_url(url)
+      end
+    end)
+  end
+end
+
 function M.op_create()
   local strings = ts.get_all_strings()
   utils.select_fields(strings, function(fields, item_title, vault)

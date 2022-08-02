@@ -11,3 +11,7 @@ end, { desc = 'Insert a 1Password item reference at the current cursor position'
 vim.api.nvim_create_user_command('OpCreate', function()
   require('op.api').op_create()
 end, { desc = 'Create a new 1Password item from strings in the current buffer' })
+
+vim.api.nvim_create_user_command('OpOpen', function()
+  require('op.api').op_open()
+end, { desc = 'Open an item in the 1Password 8 desktop app' })
