@@ -45,5 +45,5 @@ require('op').setup({
 
 `op.nvim` adds the following editor commands:
 
-- `:OpInsert` &emdash; Insert an item reference at current cursor position
-- `:OpCreate` &emdash; Create a new item using strings in the current buffer as fields
+- `:OpInsert` &mdash; Insert an item reference at current cursor position
+- `:OpCreate` &mdash; Create a new item using strings in the current buffer as fields
