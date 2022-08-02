@@ -34,7 +34,7 @@ require('op').setup({
   -- to always use a specific account, add:
   -- '--account', '[account UUID here]',
   -- You can find account UUID by running
-  `op account list --format json`
+  -- `op account list --format json`
   global_args = {
     -- use the item cache
     '--cache',
