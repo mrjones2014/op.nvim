@@ -4,6 +4,8 @@
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
 directly from Neovim.
 
+![op.nvim demo gif](https://user-images.githubusercontent.com/8648891/182396210-925c6938-4ec9-4c5b-b39c-9306d04bd6c7.gif)
+
 ## Usage
 
 `packer.nvim`
