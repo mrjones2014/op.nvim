@@ -1,6 +1,7 @@
 local M = {}
 
 local op = require('op.cli')
+local opfields = require('op.fields')
 
 local function with_item_overviews(callback)
   local stdout, stderr = op.item.list({ '--format', 'json' })
@@ -81,7 +82,7 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 
   vim.ui.select(
     items,
-    { prompt = 'Select field value for 1Password item, or close this dialog to finish selecting fields' },
+    { prompt = 'Select field value, or close this dialog to finish selecting fields' },
     function(selected)
       if not selected then
         return select_fields_inner(items, fields, callback, used_items, true)
@@ -89,7 +90,13 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 
       table.insert(used_items, selected)
 
-      vim.ui.input({ prompt = 'What do you want to call this field?' }, function(input)
+      local field_type = opfields.detect_field_type(selected)
+      local input_params = { prompt = 'What do you want to call this field?' }
+      if field_type then
+        input_params.default = opfields.FIELD_TYPE_PATTERNS[field_type].field
+      end
+
+      vim.ui.input(input_params, function(input)
         if not input or #input == 0 then
           vim.notify('Field name is required.')
           -- insert invalid field
@@ -100,6 +107,7 @@ local function select_fields_inner(items, fields, callback, used_items, done)
         local field = {
           name = input,
           value = selected,
+          type = field_type,
         }
         table.insert(fields, field)
         select_fields_inner(items, fields, callback, used_items, false)

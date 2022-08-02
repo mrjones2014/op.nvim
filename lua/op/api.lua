@@ -12,11 +12,6 @@ function M.op_create()
       return
     end
 
-    fields = vim.tbl_map(function(field)
-      field.type = opfields.detect_field_type(field.value)
-      return field
-    end, fields)
-
     local field_cli_args = vim.tbl_map(function(field)
       if field.type then
         return string.format('%s[%s]=%s', field.name, field.type, field.value)
@@ -26,7 +21,7 @@ function M.op_create()
     end, fields)
 
     local url_fields = vim.tbl_filter(function(field)
-      return field.type == 'url'
+      return field.type == opfields.FIELD_TYPE_PATTERNS.url.id
     end, fields)
 
     local args = {

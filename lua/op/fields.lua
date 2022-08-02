@@ -1,11 +1,13 @@
-local FIELD_TYPE_PATTERNS = {
-  {
+local M = {}
+
+M.FIELD_TYPE_PATTERNS = {
+  email = {
     id = 'email',
-    field = 'email',
+    field = 'username',
     type = 'email',
     pattern = '^[%w.]+@%w+%.%w+$',
   },
-  {
+  url = {
     id = 'url',
     field = 'url',
     type = 'url',
@@ -13,10 +15,8 @@ local FIELD_TYPE_PATTERNS = {
   },
 }
 
-local M = {}
-
 function M.detect_field_type(str)
-  for _, data in pairs(FIELD_TYPE_PATTERNS) do
+  for _, data in pairs(M.FIELD_TYPE_PATTERNS) do
     if string.match(str, data.pattern) then
       return data.id
     end
