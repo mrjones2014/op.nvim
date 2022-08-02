@@ -2,6 +2,7 @@ local M = {}
 
 local op = require('op.cli')
 local opfields = require('op.fields')
+local config = require('op.config')
 
 local function with_item_overviews(callback)
   local stdout, stderr = op.item.list({ '--format', 'json' })
@@ -136,6 +137,31 @@ local function select_vault(callback)
     end)
   elseif #stderr > 0 then
     vim.notify(stderr[1])
+  end
+end
+
+function M.with_account_uuid(callback)
+  for idx, arg in pairs(config.global_args or {}) do
+    if arg == '--account' then
+      -- next arg should be the account UUID
+      local account_uuid = config.global_args[idx + 1]
+      if type(account_uuid) == 'string' then
+        callback(account_uuid)
+        return
+      else
+        goto account_uuid_loop_continue
+      end
+    end
+  end
+
+  ::account_uuid_loop_continue::
+
+  local stdout, stderr = op.account.get({ '--format', 'json' })
+  if #stderr > 0 then
+    vim.notify(stderr[1])
+  elseif #stdout > 0 then
+    local account = vim.json.decode(table.concat(stdout, ''))
+    callback(account.id)
   end
 end
 

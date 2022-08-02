@@ -21,14 +21,10 @@ function M.op_open()
         return
       end
 
-      local account_stdout, account_stderr = op.account.get({ '--format', 'json' })
-      if #account_stderr > 0 then
-        vim.notify(account_stderr[1])
-      elseif #account_stdout > 0 then
-        local account = vim.json.decode(table.concat(account_stdout, ''))
-        local url = string.format('onepassword://view-item?a=%s&v=%s&i=%s', account.id, item.vault.id, item.id)
+      utils.with_account_uuid(function(account_uuid)
+        local url = string.format('onepassword://view-item?a=%s&v=%s&i=%s', account_uuid, item.vault.id, item.id)
         utils.open_url(url)
-      end
+      end)
     end)
   end
 end

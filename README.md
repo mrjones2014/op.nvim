@@ -31,8 +31,7 @@ require('op').setup({
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
   -- `op --help` output. For example,
-  -- to always use a specific account,
-  -- add:
+  -- to always use a specific account, add:
   -- '--account', '[account UUID here]',
   -- You can find account UUID by running
   `op account list --format json`
