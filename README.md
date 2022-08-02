@@ -30,7 +30,12 @@ require('op').setup({
   op_cli_path = 'op',
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
-  -- `op --help` output
+  -- `op --help` output. For example,
+  -- to always use a specific account,
+  -- add:
+  -- '--account', '[account UUID here]',
+  -- You can find account UUID by running
+  `op account list --format json`
   global_args = {
     -- use the item cache
     '--cache',
