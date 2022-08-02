@@ -134,7 +134,6 @@ local function select_vault(callback)
     vim.notify(stderr[1])
   end
 end
-local my_secret = 'xSuao479ac87!hfgsd'
 
 function M.select_fields(items, callback)
   select_fields_inner(items, {}, function(fields)

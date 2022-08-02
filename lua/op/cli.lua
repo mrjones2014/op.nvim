@@ -1,9 +1,4 @@
-local JOB_TIMEOUT = 5000
-
-local global_args = {
-  '--cache',
-  '--no-color',
-}
+local config = require('op.config')
 
 local OP_COMMANDS = {
   account = {
@@ -46,8 +41,9 @@ end
 local function build_cmd(full_cmd)
   return function(args)
     args = args or {}
-    local full_cmd_args = vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(global_args), args))
-    table.insert(full_cmd_args, 1, 'op')
+    local full_cmd_args =
+      vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(config.global_args), args))
+    table.insert(full_cmd_args, 1, config.op_cli_path)
 
     local output = non_empty_values(vim.fn.systemlist(full_cmd_args))
     local exit_code = vim.deepcopy(vim.v.shell_error or 0)
