@@ -3,6 +3,7 @@ local M = {}
 local op = require('op.cli')
 local utils = require('op.utils')
 local ts = require('op.treesitter')
+local opfields = require('op.fields')
 
 function M.op_create()
   local strings = ts.get_all_strings()
@@ -11,11 +12,24 @@ function M.op_create()
       return
     end
 
+    fields = vim.tbl_map(function(field)
+      field.type = opfields.detect_field_type(field.value)
+      return field
+    end, fields)
+
     local field_cli_args = vim.tbl_map(function(field)
+      if field.type then
+        return string.format('%s[%s]=%s', field.name, field.type, field.value)
+      end
+
       return string.format('%s=%s', field.name, field.value)
     end, fields)
 
-    local args = vim.list_extend({
+    local url_fields = vim.tbl_filter(function(field)
+      return field.type == 'url'
+    end, fields)
+
+    local args = {
       '--format',
       'json',
       '--category',
@@ -24,7 +38,14 @@ function M.op_create()
       item_title,
       '--vault',
       vault,
-    }, field_cli_args)
+    }
+
+    if #url_fields > 0 then
+      table.insert(args, '--url')
+      table.insert(args, url_fields[1].value)
+    end
+
+    vim.list_extend(args, field_cli_args)
     local stdout, stderr = op.item.create(args)
     if #stderr > 0 then
       vim.notify(stderr[1])
