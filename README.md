@@ -28,13 +28,17 @@ require('op').setup({
   -- you can change this to a full path if `op`
   -- is not on your $PATH
   op_cli_path = 'op',
+  -- set an account UUID to use a specific account
+  -- can be changed by calling `require('op').setup()`
+  -- again passing a new value for `account_uuid`
+  account_uuid = nil,
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
-  -- `op --help` output. For example,
-  -- to always use a specific account, add:
-  -- '--account', '[account UUID here]',
-  -- You can find account UUID by running
-  -- `op account list --format json`
+  -- `op --help` output. For `--account`,
+  -- it is recommended to use the
+  -- `config.account_uuid` config option
+  -- instead, as it can be more easily changed
+  -- if needed.
   global_args = {
     -- use the item cache
     '--cache',
@@ -44,6 +48,9 @@ require('op').setup({
   }
 })
 ```
+
+**The `require('op').setup()` function is idempotent** (i.e. can be called multiple times without side effects), so you can
+use it to change accounts by updating the value of the `account_uuid` configuration.
 
 ## Commands
 

@@ -42,7 +42,7 @@ local function build_cmd(full_cmd)
   return function(args)
     args = args or {}
     local full_cmd_args =
-      vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(config.global_args), args))
+      vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(config.get_global_args()), args))
     table.insert(full_cmd_args, 1, config.op_cli_path)
 
     local output = non_empty_values(vim.fn.systemlist(full_cmd_args))
