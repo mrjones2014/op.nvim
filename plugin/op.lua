@@ -15,3 +15,7 @@ end, { desc = 'Create a new 1Password item from strings in the current buffer' }
 vim.api.nvim_create_user_command('OpOpen', function()
   require('op.api').op_open()
 end, { desc = 'Open an item in the 1Password 8 desktop app' })
+
+vim.api.nvim_create_user_command('OpSwitchAccount', function()
+  require('op.api').op_switch_account()
+end, { desc = 'Open an item in the 1Password 8 desktop app' })

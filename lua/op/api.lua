@@ -5,6 +5,29 @@ local utils = require('op.utils')
 local ts = require('op.treesitter')
 local opfields = require('op.fields')
 
+local function format_account(account)
+  return string.format('%s (%s)', account.email, account.url)
+end
+
+function M.op_switch_account()
+  local stdout, stderr = op.account.list({ '--format', 'json' })
+  if #stderr > 0 then
+    vim.notify(stderr[1])
+  elseif #stdout > 0 then
+    local accounts = vim.json.decode(table.concat(stdout, ''))
+    vim.ui.select(accounts, {
+      prompt = 'Select 1Password account',
+      format_item = format_account,
+    }, function(selected)
+      if not selected then
+        return
+      end
+      require('op').setup({ account_uuid = selected.account_uuid })
+      vim.notify(string.format('Switched to account %s', format_account(selected)))
+    end)
+  end
+end
+
 function M.op_open()
   local stdout, stderr = op.item.list({ '--format', 'json' })
   if #stderr > 0 then

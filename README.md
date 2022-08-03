@@ -21,7 +21,15 @@ Plug 'mrjones2014/op.nvim'
 ```
 
 No other setup is required, however there are a few settings you can change if needed.
-Settings can be changed via the Lua API, default settings are shown below:
+See [Configuration](#configuration)
+
+## Configuration
+
+Configuration can be set by calling `require('op').setup(config_table)`.
+
+**The `require('op').setup()` function is idempotent** (i.e. can be called multiple times without side effects), so you can
+use it to change accounts by updating the value of the `account_uuid` configuration. Alternatively, you can use the
+`:OpSwitchAccount` command (which itself uses the `require('op').setup()` function).
 
 ```lua
 require('op').setup({
@@ -49,13 +57,11 @@ require('op').setup({
 })
 ```
 
-**The `require('op').setup()` function is idempotent** (i.e. can be called multiple times without side effects), so you can
-use it to change accounts by updating the value of the `account_uuid` configuration.
-
 ## Commands
 
-| Command     | Description                                                     |
-| ----------- | --------------------------------------------------------------- |
-| `:OpInsert` | Insert an item reference at current cursor position             |
-| `:OpCreate` | Create a new item using strings in the current buffer as fields |
-| `:OpOpen`   | Open an item in the 1Password 8 desktop app                     |
+| Command            | Description                                                     |
+| ------------------ | --------------------------------------------------------------- |
+| `:OpInsert`        | Insert an item reference at current cursor position             |
+| `:OpCreate`        | Create a new item using strings in the current buffer as fields |
+| `:OpOpen`          | Open an item in the 1Password 8 desktop app                     |
+| `:OpSwitchAccount` | Switch to a different 1Password account                         |

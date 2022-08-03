@@ -18,8 +18,10 @@ function M.get_global_args()
   local args = vim.deepcopy(M.global_args or {})
   if M.account_uuid then
     table.insert(args, '--account')
-    table.insert(M.account_uuid)
+    table.insert(args, M.account_uuid)
   end
+
+  return args
 end
 
 return M
