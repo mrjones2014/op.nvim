@@ -4,6 +4,7 @@ local op = require('op.cli')
 local utils = require('op.utils')
 local ts = require('op.treesitter')
 local opfields = require('op.fields')
+local msg = require('op.msg')
 
 local function format_account(account)
   return string.format('%s (%s)', account.email, account.url)
@@ -12,7 +13,7 @@ end
 function M.op_switch_account()
   local stdout, stderr = op.account.list({ '--format', 'json' })
   if #stderr > 0 then
-    vim.notify(stderr[1])
+    msg.error(stderr[1])
   elseif #stdout > 0 then
     local accounts = vim.json.decode(table.concat(stdout, ''))
     vim.ui.select(accounts, {
@@ -23,7 +24,7 @@ function M.op_switch_account()
         return
       end
       require('op').setup({ account_uuid = selected.account_uuid })
-      vim.notify(string.format('Switched to account %s', format_account(selected)))
+      msg.success(string.format('Switched to account %s', format_account(selected)))
     end)
   end
 end
@@ -31,7 +32,7 @@ end
 function M.op_open()
   local stdout, stderr = op.item.list({ '--format', 'json' })
   if #stderr > 0 then
-    vim.notify(stderr[1])
+    msg.error(stderr[1])
   elseif #stdout > 0 then
     local items = vim.json.decode(table.concat(stdout, ''))
     vim.ui.select(items, {
@@ -90,10 +91,10 @@ function M.op_create()
     vim.list_extend(args, field_cli_args)
     local stdout, stderr = op.item.create(args)
     if #stderr > 0 then
-      vim.notify(stderr[1])
+      msg.error(stderr[1])
     elseif #stdout > 0 then
       local item = vim.json.decode(table.concat(stdout, ''))
-      vim.notify(
+      msg.success(
         string.format("Created 1Password login item '%s' in vault '%s' (UUID %s)", item.title, item.vault.name, item.id)
       )
     end
@@ -128,11 +129,11 @@ M.op_insert_reference = utils.with_inputs(
             local ref = utils.get_op_reference(stdout)
             utils.insert_at_cursor(ref)
           elseif #stderr_2 > 0 then
-            vim.notify(stderr_2[1])
+            msg.error(stderr_2[1])
           end
         end)
       else
-        vim.notify(stderr[1])
+        msg.error(stderr[1])
       end
     end
   end

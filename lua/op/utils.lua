@@ -3,13 +3,14 @@ local M = {}
 local op = require('op.cli')
 local opfields = require('op.fields')
 local config = require('op.config')
+local msg = require('op.msg')
 
 local function with_item_overviews(callback)
   local stdout, stderr = op.item.list({ '--format', 'json' })
   if #stdout > 0 then
     callback(vim.json.decode(table.concat(stdout, '')))
   elseif #stderr > 0 then
-    vim.notify(stderr[1])
+    msg.error(stderr[1])
   end
 end
 
@@ -103,7 +104,7 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 
       vim.ui.input(input_params, function(input)
         if not input or #input == 0 then
-          vim.notify('Field name is required.')
+          msg.error('Field name is required.')
           -- insert invalid field
           table.insert(fields, {})
           return select_fields_inner(items, fields, callback, used_items, true)
@@ -130,13 +131,13 @@ local function select_vault(callback)
     end, vaults)
     vim.ui.select(vault_names, { prompt = 'What vault do you want to store the 1Password item in?' }, function(selected)
       if not selected or #selected == 0 then
-        vim.notify('Vault is required.')
+        msg.error('Vault is required.')
         return
       end
       callback(selected)
     end)
   elseif #stderr > 0 then
-    vim.notify(stderr[1])
+    msg.error(stderr[1])
   end
 end
 
@@ -164,7 +165,7 @@ function M.with_account_uuid(callback)
 
   local stdout, stderr = op.account.get({ '--format', 'json' })
   if #stderr > 0 then
-    vim.notify(stderr[1])
+    msg.error(stderr[1])
   elseif #stdout > 0 then
     local account = vim.json.decode(table.concat(stdout, ''))
     callback(account.id)
@@ -174,7 +175,7 @@ end
 function M.select_fields(items, callback)
   select_fields_inner(items, {}, function(fields)
     if not fields or #fields == 0 then
-      vim.notify('Item creation cancelled.')
+      msg.error('Item creation cancelled.')
       return
     end
 
@@ -183,13 +184,13 @@ function M.select_fields(items, callback)
         return not field or not field.name or #field.name == 0 or not field.value or #field.value == 0
       end, fields) > 0
     then
-      vim.notify('One or more fields is missing a name or value, cannot create item.')
+      msg.error('One or more fields is missing a name or value, cannot create item.')
       return
     end
 
     vim.ui.input({ prompt = 'What do you want to call the 1Password item?' }, function(item_title)
       if not item_title or #item_title == 0 then
-        vim.notify('Item title is required')
+        msg.error('Item title is required')
         return
       end
 
@@ -274,7 +275,7 @@ function M.open_url(url)
   end
 
   if not cmd then
-    vim.notify('Opening URLs is not supported on this OS.')
+    msg.error('Opening URLs is not supported on this OS.')
     return
   end
 
