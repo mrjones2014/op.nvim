@@ -3,11 +3,15 @@ local M = {}
 local op = require('op.cli')
 local utils = require('op.utils')
 local ts = require('op.treesitter')
-local opfields = require('op.fields')
 local msg = require('op.msg')
 
 local function format_account(account)
   return string.format('%s (%s)', account.email, account.url)
+end
+
+function M.op_designate_field(value)
+  local _, designation = pcall(vim.fn.OpDesignateField, value)
+  return designation
 end
 
 function M.op_signin()
@@ -75,15 +79,19 @@ function M.op_create()
     end
 
     local field_cli_args = vim.tbl_map(function(field)
-      if field.type then
-        return string.format('%s[%s]=%s', field.name, field.type, field.value)
+      if field.designation then
+        return string.format('%s[%s]=%s', field.name, field.designation.field_type, field.value)
       end
 
       return string.format('%s=%s', field.name, field.value)
     end, fields)
 
     local url_fields = vim.tbl_filter(function(field)
-      return field.type == opfields.FIELD_TYPE_PATTERNS.url.id
+      if not field.designation then
+        return false
+      end
+
+      return field.designation.field_type == 'url'
     end, fields)
 
     local args = {

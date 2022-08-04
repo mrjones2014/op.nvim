@@ -1,7 +1,6 @@
 local M = {}
 
 local op = require('op.cli')
-local opfields = require('op.fields')
 local config = require('op.config')
 local msg = require('op.msg')
 
@@ -74,6 +73,39 @@ function M.with_inputs(prompts, callback)
   end
 end
 
+local function select_vault(callback)
+  local stdout, stderr = op.vault.list({ '--format', 'json' })
+  if #stdout > 0 then
+    local vaults = vim.json.decode(table.concat(stdout, ''))
+    local vault_names = vim.tbl_map(function(vault)
+      return vault.name
+    end, vaults)
+    vim.ui.select(vault_names, { prompt = 'What vault do you want to store the 1Password item in?' }, function(selected)
+      if not selected or #selected == 0 then
+        msg.error('Vault is required.')
+        return
+      end
+      callback(selected)
+    end)
+  elseif #stderr > 0 then
+    msg.error(stderr[1])
+  end
+end
+
+local function get_field_designation(value)
+  local json, _ = vim.fn.OpDesignateField(value)
+  if json then
+    local result = vim.json.decode(json)
+    if result == vim.NIL then
+      return nil
+    end
+
+    return result
+  end
+
+  return nil
+end
+
 local function select_fields_inner(items, fields, callback, used_items, done)
   fields = fields or {}
   used_items = used_items or {}
@@ -96,10 +128,11 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 
       table.insert(used_items, selected)
 
-      local field_type = opfields.detect_field_type(selected)
+      -- local field_type = opfields.detect_field_type(selected)
+      local designation = get_field_designation(selected)
       local input_params = { prompt = 'What do you want to call this field?' }
-      if field_type then
-        input_params.default = opfields.FIELD_TYPE_PATTERNS[field_type].field
+      if designation then
+        input_params.default = designation.field_title
       end
 
       vim.ui.input(input_params, function(input)
@@ -113,7 +146,7 @@ local function select_fields_inner(items, fields, callback, used_items, done)
         local field = {
           name = input,
           value = selected,
-          type = field_type,
+          designation = designation
         }
         table.insert(fields, field)
         select_fields_inner(items, fields, callback, used_items, false)
@@ -122,23 +155,49 @@ local function select_fields_inner(items, fields, callback, used_items, done)
   )
 end
 
-local function select_vault(callback)
-  local stdout, stderr = op.vault.list({ '--format', 'json' })
-  if #stdout > 0 then
-    local vaults = vim.json.decode(table.concat(stdout, ''))
-    local vault_names = vim.tbl_map(function(vault)
-      return vault.name
-    end, vaults)
-    vim.ui.select(vault_names, { prompt = 'What vault do you want to store the 1Password item in?' }, function(selected)
-      if not selected or #selected == 0 then
-        msg.error('Vault is required.')
+function M.select_fields(items, callback)
+  select_fields_inner(items, {}, function(fields)
+    if not fields or #fields == 0 then
+      msg.error('Item creation cancelled.')
+      return
+    end
+
+    if
+      #vim.tbl_filter(function(field)
+        return not field or not field.name or #field.name == 0 or not field.value or #field.value == 0
+      end, fields) > 0
+    then
+      msg.error('One or more fields is missing a name or value, cannot create item.')
+      return
+    end
+
+    local field_with_designation = vim.tbl_filter(function(field)
+      return field.designation ~= nil
+    end, fields)[1]
+    local suggested_title = nil
+    if field_with_designation then
+      -- designation.item_title may be empty or nil if
+      -- designation.field_type is email, URL, etc.
+      -- anything not related to a specific site/service
+      suggested_title = field_with_designation.designation.item_title
+    end
+
+    vim.ui.input({
+      prompt = 'What do you want to call the 1Password item?',
+      default = suggested_title
+    }, function(item_title)
+      if not item_title or #item_title == 0 then
+        msg.error('Item title is required')
         return
       end
-      callback(selected)
+
+      select_vault(function(vault)
+        if type(callback) == 'function' then
+          callback(fields, item_title, vault)
+        end
+      end)
     end)
-  elseif #stderr > 0 then
-    msg.error(stderr[1])
-  end
+  end)
 end
 
 function M.with_account_uuid(callback)
@@ -165,37 +224,6 @@ function M.with_account_uuid(callback)
     local account = vim.json.decode(table.concat(stdout, ''))
     callback(account.id)
   end
-end
-
-function M.select_fields(items, callback)
-  select_fields_inner(items, {}, function(fields)
-    if not fields or #fields == 0 then
-      msg.error('Item creation cancelled.')
-      return
-    end
-
-    if
-      #vim.tbl_filter(function(field)
-        return not field or not field.name or #field.name == 0 or not field.value or #field.value == 0
-      end, fields) > 0
-    then
-      msg.error('One or more fields is missing a name or value, cannot create item.')
-      return
-    end
-
-    vim.ui.input({ prompt = 'What do you want to call the 1Password item?' }, function(item_title)
-      if not item_title or #item_title == 0 then
-        msg.error('Item title is required')
-        return
-      end
-
-      select_vault(function(vault)
-        if type(callback) == 'function' then
-          callback(fields, item_title, vault)
-        end
-      end)
-    end)
-  end)
 end
 
 ---Takes in the stderr output that happens when
