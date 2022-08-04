@@ -11,13 +11,13 @@ directly from Neovim.
 `packer.nvim`
 
 ```lua
-use({ 'mrjones2014/op.nvim' })
+use({ 'mrjones2014/op.nvim', run = 'make install' })
 ```
 
 `vim-plug`
 
 ```VimL
-Plug 'mrjones2014/op.nvim'
+Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
 ```
 
 No other setup is required, however there are a few settings you can change if needed.
