@@ -2,23 +2,23 @@ default: all
 
 .PHONY: build-macos
 build-macos: clean
-	GOOS=darwin GOARCH=amd64 go build -o op-nvim-mac-amd64
-	GOOS=darwin GOARCH=arm64 go build -o op-nvim-mac-arm64
-	lipo -create -output op-nvim-mac-universal op-nvim-mac-amd64 op-nvim-mac-arm64
+	cd go && GOOS=darwin GOARCH=amd64 go build -o ../bin/op-nvim-mac-amd64 && GOOS=darwin GOARCH=arm64 go build -o ../bin/op-nvim-mac-arm64
+	lipo -create -output ./bin/op-nvim-mac-universal ./bin/op-nvim-mac-amd64 ./bin/op-nvim-mac-arm64
+	rm -f ./bin/op-nvim-mac-amd64 ./bin/op-nvim-mac-arm64
 
 .PHONY: build-linux
 build-linux: clean
-	GOOS=linux GOARCH=amd64 go build -o op-nvim-linux
+	cd go && GOOS=linux GOARCH=amd64 go build -o ../bin/op-nvim-linux
 
 .PHONY: all
 all: build-macos build-linux
 
 .PHONY: clean
 clean:
-	rm -f op-nvim-mac-universal op-nvim-mac-arm64 op-nvim-mac-arm64 op-nvim-linux bin/op-nvim
+	rm -f ./bin/op-nvim-mac-universal ./bin/op-nvim-mac-arm64 ./bin/op-nvim-mac-arm64 ./bin/op-nvim-linux ./bin/op-nvim
 
 .PHONY: install
 install:
 	mkdir -p bin
-	if [[ "$$OSTYPE" == "linux-gnu"* ]]; then cp ./op-nvim-linux ./bin/op-nivm; elif [[ "$$OSTYPE" == "darwin"* ]]; then cp ./op-nvim-mac-universal ./bin/op-nvim; fi
+	if [[ "$$OSTYPE" == "linux-gnu"* ]]; then cp ./bin/op-nvim-linux ./bin/op-nivm; elif [[ "$$OSTYPE" == "darwin"* ]]; then cp ./bin/op-nvim-mac-universal ./bin/op-nvim; fi
 	chmod +x ./bin/op-nvim
