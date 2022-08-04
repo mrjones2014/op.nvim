@@ -1,9 +1,11 @@
 package main
 
 import (
-        "encoding/json"
-        "os/exec"
-        "strings"
+	"encoding/json"
+	"errors"
+	"os/exec"
+	"strings"
+        "fmt"
 	"github.com/neovim/go-client/nvim/plugin"
 )
 
@@ -12,9 +14,11 @@ type CliOutput struct {
     ReturnCode int `json:"return_code"`
 }
 
+var opCliPath string = "op"
+
 
 func opcmd(args []string) (string, error) {
-    cmd := exec.Command(args[0], args[1:]...)
+    cmd := exec.Command("op", args...)
     out, err := cmd.CombinedOutput()
     if err != nil && !strings.HasPrefix(err.Error(), "exit status") {
         return "", err
@@ -33,9 +37,24 @@ func opcmd(args []string) (string, error) {
     return string(value), nil
 }
 
+func setup(args []string) (string, error) {
+    arglen := len(args)
+    if arglen > 1 {
+        return "", errors.New(fmt.Sprintf("Too many arguments, expected 1 got %d", arglen))
+    }
+
+    if arglen == 0 {
+        return "", errors.New("Not enough arguments, expected 1 got 0")
+    }
+
+    opCliPath = args[0]
+    return opCliPath, nil
+}
+
 func main() {
     plugin.Main(func(p *plugin.Plugin) (error) {
         p.HandleFunction(&plugin.FunctionOptions{Name: "Opcmd"}, opcmd)
+        p.HandleFunction(&plugin.FunctionOptions{Name: "OpSetup"}, setup)
         return nil
     })
 }

@@ -45,7 +45,6 @@ local function build_cmd(full_cmd)
     args = args or {}
     local full_cmd_args =
       vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(config.get_global_args()), args))
-    table.insert(full_cmd_args, 1, config.op_cli_path)
 
     local data = vim.fn.Opcmd(unpack(full_cmd_args))
     local parsed_data = vim.json.decode(data)

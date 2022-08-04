@@ -1,13 +1,13 @@
 default: all
 
 .PHONY: build-macos
-build-macos:
+build-macos: clean
 	GOOS=darwin GOARCH=amd64 go build -o op-nvim-mac-amd64
 	GOOS=darwin GOARCH=arm64 go build -o op-nvim-mac-arm64
 	lipo -create -output op-nvim-mac-universal op-nvim-mac-amd64 op-nvim-mac-arm64
 
 .PHONY: build-linux
-build-linux:
+build-linux: clean
 	GOOS=linux GOARCH=amd64 go build -o op-nvim-linux
 
 .PHONY: all
