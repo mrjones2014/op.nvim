@@ -72,7 +72,7 @@ require('op').setup({
 
 - Biometric unlock! Unlock 1Password with fingerprint or Apple watch from within Neovim
 - Create items from strings in the current buffer
-  - If the Treesitter query fails or there's no Treesitter parser for the current filetype, fallback to manual value input
+  - If the Treesitter query fails or there's no Treesitter parser for the current filetype, fallback to manual value input (if a Treesitter parser exists, please open an issue or PR so we can get the right query added!)
 - Infer default field and item names based on field value patterns
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
