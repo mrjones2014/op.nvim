@@ -21,3 +21,4 @@ clean:
 install:
 	mkdir -p bin
 	if [[ "$$OSTYPE" == "linux-gnu"* ]]; then cp ./op-nvim-linux ./bin/op-nivm; elif [[ "$$OSTYPE" == "darwin"* ]]; then cp ./op-nvim-mac-universal ./bin/op-nvim; fi
+	chmod +x ./bin/op-nvim
