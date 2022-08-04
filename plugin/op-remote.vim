@@ -4,8 +4,10 @@ endif
 
 let g:op_nvim_remote = 1
 
+let s:path = expand('<sfile>:p:h')
+
 function! s:RequireOp(host) abort
-    return jobstart(['./op-nvim'], {'rpc': v:true})
+    return jobstart([s:path . '/../op-nvim'], {'rpc': v:true})
 endfunction
 
 call remote#host#Register('op', 'x', function('s:RequireOp'))
