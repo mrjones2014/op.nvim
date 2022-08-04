@@ -5,6 +5,11 @@ and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
 directly from Neovim.
 
 ![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-plugin.gif)
+<sup>
+The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
+I recommend pairing this with [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.*` handlers.
+</sup>
 
 ## Usage
 
@@ -21,7 +26,7 @@ Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
 ```
 
 No other setup is required, however there are a few settings you can change if needed.
-See [Configuration](#configuration)
+See [Configuration](#configuration).
 
 ## Configuration
 
