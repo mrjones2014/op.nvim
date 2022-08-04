@@ -4,7 +4,7 @@
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
 directly from Neovim.
 
-![op.nvim demo gif](https://i.postimg.cc/MpbY5kwt/Clean-Shot-2022-08-04-at-15-22-25.gif)
+![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim.gif)
 
 ## Usage
 
