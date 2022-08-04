@@ -12,6 +12,7 @@ end
 
 function M.op_switch_account()
   local stdout, stderr = op.account.list({ '--format', 'json' })
+  print(vim.inspect(stdout), vim.inspect(stderr))
   if #stderr > 0 then
     msg.error(stderr[1])
   elseif #stdout > 0 then

@@ -45,15 +45,16 @@ local function build_cmd(full_cmd)
       vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(config.get_global_args()), args))
     table.insert(full_cmd_args, 1, config.op_cli_path)
 
-    local output = non_empty_values(vim.fn.systemlist(full_cmd_args))
-    local exit_code = vim.deepcopy(vim.v.shell_error or 0)
-    if exit_code ~= 0 then
-      -- non-zero exit code, return output in stderr position
-      return {}, output, exit_code
-    else
-      -- zero exit code, return output in stdout position
-      return output, {}, exit_code
+    local data = vim.fn.Opcmd(unpack(full_cmd_args))
+    local parsed_data = vim.json.decode(data)
+    local output_list = non_empty_values(vim.split(parsed_data.output, '\n'))
+    if parsed_data.return_code == 0 then
+      -- output in stdout position
+      return output_list, {}, data.return_code
     end
+
+    -- else, output in stderr position
+    return {}, output_list, data.return_code
   end
 end
 

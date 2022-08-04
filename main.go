@@ -3,6 +3,7 @@ package main
 import (
         "encoding/json"
         "os/exec"
+        "strings"
 	"github.com/neovim/go-client/nvim/plugin"
 )
 
@@ -13,9 +14,9 @@ type CliOutput struct {
 
 
 func opcmd(args []string) (string, error) {
-    cmd := exec.Command("op", args...)
+    cmd := exec.Command(args[0], args[1:]...)
     out, err := cmd.CombinedOutput()
-    if err != nil {
+    if err != nil && !strings.HasPrefix(err.Error(), "exit status") {
         return "", err
     }
 
