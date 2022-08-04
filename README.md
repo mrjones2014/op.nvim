@@ -55,3 +55,4 @@ require('op').setup({
 | `:OpCreate` | Create a new item using strings in the current buffer as fields |
 | `:OpOpen`   | Open an item in the 1Password 8 desktop app                     |
 | `:OpSignin` | Choose a 1Password account to sign in with                      |
+| `:OpWhoami` | Check which 1Password account you are currently signed in with  |
