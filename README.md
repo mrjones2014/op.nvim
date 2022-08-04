@@ -2,7 +2,7 @@
 
 1Password for Neovim! Create items using strings from the current buffer as fields,
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
-directly from Neovim.
+directly from Neovim. Works with biometric unlock!
 
 ![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-plugin.gif)
 <sup>
