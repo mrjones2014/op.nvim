@@ -17,7 +17,7 @@ type FieldPattern struct {
 var FIELD_PATTERNS = []FieldPattern{
 	/// Generic patterns
 	{
-		FieldTitle: "email",
+		FieldTitle: "username",
 		FieldType:  "email",
 		pattern:    regexp.MustCompile("[^\t\n\r \"'@]+@[^\t\n\r \"'@]+.[^\t\n\r \"'@]+"),
 	},
