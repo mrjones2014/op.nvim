@@ -46,7 +46,7 @@ require('op').setup({
     -- use the item cache
     '--cache',
     -- print output with no color, since we
-    -- are just binding it to Lua functions
+    -- aren't viewing the output directly anyway
     '--no-color',
   }
 })
