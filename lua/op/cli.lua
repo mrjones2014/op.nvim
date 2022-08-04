@@ -51,11 +51,11 @@ local function build_cmd(full_cmd)
     local output_list = non_empty_values(vim.split(parsed_data.output, '\n'))
     if parsed_data.return_code == 0 then
       -- output in stdout position
-      return output_list, {}, data.return_code
+      return output_list, {}, parsed_data.return_code
     end
 
     -- else, output in stderr position
-    return {}, output_list, data.return_code
+    return {}, output_list, parsed_data.return_code
   end
 end
 

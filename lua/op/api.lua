@@ -23,11 +23,12 @@ function M.op_signin()
       if not selected then
         return
       end
-      local signin_stdout, signin_stderr = op.signin({ '--account', selected.account_uuid })
+      local _, signin_stderr, error_code = op.signin({ '--account', selected.account_uuid })
+      print(error_code)
       if #signin_stderr > 0 then
         msg.error(signin_stderr[1])
-      elseif #signin_stdout > 0 then
-        msg.success(string.format('Switched to account %s', format_account(selected)))
+      elseif error_code == 0 then
+        msg.success(string.format('Signed in as %s', format_account(selected)))
       end
     end)
   end
@@ -39,7 +40,7 @@ function M.op_whoami()
     msg.error(stderr[1])
   elseif #stdout > 0 then
     local account = vim.json.decode(table.concat(stdout, ''))
-    msg.success(string.format('Signed in as %s', format_account(account)))
+    msg.success(string.format('Current 1Password account: %s', format_account(account)))
   end
 end
 
