@@ -2,12 +2,28 @@ local M = {}
 
 local utils = require('op.utils')
 
-local function build_query()
-  if vim.bo.filetype == 'go' then
-    return vim.treesitter.query.parse_query(vim.bo.filetype, [[(interpreted_string_literal) @strings]])
+local treesitter_string_nodes = {
+  go = 'interpreted_string_literal',
+  rust = 'string_literal',
+  swift = 'line_str_text',
+  dockerfile = { 'double_quoted_string', 'unquoted_string' },
+  dart = 'string_literal',
+  kotlin = 'line_string_literal',
+  java = 'string_literal',
+  zig = 'STRINGLITERALSINGLE',
+  default = 'string',
+}
+
+local function build_queries()
+  local node_name = treesitter_string_nodes[vim.bo.filetype] or treesitter_string_nodes.default
+
+  if type(node_name) == 'string' then
+    return { vim.treesitter.query.parse_query(vim.bo.filetype, string.format('(%s) @strings', node_name)) }
   end
 
-  return vim.treesitter.query.parse_query(vim.bo.filetype, [[(string) @strings]])
+  return vim.tbl_map(function(query)
+    return vim.treesitter.query.parse_query(vim.bo.filetype, string.format('(%s) @strings', query))
+  end, node_name)
 end
 
 local function extract_string_value(str)
@@ -45,17 +61,22 @@ local function extract_string_value(str)
   if utils.str_has_prefix(str, '"') and utils.str_has_suffix(str, '"') then
     return str:sub(2, -2)
   end
+
+  -- sometimes treesitter gives us the internal string value
+  return str
 end
 
 ---Get all strings in the current buffer
 function M.get_all_strings()
-  local query = build_query()
+  local queries = build_queries()
   local parser = vim.treesitter.get_parser(0)
   local ast = parser:parse()[1]
   local root = ast:root()
   local strings = {}
-  for _, node in query:iter_captures(root, 0) do
-    table.insert(strings, extract_string_value(vim.treesitter.query.get_node_text(node, 0)))
+  for _, query in pairs(queries) do
+    for _, node in query:iter_captures(root, 0) do
+      table.insert(strings, extract_string_value(vim.treesitter.query.get_node_text(node, 0)))
+    end
   end
 
   return utils.dedup_list(strings)
