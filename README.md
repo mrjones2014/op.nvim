@@ -11,13 +11,13 @@ directly from Neovim.
 `packer.nvim`
 
 ```lua
-use({ 'mrjones2014/op.nvim' })
+use({ 'mrjones2014/op.nvim', run = 'make install' })
 ```
 
 `vim-plug`
 
 ```VimL
-Plug 'mrjones2014/op.nvim'
+Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
 ```
 
 No other setup is required, however there are a few settings you can change if needed.
@@ -27,26 +27,16 @@ See [Configuration](#configuration)
 
 Configuration can be set by calling `require('op').setup(config_table)`.
 
-**The `require('op').setup()` function is idempotent** (i.e. can be called multiple times without side effects), so you can
-use it to change accounts by updating the value of the `account_uuid` configuration. Alternatively, you can use the
-`:OpSwitchAccount` command (which itself uses the `require('op').setup()` function).
+**The `require('op').setup()` function is idempotent** (i.e. can be called multiple times without side effects).
 
 ```lua
 require('op').setup({
   -- you can change this to a full path if `op`
   -- is not on your $PATH
   op_cli_path = 'op',
-  -- set an account UUID to use a specific account
-  -- can be changed by calling `require('op').setup()`
-  -- again passing a new value for `account_uuid`
-  account_uuid = nil,
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
-  -- `op --help` output. For `--account`,
-  -- it is recommended to use the
-  -- `config.account_uuid` config option
-  -- instead, as it can be more easily changed
-  -- if needed.
+  -- `op --help` output.
   global_args = {
     -- use the item cache
     '--cache',
@@ -59,9 +49,10 @@ require('op').setup({
 
 ## Commands
 
-| Command            | Description                                                     |
-| ------------------ | --------------------------------------------------------------- |
-| `:OpInsert`        | Insert an item reference at current cursor position             |
-| `:OpCreate`        | Create a new item using strings in the current buffer as fields |
-| `:OpOpen`          | Open an item in the 1Password 8 desktop app                     |
-| `:OpSwitchAccount` | Switch to a different 1Password account                         |
+| Command     | Description                                                     |
+| ----------- | --------------------------------------------------------------- |
+| `:OpInsert` | Insert an item reference at current cursor position             |
+| `:OpCreate` | Create a new item using strings in the current buffer as fields |
+| `:OpOpen`   | Open an item in the 1Password 8 desktop app                     |
+| `:OpSignin` | Choose a 1Password account to sign in with                      |
+| `:OpWhoami` | Check which 1Password account you are currently signed in with  |
