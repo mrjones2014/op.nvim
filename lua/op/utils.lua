@@ -114,6 +114,47 @@ local function select_fields_inner(items, fields, callback, used_items, done)
     return callback(fields)
   end
 
+  local function on_field_value_selected(selected)
+    if not selected then
+      return select_fields_inner(items, fields, callback, used_items, true)
+    end
+
+    table.insert(used_items, selected)
+
+    -- local field_type = opfields.detect_field_type(selected)
+    local designation = get_field_designation(selected)
+    local input_params = { prompt = 'What do you want to call this field?' }
+    if designation then
+      input_params.default = designation.field_title
+    end
+
+    vim.ui.input(input_params, function(input)
+      if not input or #input == 0 then
+        msg.error('Field name is required.')
+        -- insert invalid field
+        table.insert(fields, {})
+        return select_fields_inner(items, fields, callback, used_items, true)
+      end
+
+      local field = {
+        name = input,
+        value = selected,
+        designation = designation,
+      }
+      table.insert(fields, field)
+      select_fields_inner(items, fields, callback, used_items, false)
+    end)
+  end
+
+  -- failed to get strings with treesitter, use vim.ui.input() instead of vim.ui.select()
+  if not items then
+    vim.ui.input(
+      { prompt = 'Enter field value, or close this dialog to finish selecting fields' },
+      on_field_value_selected
+    )
+    return
+  end
+
   items = vim.tbl_filter(function(item)
     return item and #item > 0 and not vim.tbl_contains(used_items, item)
   end, items)
@@ -121,37 +162,7 @@ local function select_fields_inner(items, fields, callback, used_items, done)
   vim.ui.select(
     items,
     { prompt = 'Select field value, or close this dialog to finish selecting fields' },
-    function(selected)
-      if not selected then
-        return select_fields_inner(items, fields, callback, used_items, true)
-      end
-
-      table.insert(used_items, selected)
-
-      -- local field_type = opfields.detect_field_type(selected)
-      local designation = get_field_designation(selected)
-      local input_params = { prompt = 'What do you want to call this field?' }
-      if designation then
-        input_params.default = designation.field_title
-      end
-
-      vim.ui.input(input_params, function(input)
-        if not input or #input == 0 then
-          msg.error('Field name is required.')
-          -- insert invalid field
-          table.insert(fields, {})
-          return select_fields_inner(items, fields, callback, used_items, true)
-        end
-
-        local field = {
-          name = input,
-          value = selected,
-          designation = designation
-        }
-        table.insert(fields, field)
-        select_fields_inner(items, fields, callback, used_items, false)
-      end)
-    end
+    on_field_value_selected
   )
 end
 
@@ -184,7 +195,7 @@ function M.select_fields(items, callback)
 
     vim.ui.input({
       prompt = 'What do you want to call the 1Password item?',
-      default = suggested_title
+      default = suggested_title,
     }, function(item_title)
       if not item_title or #item_title == 0 then
         msg.error('Item title is required')
@@ -210,19 +221,18 @@ function M.with_account_uuid(callback)
         callback(account_uuid)
         return
       else
-        goto account_uuid_loop_continue
+        -- if arg right after --account is not a string,
+        -- get account via `op account get` and return
+        local stdout, stderr = op.account.get({ '--format', 'json' })
+        if #stderr > 0 then
+          msg.error(stderr[1])
+        elseif #stdout > 0 then
+          local account = vim.json.decode(table.concat(stdout, ''))
+          callback(account.id)
+        end
+        return -- IMPORTANT return here
       end
     end
-  end
-
-  ::account_uuid_loop_continue::
-
-  local stdout, stderr = op.account.get({ '--format', 'json' })
-  if #stderr > 0 then
-    msg.error(stderr[1])
-  elseif #stdout > 0 then
-    local account = vim.json.decode(table.concat(stdout, ''))
-    callback(account.id)
   end
 end
 

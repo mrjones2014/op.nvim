@@ -68,7 +68,11 @@ end
 
 ---Get all strings in the current buffer
 function M.get_all_strings()
-  local queries = build_queries()
+  local good_query, queries = pcall(build_queries)
+  if not good_query then
+    return nil
+  end
+
   local parser = vim.treesitter.get_parser(0)
   local ast = parser:parse()[1]
   local root = ast:root()
