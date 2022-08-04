@@ -24,7 +24,6 @@ function M.op_signin()
         return
       end
       local _, signin_stderr, error_code = op.signin({ '--account', selected.account_uuid })
-      print(error_code)
       if #signin_stderr > 0 then
         msg.error(signin_stderr[1])
       elseif error_code == 0 then
