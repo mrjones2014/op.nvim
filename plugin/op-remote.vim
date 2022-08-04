@@ -1,7 +1,8 @@
-if exists('g:loaded_hello')
+if exists('g:op_nvim_remote')
     finish
 endif
-let g:loaded_hello = 1
+
+let g:op_nvim_remote = 1
 
 function! s:RequireOp(host) abort
     return jobstart(['./op-nvim'], {'rpc': v:true})
