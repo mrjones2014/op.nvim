@@ -142,11 +142,6 @@ local function select_vault(callback)
 end
 
 function M.with_account_uuid(callback)
-  if config.account_uuid then
-    callback(config.account_uuid)
-    return
-  end
-
   local global_args = config.get_global_args() or {}
   for idx, arg in pairs(global_args) do
     if arg == '--account' then

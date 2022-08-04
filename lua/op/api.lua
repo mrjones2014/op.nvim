@@ -10,9 +10,8 @@ local function format_account(account)
   return string.format('%s (%s)', account.email, account.url)
 end
 
-function M.op_switch_account()
+function M.op_signin()
   local stdout, stderr = op.account.list({ '--format', 'json' })
-  print(vim.inspect(stdout), vim.inspect(stderr))
   if #stderr > 0 then
     msg.error(stderr[1])
   elseif #stdout > 0 then
@@ -24,9 +23,23 @@ function M.op_switch_account()
       if not selected then
         return
       end
-      require('op').setup({ account_uuid = selected.account_uuid })
-      msg.success(string.format('Switched to account %s', format_account(selected)))
+      local signin_stdout, signin_stderr = op.signin({ '--account', selected.account_uuid })
+      if #signin_stderr > 0 then
+        msg.error(signin_stderr[1])
+      elseif #signin_stdout > 0 then
+        msg.success(string.format('Switched to account %s', format_account(selected)))
+      end
     end)
+  end
+end
+
+function M.op_whoami()
+  local stdout, stderr = op.whoami({ '--format', 'json' })
+  if #stderr > 0 then
+    msg.error(stderr[1])
+  elseif #stdout > 0 then
+    local account = vim.json.decode(table.concat(stdout, ''))
+    msg.success(string.format('Signed in as %s', format_account(account)))
   end
 end
 

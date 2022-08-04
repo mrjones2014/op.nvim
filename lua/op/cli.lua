@@ -1,6 +1,8 @@
 local config = require('op.config')
 
 local OP_COMMANDS = {
+  'signin',
+  'whoami',
   account = {
     'add',
     'get',

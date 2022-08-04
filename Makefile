@@ -15,7 +15,7 @@ all: build-macos build-linux
 
 .PHONY: clean
 clean:
-	rm op-nvim-mac-universal op-nvim-mac-arm64 op-nvim-mac-arm64 op-nvim-linux
+	rm -f op-nvim-mac-universal op-nvim-mac-arm64 op-nvim-mac-arm64 op-nvim-linux bin/op-nvim
 
 .PHONY: install
 install:
