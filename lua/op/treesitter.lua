@@ -3,6 +3,10 @@ local M = {}
 local utils = require('op.utils')
 
 local function build_query()
+  if vim.bo.filetype == 'go' then
+    return vim.treesitter.query.parse_query(vim.bo.filetype, [[(interpreted_string_literal) @strings]])
+  end
+
   return vim.treesitter.query.parse_query(vim.bo.filetype, [[(string) @strings]])
 end
 
