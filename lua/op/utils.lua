@@ -52,7 +52,7 @@ local function collect_inputs(prompts, callback, outputs)
 end
 
 function M.format_item_for_select(item)
-  return string.format("'%s' in vault '%s' (UUID: %s)", item.title, item.vault.name, item.id)
+  return string.format("'%s' in vault '%s'", item.title, item.vault.name)
 end
 
 ---Get one input per prompt, then call the callback

@@ -116,9 +116,7 @@ function M.op_create()
       msg.error(stderr[1])
     elseif #stdout > 0 then
       local item = vim.json.decode(table.concat(stdout, ''))
-      msg.success(
-        string.format("Created 1Password login item '%s' in vault '%s' (UUID %s)", item.title, item.vault.name, item.id)
-      )
+      msg.success(string.format("Created 1Password login item '%s' in vault '%s'", item.title, item.vault.name))
     end
   end)
 end
