@@ -211,28 +211,50 @@ function M.select_fields(items, callback)
   end)
 end
 
+---Not full UUID validation but does
+---some quick checks for things that make
+---it definitely *not* a UUID such as
+---containing spaces or lowercase characters
+local function quick_uuid_check(uuid)
+  if
+    not uuid
+    or uuid:match('%s') -- spaces
+    or uuid:match('%x') -- hexadecimal digits (\3, \4, etc.)
+    or uuid:match('%l') -- lowercase letters
+    or uuid:match('%c') -- control chars (\n, \r, \t, etc)
+    or uuid:match('%p') -- punctuation characters
+    or uuid:match('=') -- equals sign for field assignment statements
+    or uuid:match('-') -- hyphens for --flags
+  then
+    return false
+  end
+
+  return true
+end
+
 function M.with_account_uuid(callback)
   local global_args = config.get_global_args() or {}
   for idx, arg in pairs(global_args) do
     if arg == '--account' then
       -- next arg should be the account UUID
       local account_uuid = global_args[idx + 1]
-      if type(account_uuid) == 'string' then
+      if type(account_uuid) == 'string' and quick_uuid_check(account_uuid) then
         callback(account_uuid)
         return
       else
-        -- if arg right after --account is not a string,
+        -- if arg right after --account is not a UUID string,
         -- get account via `op account get` and return
-        local stdout, stderr = op.account.get({ '--format', 'json' })
-        if #stderr > 0 then
-          msg.error(stderr[1])
-        elseif #stdout > 0 then
-          local account = vim.json.decode(table.concat(stdout, ''))
-          callback(account.id)
-        end
-        return -- IMPORTANT return here
+        break
       end
     end
+  end
+
+  local stdout, stderr = op.account.get({ '--format', 'json' })
+  if #stderr > 0 then
+    msg.error(stderr[1])
+  elseif #stdout > 0 then
+    local account = vim.json.decode(table.concat(stdout, ''))
+    callback(account.id)
   end
 end
 

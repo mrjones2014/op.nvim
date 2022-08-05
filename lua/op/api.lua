@@ -64,6 +64,11 @@ function M.op_open()
       end
 
       utils.with_account_uuid(function(account_uuid)
+        if not account_uuid then
+          msg.error('Failed to retrieve account UUID')
+          return
+        end
+
         local url = string.format('onepassword://view-item?a=%s&v=%s&i=%s', account_uuid, item.vault.id, item.id)
         utils.open_url(url)
       end)
