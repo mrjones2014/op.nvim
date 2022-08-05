@@ -55,7 +55,7 @@ func DesignateField(args []string) (*string, error) {
 		return nil, nil
 	}
 
-	result, jsonErr := json.Marshal(fieldDesignation)
+	result, jsonErr := json.Marshal(&fieldDesignation)
 	if jsonErr != nil {
 		return nil, jsonErr
 	}

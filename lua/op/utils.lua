@@ -94,7 +94,7 @@ end
 
 local function get_field_designation(value)
   local json, _ = vim.fn.OpDesignateField(value)
-  if json then
+  if json and json ~= vim.NIL then
     local result = vim.json.decode(json)
     if result == vim.NIL then
       return nil
