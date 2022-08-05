@@ -108,6 +108,7 @@ local function build_cmd(full_cmd)
 
     local data = vim.fn.OpCmd(unpack(full_cmd_args))
     local parsed_data = vim.json.decode(data)
+
     local output_list = non_empty_values(vim.split(parsed_data.output, '\n'))
     if parsed_data.return_code == 0 then
       -- output in stdout position

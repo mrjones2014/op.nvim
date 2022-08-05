@@ -3,13 +3,9 @@ local M = {}
 local op = require('op.api')
 local config = require('op.config')
 local msg = require('op.msg')
-local sl = require('op.statusline')
 
 local function with_item_overviews(callback)
   local stdout, stderr = op.item.list({ '--format', 'json' })
-
-  sl.update()
-
   if #stdout > 0 then
     callback(vim.json.decode(table.concat(stdout, '')))
   elseif #stderr > 0 then
@@ -79,9 +75,6 @@ end
 
 local function select_vault(callback)
   local stdout, stderr = op.vault.list({ '--format', 'json' })
-
-  sl.update(false)
-
   if #stdout > 0 then
     local vaults = vim.json.decode(table.concat(stdout, ''))
     local vault_names = vim.tbl_map(function(vault)

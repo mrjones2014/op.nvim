@@ -4,13 +4,11 @@ import (
 	"github.com/neovim/go-client/nvim/plugin"
 )
 
-type CliOutput struct {
-	Output     string `json:"output"`
-	ReturnCode int    `json:"return_code"`
-}
+var PluginInstance *plugin.Plugin
 
 func main() {
 	plugin.Main(func(p *plugin.Plugin) error {
+		PluginInstance = p
 		for _, handlerDef := range Handlers {
 			p.HandleFunction(handlerDef.Options, handlerDef.Handler)
 		}

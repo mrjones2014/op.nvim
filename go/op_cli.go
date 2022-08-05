@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+// Output and return code from CLI along with the return code
+type CliOutput struct {
+	Output     string `json:"output"`
+	ReturnCode int    `json:"return_code"`
+}
+
+type OpAccount struct {
+	Name string `json:"name"`
+}
+
 var opCliPath string = "op"
 var opCliPathValid = false
 
@@ -52,11 +62,16 @@ func OpCmd(args []string) (*string, error) {
 		return nil, err
 	}
 
+	outStr := string(out)
 	returnCode := cmd.ProcessState.ExitCode()
+
+	go UpdateStatusline(opCliPath, args, outStr, returnCode)
+
 	output := CliOutput{
-		Output:     string(out),
+		Output:     outStr,
 		ReturnCode: returnCode,
 	}
+
 	value, jsonErr := json.Marshal(output)
 	if jsonErr != nil {
 		return nil, jsonErr

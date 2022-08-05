@@ -1,37 +1,20 @@
 local M = {}
 
-M.account_name = nil
+local op_account_name = nil
+local initialized = false
 
-function M.update(account)
-  -- if explicitly given false, and we already
-  -- have an account name, it was an action that did
-  -- not switch accounts (i.e. getting an item, etc.)
-  -- so we don't need to waste time/resources updating
-  if account == false and M.account_name then
-    return
-  end
-
-  if account and account.name then
-    M.account_name = account.name
-    return
-  end
-
-  local stdout, stderr = require('op.api').account.get({ '--format', 'json' })
-  if #stderr > 0 or #stdout == 0 then
-    return
-  end
-
-  account = vim.json.decode(table.concat(stdout))
-  M.account_name = account.name
-end
-
-function M.signout()
-  M.account_name = nil
+function M.update(account_name)
+  op_account_name = account_name
 end
 
 function M.component()
-  if M.account_name then
-    return string.format(' 1Password: %s', M.account_name)
+  if not initialized then
+    vim.fn.OpEnableStatusline()
+    initialized = true
+  end
+
+  if op_account_name then
+    return string.format(' 1Password: %s', op_account_name)
   else
     return ' 1Password: No active session'
   end

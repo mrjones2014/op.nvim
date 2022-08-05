@@ -23,4 +23,8 @@ var Handlers = []HandlerDefinition{
 		Options: &plugin.FunctionOptions{Name: "OpDesignateField"},
 		Handler: OpDesignateField,
 	},
+	{
+		Options: &plugin.FunctionOptions{Name: "OpEnableStatusline"},
+		Handler: EnableStatusline,
+	},
 }

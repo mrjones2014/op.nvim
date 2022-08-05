@@ -4,7 +4,6 @@ local op = require('op.api')
 local utils = require('op.utils')
 local ts = require('op.treesitter')
 local msg = require('op.msg')
-local sl = require('op.statusline')
 local cfg = require('op.config')
 
 function M.setup(user_config)
@@ -51,7 +50,6 @@ function M.op_signout()
     msg.error(stderr[1])
   else
     msg.success('1Password CLI signed out.')
-    sl.signout()
   end
 end
 
@@ -79,7 +77,6 @@ function M.op_signin()
         local account = get_account(selected.account_uuid)
         if account then
           msg.success(string.format('Signed into %s', format_account(account)))
-          sl.update(account)
         end
       end
     end)
@@ -102,7 +99,6 @@ function M.op_whoami()
     local account_info = vim.json.decode(table.concat(stdout, ''))
     local account_details = get_account(account_info.account_uuid)
     if account_details then
-      sl.update(account_details)
       msg.success(string.format('Current 1Password account: %s', format_account(account_details)))
     end
   end
@@ -113,8 +109,6 @@ function M.op_open()
   if #stderr > 0 then
     msg.error(stderr[1])
   elseif #stdout > 0 then
-    -- at this point we've authenticated so we can update statusline
-    sl.update(false)
     local items = vim.json.decode(table.concat(stdout, ''))
     vim.ui.select(items, {
       prompt = 'Select 1Password item',
