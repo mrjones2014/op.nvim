@@ -20,6 +20,10 @@ vim.api.nvim_create_user_command('OpSignin', function()
   require('op.api').op_signin()
 end, { desc = 'Choose a 1Password account to sign in with' })
 
+vim.api.nvim_create_user_command('OpSignout', function()
+  require('op.api').op_signout()
+end, { desc = 'Sign out of 1Password CLI' })
+
 vim.api.nvim_create_user_command('OpWhoami', function()
   require('op.api').op_whoami()
 end, { desc = 'Check what 1Password account you are currently signed in with' })

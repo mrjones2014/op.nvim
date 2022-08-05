@@ -2,6 +2,7 @@ local config = require('op.config')
 
 local OP_COMMANDS = {
   'signin',
+  'signout',
   'whoami',
   account = {
     'add',

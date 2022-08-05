@@ -29,6 +29,16 @@ function M.op_designate_field(value)
   return designation
 end
 
+function M.op_signout()
+  local _, stderr = op.signout()
+  if #stderr > 0 then
+    msg.error(stderr[1])
+  else
+    msg.success('1Password CLI signed out.')
+    sl.signout()
+  end
+end
+
 function M.op_signin()
   local stdout, stderr = op.account.list({ '--format', 'json' })
   if #stderr > 0 then

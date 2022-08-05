@@ -27,6 +27,10 @@ function M.update(account)
   end)
 end
 
+function M.signout()
+  M.account_name = nil
+end
+
 function M.component()
   if M.account_name then
     return string.format(' 1Password: %s', M.account_name)
