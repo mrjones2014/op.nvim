@@ -54,7 +54,12 @@ require('op').setup({
     -- print output with no color, since we
     -- aren't viewing the output directly anyway
     '--no-color',
-  }
+  },
+  -- Update the statusline component on startup.
+  -- Note that if you have biometric authentication
+  -- enabled, this will prompt you for authentication
+  -- and start a session on setup.
+  update_statusline_on_start = false,
 })
 ```
 
@@ -82,8 +87,8 @@ require('op').setup({
 ### Statusline
 
 `op.nvim` provides a statusline component as a function that returns a string.
-The statusline component shows either " 1Password: No active session" when you do not
-have an active 1Password CLI session, or " 1Password: Account Name" after you've started
+The statusline component shows either "1Password: No active session" when you do not
+have an active 1Password CLI session, or "1Password: Account Name" after you've started
 a session. See screenshots below.
 
 ![statusline when not signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-statusline-not-signed-in.png)
