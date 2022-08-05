@@ -2,6 +2,7 @@ local M = {}
 
 local config = {
   op_cli_path = 'op',
+  biometric_unlock = true,
   global_args = {
     '--cache',
     '--no-color',
@@ -14,7 +15,7 @@ function M.setup(user_config)
   config = vim.tbl_extend('force', config, user_config)
 
   -- only update in remote plugin if not default
-  if M.op_cli_path ~= 'op' then
+  if config.op_cli_path ~= 'op' then
     vim.fn.OpSetup(M.op_cli_path)
   end
 end

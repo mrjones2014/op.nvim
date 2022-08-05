@@ -16,15 +16,13 @@ function M.update(account)
     return
   end
 
-  vim.schedule_wrap(function()
-    local stdout, stderr = require('op.cli').accout.get({ '--format', 'json' })
-    if #stderr > 0 or #stdout == 0 then
-      return
-    end
+  local stdout, stderr = require('op.cli').account.get({ '--format', 'json' })
+  if #stderr > 0 or #stdout == 0 then
+    return
+  end
 
-    account = vim.json.decode(table.concat(stdout))
-    M.account_name = account.name
-  end)
+  account = vim.json.decode(table.concat(stdout))
+  M.account_name = account.name
 end
 
 function M.signout()

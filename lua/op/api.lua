@@ -5,6 +5,7 @@ local utils = require('op.utils')
 local ts = require('op.treesitter')
 local msg = require('op.msg')
 local sl = require('op.statusline')
+local cfg = require('op.config')
 
 local function format_account(account)
   if account.name then
@@ -40,6 +41,10 @@ function M.op_signout()
 end
 
 function M.op_signin()
+  if not cfg.get_config_immutable().biometric_unlock then
+    return M.op_whoami()
+  end
+
   local stdout, stderr = op.account.list({ '--format', 'json' })
   if #stderr > 0 then
     msg.error(stderr[1])
@@ -69,6 +74,14 @@ end
 function M.op_whoami()
   local stdout, stderr = op.whoami({ '--format', 'json' })
   if #stderr > 0 then
+    -- if using token based auth, give a custom error message
+    if not cfg.get_config_immutable().biometric_unlock then
+      msg.error(
+        '[ERROR] When using token based sessions, you must run `eval $(op signin)` *before* launching Neovim in order for op.nvim to be able to use the session.'
+      )
+      return
+    end
+
     msg.error(stderr[1])
   elseif #stdout > 0 then
     local account_info = vim.json.decode(table.concat(stdout, ''))

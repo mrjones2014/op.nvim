@@ -1,8 +1,8 @@
-if exists('g:op_nvim_remote')
+if exists('g:op_nvim_remote_loaded')
     finish
 endif
 
-let g:op_nvim_remote = 1
+let g:op_nvim_remote_loaded = v:true
 
 let s:path = expand('<sfile>:p:h')
 
@@ -17,3 +17,5 @@ call remote#host#RegisterPlugin('op', '0', [
 \ {'type': 'function', 'name': 'OpDesignateField', 'sync': 1, 'opts': {}},
 \ {'type': 'function', 'name': 'OpSetup', 'sync': 1, 'opts': {}},
 \ ])
+
+doautocmd User OpNvimRemoteLoaded

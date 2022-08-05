@@ -7,15 +7,26 @@ directly from Neovim. Works with biometric unlock!
 ![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-plugin.gif)
 <sup>
 The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
-I recommend pairing this with [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.*` handlers.
 </sup>
 
 <hr>
 
-Jump to: [Install](#install), [Configuration](#configuration), [Commands](#commands), [Features](#features)
+Jump to: [Prerequisites](#prerequisites), [Install](#install), [Configuration](#configuration), [Commands](#commands), [Features](#features)
 
 <hr>
+
+## Prerequisites
+
+**Required:**
+
+- [1Password CLI v2](https://developer.1password.com/docs/cli/) installed
+
+**Optional, but recommended:**
+
+- [Biometric unlock for CLI](https://developer.1password.com/docs/cli/get-started#turn-on-biometric-unlock) enabled (see [Using Token-Based Sessions](#using-token-based-sessions) if you do not use biometric unlock for CLI)
+- A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` &mdash; I recommend [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) paired with [dressing.nvim](https://github.com/stevearc/dressing.nvim)
 
 ## Install
 
@@ -60,8 +71,20 @@ require('op').setup({
   -- enabled, this will prompt you for authentication
   -- and start a session on setup.
   update_statusline_on_start = false,
+  -- Use biometric unlock by default,
+  -- set this to false and also see
+  -- "Using Token-Based Sessions" section
+  -- of README.md if you don't use biometric
+  -- unlock for CLI.
+  biometric_unlock = true,
 })
 ```
+
+### Using Token-Based Sessions
+
+If you do not use biometric unlock for the 1Password CLI, you can use token-based sessions.
+**You must run `eval $(op signin)` _before_ launching Neovim** in order for `op.nvim` to be
+able to access the session. You also **must** configure `op.nvim` with `biometric_unlock = false`.
 
 ## Commands
 
