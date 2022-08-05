@@ -146,9 +146,6 @@ function M.op_create()
       return
     end
 
-    -- at this point we've authenticated so we can update statusline
-    sl.update(false)
-
     local field_cli_args = vim.tbl_map(function(field)
       if field.designation then
         return string.format('%s[%s]=%s', field.name, field.designation.field_type, field.value)
@@ -195,9 +192,6 @@ end
 M.op_insert_reference = utils.with_inputs(
   { { 'Select 1Password item', find = true }, 'Enter item field name' },
   function(item_name, field_name)
-    -- update statusline
-    sl.update(false)
-
     local stdout, stderr =
       op.item.get({ item_name, '--fields', string.format('label=%s', field_name), '--format', 'json' })
     if #stdout > 0 then
