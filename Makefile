@@ -1,4 +1,4 @@
-default: all
+default: build-and-install
 
 .PHONY: build-macos
 build-macos: clean
@@ -22,3 +22,6 @@ install:
 	mkdir -p bin
 	if [[ "$$OSTYPE" == "linux-gnu"* ]]; then cp ./bin/op-nvim-linux ./bin/op-nivm; elif [[ "$$OSTYPE" == "darwin"* ]]; then cp ./bin/op-nvim-mac-universal ./bin/op-nvim; fi
 	chmod +x ./bin/op-nvim
+
+.PHONY: build-and-install
+build-and-install: all install
