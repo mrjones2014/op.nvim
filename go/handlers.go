@@ -9,6 +9,7 @@ import (
 )
 
 var opCliPath string = "op"
+var opCliPathValid = false
 
 func validateOnlyOne(args []string) (*string, error) {
 	arglen := len(args)
@@ -24,6 +25,24 @@ func validateOnlyOne(args []string) (*string, error) {
 }
 
 func OpCmd(args []string) (*string, error) {
+	if !opCliPathValid {
+		if err := exec.Command(opCliPath, "--version").Run(); err != nil {
+			output := CliOutput{
+				Output:     fmt.Sprintf("[ERROR] Configured 1Password CLI path (\"%s\") is not executable!", opCliPath),
+				ReturnCode: 1,
+			}
+			jsonBytes, err := json.Marshal(output)
+			if err != nil {
+				return nil, err
+			}
+
+			json := string(jsonBytes)
+			return &json, nil
+		} else {
+			opCliPathValid = true
+		}
+	}
+
 	cmd := exec.Command(opCliPath, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil && !strings.HasPrefix(err.Error(), "exit status") {
@@ -32,7 +51,7 @@ func OpCmd(args []string) (*string, error) {
 
 	returnCode := cmd.ProcessState.ExitCode()
 	output := CliOutput{
-		Outupt:     string(out),
+		Output:     string(out),
 		ReturnCode: returnCode,
 	}
 	value, jsonErr := json.Marshal(output)
@@ -66,6 +85,9 @@ func Setup(args []string) (*string, error) {
 		return nil, validationErr
 	}
 
-	opCliPath = *arg
+	if *arg != opCliPath {
+		opCliPath = *arg
+		opCliPathValid = false // revalidate on next call
+	}
 	return &opCliPath, nil
 }

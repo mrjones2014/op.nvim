@@ -5,7 +5,7 @@ import (
 )
 
 type CliOutput struct {
-	Outupt     string `json:"output"`
+	Output     string `json:"output"`
 	ReturnCode int    `json:"return_code"`
 }
 
