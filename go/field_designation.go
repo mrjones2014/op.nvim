@@ -216,12 +216,12 @@ var FIELD_PATTERNS = []FieldPattern{
 	},
 }
 
-func GetFieldDesignation(value string) (*FieldPattern, error) {
+func GetFieldDesignation(value string) *FieldPattern {
 	for _, fieldPattern := range FIELD_PATTERNS {
 		if fieldPattern.Pattern.MatchString(value) {
-			return &fieldPattern, nil
+			return &fieldPattern
 		}
 	}
 
-	return nil, errors.New("None found")
+	return nil
 }
