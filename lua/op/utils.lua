@@ -1,6 +1,6 @@
 local M = {}
 
-local op = require('op.cli')
+local op = require('op.api')
 local config = require('op.config')
 local msg = require('op.msg')
 

@@ -13,7 +13,7 @@ and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.
 
 <hr>
 
-Jump to: [Prerequisites](#prerequisites), [Install](#install), [Configuration](#configuration), [Commands](#commands), [Features](#features)
+Jump to: [Prerequisites](#prerequisites), [Install](#install), [Configuration](#configuration), [Commands](#commands), [Features](#features), [API](#api)
 
 <hr>
 
@@ -118,3 +118,111 @@ a session. See screenshots below.
 ![statusline when not signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-statusline-not-signed-in.png)
 
 ![statusline when signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-statusline-signed-in.png)
+
+## API
+
+Part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
+is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.
+The only exception is that `op events-api` is reformatted as `op.eventsApi`, for obvious reasons. Each command is accessed
+as a function that takes the command flags and arguments as a list. The functions all return three values, which are
+the `STDOUT` as a list of lines, `STDERR` as a list of lines, and the exit code as a number.
+Some examples are below:
+
+```lua
+local op = require('op.api')
+local stdout, stderr, exit_code = op.signin()
+local stdout, stderr, exit_code = op.account.get({ '--format', 'json' })
+local stdout, stderr, exit_code = op.item.list({ '--format', 'json' })
+local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
+local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
+```
+
+The full table schema is below:
+
+```lua
+{
+  account = {
+    add = function(args),
+    forget = function(args),
+    get = function(args),
+    list = function(args)
+  },
+  connect = {
+    group = {
+      grant = function(args),
+      revoke = function(args)
+    },
+    server = {
+      create = function(args),
+      delete = function(args),
+      edit = function(args),
+      get = function(args),
+      list = function(args)
+    },
+    token = {
+      create = function(args),
+      delete = function(args),
+      edit = function(args),
+      list = function(args)
+    },
+    vault = {
+      grant = function(args),
+      revoke = function(args)
+    }
+  },
+  document = {
+    create = function(args),
+    delete = function(args),
+    edit = function(args),
+    get = function(args),
+    list = function(args)
+  },
+  eventsApi = {
+    create = function(args)
+  },
+  group = {
+    create = function(args),
+    delete = function(args),
+    edit = function(args),
+    get = function(args),
+    list = function(args),
+    user = {
+      grant = function(args),
+      list = function(args),
+      revoke = function(args)
+    }
+  },
+  inject = function(args),
+  item = {
+    create = function(args),
+    delete = function(args),
+    edit = function(args),
+    get = function(args),
+    list = function(args),
+    share = function(args)
+  },
+  read = function(args),
+  run = function(args),
+  signin = function(args),
+  signout = function(args),
+  update = function(args),
+  user = {
+    confirm = function(args),
+    delete = function(args),
+    edit = function(args),
+    get = function(args),
+    list = function(args),
+    provision = function(args),
+    reactivate = function(args),
+    suspend = function(args)
+  },
+  vault = {
+    create = function(args),
+    delete = function(args),
+    edit = function(args),
+    get = function(args),
+    list = function(args)
+  },
+  whoami = function(args)
+}
+```

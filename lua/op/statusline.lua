@@ -16,7 +16,7 @@ function M.update(account)
     return
   end
 
-  local stdout, stderr = require('op.cli').account.get({ '--format', 'json' })
+  local stdout, stderr = require('op.api').account.get({ '--format', 'json' })
   if #stderr > 0 or #stdout == 0 then
     return
   end
