@@ -105,7 +105,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - Infer default field and item names based on field value patterns
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
-- Switch between multiple 1Password accounts
+- Switch between multiple 1Password accounts (only works with biometric unlock enabled)
 - Statusline component (See [Statusline](#statusline))
 
 ### Statusline
