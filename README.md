@@ -25,6 +25,7 @@ Jump to: [Prerequisites](#prerequisites), [Install](#install), [Configuration](#
 
 **Optional, but recommended:**
 
+- [1Password 8 desktop app](https://1password.com/downloads/) (required to use biometric unlock for CLI)
 - [Biometric unlock for CLI](https://developer.1password.com/docs/cli/get-started#turn-on-biometric-unlock) enabled (see [Using Token-Based Sessions](#using-token-based-sessions) if you do not use biometric unlock for CLI)
 - A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` &mdash; I recommend [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) paired with [dressing.nvim](https://github.com/stevearc/dressing.nvim)
 
@@ -111,9 +112,9 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 ### Statusline
 
 `op.nvim` provides a statusline component as a function that returns a string.
-The statusline component shows either "1Password: No active session" when you do not
-have an active 1Password CLI session, or "1Password: Account Name" after you've started
-a session. See screenshots below.
+The statusline component updates asynchronously using [goroutines](https://go.dev/tour/concurrency/1),
+and will either show "1Password: No active session" when you do not have an active 1Password CLI
+session, or "1Password: Account Name" after you've started a session. See screenshots below.
 
 ![statusline when not signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-statusline-not-signed-in.png)
 
