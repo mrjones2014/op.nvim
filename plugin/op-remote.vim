@@ -13,7 +13,7 @@ endfunction
 call remote#host#Register('op', 'x', function('s:RequireOp'))
 
 call remote#host#RegisterPlugin('op', '0', [
+\ {'type': 'function', 'name': 'OpCmd', 'sync': 1, 'opts': {}},
 \ {'type': 'function', 'name': 'OpDesignateField', 'sync': 1, 'opts': {}},
 \ {'type': 'function', 'name': 'OpSetup', 'sync': 1, 'opts': {}},
-\ {'type': 'function', 'name': 'Opcmd', 'sync': 1, 'opts': {}},
 \ ])

@@ -47,7 +47,7 @@ local function build_cmd(full_cmd)
     local full_cmd_args =
       vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(config.get_global_args()), args))
 
-    local data = vim.fn.Opcmd(unpack(full_cmd_args))
+    local data = vim.fn.OpCmd(unpack(full_cmd_args))
     local parsed_data = vim.json.decode(data)
     local output_list = non_empty_values(vim.split(parsed_data.output, '\n'))
     if parsed_data.return_code == 0 then
