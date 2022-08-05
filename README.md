@@ -4,7 +4,7 @@
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
 directly from Neovim. Works with biometric unlock!
 
-![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-plugin.gif)
+![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-plugin.gif) \
 <sup>
 The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
 I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
