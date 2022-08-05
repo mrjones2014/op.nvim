@@ -1,9 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"regexp"
 )
 
+// Data for predicting field and item titles,
+// based on matching the field values with regular
+// expressions. Provides a field type and title,
+// and optionally an item title.
 type FieldPattern struct {
 	ItemTitle  string         `json:"item_title"`
 	FieldTitle string         `json:"field_title"`
@@ -13,7 +18,7 @@ type FieldPattern struct {
 
 // ref: https://github.com/vietjovi/secret-detection/
 // ref: https://github.com/Skyscanner/whispers
-var FIELD_PATTERNS = []FieldPattern{
+var fieldPatterns = []FieldPattern{
 	/// Generic patterns
 	{
 		FieldTitle: "username",
@@ -215,12 +220,30 @@ var FIELD_PATTERNS = []FieldPattern{
 	},
 }
 
-func GetFieldDesignation(value string) *FieldPattern {
-	for _, fieldPattern := range FIELD_PATTERNS {
+func getFieldDesignation(value string) *FieldPattern {
+	for _, fieldPattern := range fieldPatterns {
 		if fieldPattern.Pattern.MatchString(value) {
 			return &fieldPattern
 		}
 	}
 
 	return nil
+}
+
+// Given a field value, compute the field designation,
+// if any. Returns a FieldPattern serialized to a JSON string.
+func OpDesignateField(args []string) (*string, error) {
+	arg, validationErr := ValidateOnlyOneArg(args)
+	if validationErr != nil {
+		return nil, validationErr
+	}
+
+	fieldDesignation := getFieldDesignation(*arg)
+	result, jsonErr := json.Marshal(&fieldDesignation)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	json := string(result)
+	return &json, nil
 }

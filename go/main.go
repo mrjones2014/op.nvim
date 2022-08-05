@@ -11,9 +11,9 @@ type CliOutput struct {
 
 func main() {
 	plugin.Main(func(p *plugin.Plugin) error {
-		p.HandleFunction(&plugin.FunctionOptions{Name: "OpCmd"}, OpCmd)
-		p.HandleFunction(&plugin.FunctionOptions{Name: "OpSetup"}, Setup)
-		p.HandleFunction(&plugin.FunctionOptions{Name: "OpDesignateField"}, DesignateField)
+		for _, handlerDef := range Handlers {
+			p.HandleFunction(handlerDef.Options, handlerDef.Handler)
+		}
 		return nil
 	})
 }
