@@ -4,9 +4,24 @@ local op = require('op.cli')
 local utils = require('op.utils')
 local ts = require('op.treesitter')
 local msg = require('op.msg')
+local sl = require('op.statusline')
 
 local function format_account(account)
+  if account.name then
+    return account.name
+  end
+
   return string.format('%s (%s)', account.email, account.url)
+end
+
+local function get_account(uuid)
+  local stdout, stderr = op.account.get({ '--format', 'json', '--account', uuid })
+  if #stderr > 0 then
+    msg.error(stderr[1])
+  elseif #stdout > 0 then
+    local account = vim.json.decode(table.concat(stdout, ''))
+    return account
+  end
 end
 
 function M.op_designate_field(value)
@@ -31,7 +46,11 @@ function M.op_signin()
       if #signin_stderr > 0 then
         msg.error(signin_stderr[1])
       elseif error_code == 0 then
-        msg.success(string.format('Signed in as %s', format_account(selected)))
+        local account = get_account(selected.account_uuid)
+        if account then
+          msg.success(string.format('Signed into %s', format_account(account)))
+          sl.update(account)
+        end
       end
     end)
   end
@@ -42,8 +61,12 @@ function M.op_whoami()
   if #stderr > 0 then
     msg.error(stderr[1])
   elseif #stdout > 0 then
-    local account = vim.json.decode(table.concat(stdout, ''))
-    msg.success(string.format('Current 1Password account: %s', format_account(account)))
+    local account_info = vim.json.decode(table.concat(stdout, ''))
+    local account_details = get_account(account_info.account_uuid)
+    if account_details then
+      sl.update(account_details)
+      msg.success(string.format('Current 1Password account: %s', format_account(account_details)))
+    end
   end
 end
 
@@ -52,6 +75,8 @@ function M.op_open()
   if #stderr > 0 then
     msg.error(stderr[1])
   elseif #stdout > 0 then
+    -- at this point we've authenticated so we can update statusline
+    sl.update(false)
     local items = vim.json.decode(table.concat(stdout, ''))
     vim.ui.select(items, {
       prompt = 'Select 1Password item',
@@ -82,6 +107,9 @@ function M.op_create()
     if not fields or #fields == 0 then
       return
     end
+
+    -- at this point we've authenticated so we can update statusline
+    sl.update(false)
 
     local field_cli_args = vim.tbl_map(function(field)
       if field.designation then
@@ -129,6 +157,9 @@ end
 M.op_insert_reference = utils.with_inputs(
   { { 'Select 1Password item', find = true }, 'Enter item field name' },
   function(item_name, field_name)
+    -- update statusline
+    sl.update(false)
+
     local stdout, stderr =
       op.item.get({ item_name, '--fields', string.format('label=%s', field_name), '--format', 'json' })
     if #stdout > 0 then

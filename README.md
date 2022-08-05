@@ -77,3 +77,15 @@ require('op').setup({
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
 - Switch between multiple 1Password accounts
+- Statusline component (See (Statusline)[#statusline])
+
+### Statusline
+
+`op.nvim` provides a statusline component as a function that returns a string.
+The statusline component shows either " 1Password: No active session" when you do not
+have an active 1Password CLI session, or " 1Password: Account Name" after you've started
+a session. See screenshots below.
+
+![statusline when not signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-statusline-not-signed-in.png)
+
+![statusline when signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-statusline-signed-in.png)
