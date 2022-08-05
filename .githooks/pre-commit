@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
 
-make
-git add -A
+pushd "$(git rev-parse --show-toplevel)" >/dev/null 2>&1 || exit 1
+
+for file in $(git diff HEAD --name-only); do
+  if [[ "$file" = "go/"* ]]; then
+    make
+    git add -A
+    popd >/dev/null 2>&1 || exit 1
+    exit 0
+  fi
+done
+
+popd >/dev/null 2>&1 || exit 1
