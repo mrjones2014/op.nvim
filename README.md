@@ -82,7 +82,7 @@ require('op').setup({
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
 - Switch between multiple 1Password accounts
-- Statusline component (See (Statusline)[#statusline])
+- Statusline component (See [Statusline](#statusline))
 
 ### Statusline
 
