@@ -42,8 +42,8 @@ use({ 'mrjones2014/op.nvim', run = 'make install' })
 Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
 ```
 
-No other setup is required, however there are a few settings you can change if needed.
-See [Configuration](#configuration).
+No other setup is required if using biometric unlock for the 1Password CLI,
+however there are a few settings you can change if needed. See [Configuration](#configuration).
 
 ## Configuration
 
