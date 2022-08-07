@@ -135,6 +135,8 @@ local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--featu
 local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
 ```
 
+If you implement a cool feature using the API, please consider contributing it to this plugin in a PR!
+
 The full table schema is below:
 
 ```lua
