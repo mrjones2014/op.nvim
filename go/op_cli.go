@@ -22,16 +22,17 @@ var opCliPathValid = false
 
 // Set the path to the 1Password CLI.
 // Returns the configured path.
-func OpSetup(args []string) {
-	if len(args) != 1 {
-		return
+func OpSetup(args []string) (*string, error) {
+	arg, validationErr := ValidateOnlyOneArg(args)
+	if validationErr != nil {
+		return nil, validationErr
 	}
 
-	arg := args[0]
-	if arg != opCliPath {
-		opCliPath = arg
+	if *arg != opCliPath {
+		opCliPath = *arg
 		opCliPathValid = false // revalidate on next call
 	}
+	return &opCliPath, nil
 }
 
 // Execute a subcommand of the 1Password CLI.
