@@ -57,6 +57,8 @@ require('op').setup({
   -- you can change this to a full path if `op`
   -- is not on your $PATH
   op_cli_path = 'op',
+  -- Whether to sign in on start.
+  signin_on_start = false,
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
   -- `op --help` output.
@@ -67,11 +69,6 @@ require('op').setup({
     -- aren't viewing the output directly anyway
     '--no-color',
   },
-  -- Update the statusline component on startup.
-  -- Note that if you have biometric authentication
-  -- enabled, this will prompt you for authentication
-  -- and start a session on setup.
-  update_statusline_on_start = false,
   -- Use biometric unlock by default,
   -- set this to false and also see
   -- "Using Token-Based Sessions" section

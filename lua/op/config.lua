@@ -3,11 +3,11 @@ local M = {}
 local config = {
   op_cli_path = 'op',
   biometric_unlock = true,
+  signin_on_start = false,
   global_args = {
     '--cache',
     '--no-color',
   },
-  update_statusline_on_start = false,
 }
 
 function M.setup(user_config)
