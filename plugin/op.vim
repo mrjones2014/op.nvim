@@ -19,7 +19,7 @@ call remote#host#RegisterPlugin('op-nvim', '0', [
 \ {'type': 'function', 'name': 'OpCmd', 'sync': 1, 'opts': {}},
 \ {'type': 'function', 'name': 'OpDesignateField', 'sync': 1, 'opts': {}},
 \ {'type': 'function', 'name': 'OpEnableStatusline', 'sync': 0, 'opts': {}},
-\ {'type': 'function', 'name': 'OpSetup', 'sync': 1, 'opts': {}},
+\ {'type': 'function', 'name': 'OpSetup', 'sync': 0, 'opts': {}},
 \ ])
 
 let g:op_nvim_remote_loaded = v:true

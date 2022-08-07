@@ -10,13 +10,29 @@ local config = {
   },
 }
 
+local function handle_setup()
+  if config.signin_on_start == true then
+    require('op').op_signin()
+  end
+
+  -- only update in remote plugin if not default
+  if config.op_cli_path ~= 'op' then
+    vim.fn.OpSetup(config.op_cli_path)
+  end
+end
+
 function M.setup(user_config)
   user_config = user_config or {}
   config = vim.tbl_extend('force', config, user_config)
 
-  -- only update in remote plugin if not default
-  if config.op_cli_path ~= 'op' then
-    vim.fn.OpSetup(M.op_cli_path)
+  if vim.g.op_nvim_remote_loaded then
+    handle_setup()
+  else
+    vim.api.nvim_create_autocmd('User', {
+      group = vim.api.nvim_create_augroup('OpNvimInit', { clear = true }),
+      pattern = 'OpNvimRemoteLoaded',
+      callback = handle_setup,
+    })
   end
 end
 

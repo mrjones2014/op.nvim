@@ -8,17 +8,6 @@ local cfg = require('op.config')
 
 function M.setup(user_config)
   cfg.setup(user_config)
-  if cfg.get_config_immutable().signin_on_start == true then
-    if vim.g.op_nvim_remote_loaded then
-      require('op').op_signin()
-    else
-      vim.api.nvim_create_autocmd('User', {
-        group = vim.api.nvim_create_augroup('OpNvimInit', { clear = true }),
-        pattern = 'OpNvimRemoteLoaded',
-        callback = require('op').op_signin,
-      })
-    end
-  end
 end
 
 local function format_account(account)

@@ -29,7 +29,7 @@ func getAccountName() *string {
 	return &account.Name
 }
 
-func EnableStatusline() {
+func OpEnableStatusline() {
 	statuslineEnabled = true
 }
 

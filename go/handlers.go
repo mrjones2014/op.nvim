@@ -25,6 +25,6 @@ var Handlers = []HandlerDefinition{
 	},
 	{
 		Options: &plugin.FunctionOptions{Name: "OpEnableStatusline"},
-		Handler: EnableStatusline,
+		Handler: OpEnableStatusline,
 	},
 }
