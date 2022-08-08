@@ -86,14 +86,14 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 
 ## Commands
 
-| Command      | Description                                                     |
-| ------------ | --------------------------------------------------------------- |
-| `:OpInsert`  | Insert an item reference at current cursor position             |
-| `:OpCreate`  | Create a new item using strings in the current buffer as fields |
-| `:OpOpen`    | Open an item in the 1Password 8 desktop app                     |
-| `:OpSignin`  | Choose a 1Password account to sign in with                      |
-| `:OpSignout` | Sign out of 1Password CLI                                       |
-| `:OpWhoami`  | Check which 1Password account you are currently signed in with  |
+| Command      | Description                                                     | Accepts Argument (Optional)                                                                                                                   |
+| ------------ | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `:OpSignin`  | Choose a 1Password account to sign in with                      | Account shorthand (usually the first part of the signin address, e.g. "my.1password.com" -> "my"), signin address, account UUID, or user UUID |
+| `:OpSignout` | Sign out of 1Password CLI                                       | None                                                                                                                                          |
+| `:OpWhoami`  | Check which 1Password account you are currently signed in with  | None                                                                                                                                          |
+| `:OpInsert`  | Insert an item reference at current cursor position             | None                                                                                                                                          |
+| `:OpCreate`  | Create a new item using strings in the current buffer as fields | None                                                                                                                                          |
+| `:OpOpen`    | Open an item in the 1Password 8 desktop app                     | None                                                                                                                                          |
 
 ## Features
 
@@ -193,36 +193,4 @@ The full table schema is below:
     }
   },
   inject = function(args),
-  item = {
-    create = function(args),
-    delete = function(args),
-    edit = function(args),
-    get = function(args),
-    list = function(args),
-    share = function(args)
-  },
-  read = function(args),
-  run = function(args),
-  signin = function(args),
-  signout = function(args),
-  update = function(args),
-  user = {
-    confirm = function(args),
-    delete = function(args),
-    edit = function(args),
-    get = function(args),
-    list = function(args),
-    provision = function(args),
-    reactivate = function(args),
-    suspend = function(args)
-  },
-  vault = {
-    create = function(args),
-    delete = function(args),
-    edit = function(args),
-    get = function(args),
-    list = function(args)
-  },
-  whoami = function(args)
-}
 ```

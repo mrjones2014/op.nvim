@@ -42,9 +42,26 @@ function M.op_signout()
   end
 end
 
-function M.op_signin()
+function M.op_signin(account_identifier)
   if not cfg.get_config_immutable().biometric_unlock then
     return M.op_whoami()
+  end
+
+  local function signin(account)
+    local _, signin_stderr, error_code = op.signin({ '--account', account })
+    if #signin_stderr > 0 then
+      msg.error(signin_stderr[1])
+    elseif error_code == 0 then
+      local account_details = get_account(account)
+      if account_details then
+        msg.success(string.format('Signed into %s', format_account(account_details)))
+      end
+    end
+  end
+
+  if account_identifier and type(account_identifier) == 'string' and #account_identifier > 0 then
+    signin(account_identifier)
+    return
   end
 
   local stdout, stderr = op.account.list({ '--format', 'json' })
@@ -59,15 +76,8 @@ function M.op_signin()
       if not selected then
         return
       end
-      local _, signin_stderr, error_code = op.signin({ '--account', selected.account_uuid })
-      if #signin_stderr > 0 then
-        msg.error(signin_stderr[1])
-      elseif error_code == 0 then
-        local account = get_account(selected.account_uuid)
-        if account then
-          msg.success(string.format('Signed into %s', format_account(account)))
-        end
-      end
+
+      signin(selected.account_uuid)
     end)
   end
 end
