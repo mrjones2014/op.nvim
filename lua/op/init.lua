@@ -69,6 +69,16 @@ function M.op_signin(account_identifier)
     msg.error(stderr[1])
   elseif #stdout > 0 then
     local accounts = vim.json.decode(table.concat(stdout, ''))
+    if #accounts == 0 then
+      msg.error('[ERROR] No accounts found for 1Password CLI')
+      return
+    end
+
+    if #accounts == 1 then
+      signin(accounts[1].account_uuid)
+      return
+    end
+
     vim.ui.select(accounts, {
       prompt = 'Select 1Password account',
       format_item = format_account,
