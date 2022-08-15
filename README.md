@@ -193,4 +193,5 @@ The full table schema is below:
     }
   },
   inject = function(args),
+}
 ```
