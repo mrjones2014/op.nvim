@@ -39,6 +39,7 @@ function M.op_signout()
     msg.error(stderr[1])
   else
     msg.success('1Password CLI signed out.')
+    require('op.statusline').update()
   end
 end
 
