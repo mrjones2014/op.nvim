@@ -1,4 +1,12 @@
+<div align="center">
+
 # op.nvim
+
+![Neovim version](https://img.shields.io/badge/Neovim-0.5-brightgreen?logo=neovim) ![1Password CLI V2](https://img.shields.io/badge/1Password%20CLI-V2-blue?logo=1password) [![GitHub license](https://img.shields.io/github/license/mrjones2014/op.nvim)](https://github.com/mrjones2014/op.nvim/blob/master/LICENSE)
+
+[Prerequisites](#prerequisites) • [Install](#install) • [Configuration](#configuration) • [Commands](#commands) • [Features](#features), [API](#api)
+
+</div>
 
 1Password for Neovim! Create items using strings from the current buffer as fields,
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
@@ -10,12 +18,6 @@ The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
 I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.*` handlers.
 </sup>
-
-<hr>
-
-Jump to: [Prerequisites](#prerequisites), [Install](#install), [Configuration](#configuration), [Commands](#commands), [Features](#features), [API](#api)
-
-<hr>
 
 ## Prerequisites
 
