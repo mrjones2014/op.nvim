@@ -1,4 +1,12 @@
+<div align="center">
+
 # op.nvim
+
+![Neovim version](https://img.shields.io/badge/Neovim-0.5-brightgreen?logo=neovim) ![1Password CLI V2](https://img.shields.io/badge/1Password%20CLI-V2-blue?logo=1password) [![GitHub license](https://img.shields.io/github/license/mrjones2014/op.nvim)](https://github.com/mrjones2014/op.nvim/blob/master/LICENSE)
+
+[Prerequisites](#prerequisites) • [Install](#install) • [Configuration](#configuration) • [Commands](#commands) • [Features](#features) • [API](#api)
+
+</div>
 
 1Password for Neovim! Create items using strings from the current buffer as fields,
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
@@ -10,12 +18,6 @@ The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
 I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.*` handlers.
 </sup>
-
-<hr>
-
-Jump to: [Prerequisites](#prerequisites), [Install](#install), [Configuration](#configuration), [Commands](#commands), [Features](#features), [API](#api)
-
-<hr>
 
 ## Prerequisites
 
@@ -137,60 +139,5 @@ local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--va
 
 If you implement a cool feature using the API, please consider contributing it to this plugin in a PR!
 
-The full table schema is below:
-
-```lua
-{
-  account = {
-    add = function(args),
-    forget = function(args),
-    get = function(args),
-    list = function(args)
-  },
-  connect = {
-    group = {
-      grant = function(args),
-      revoke = function(args)
-    },
-    server = {
-      create = function(args),
-      delete = function(args),
-      edit = function(args),
-      get = function(args),
-      list = function(args)
-    },
-    token = {
-      create = function(args),
-      delete = function(args),
-      edit = function(args),
-      list = function(args)
-    },
-    vault = {
-      grant = function(args),
-      revoke = function(args)
-    }
-  },
-  document = {
-    create = function(args),
-    delete = function(args),
-    edit = function(args),
-    get = function(args),
-    list = function(args)
-  },
-  eventsApi = {
-    create = function(args)
-  },
-  group = {
-    create = function(args),
-    delete = function(args),
-    edit = function(args),
-    get = function(args),
-    list = function(args),
-    user = {
-      grant = function(args),
-      list = function(args),
-      revoke = function(args)
-    }
-  },
-  inject = function(args),
-```
+See [lua/op/types.lua](./lua/op/types.lua) for type annotations describing the `require('op.api')` table. This file
+should also provide type information and completions when using `lua-language-server`.

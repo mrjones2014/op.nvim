@@ -99,7 +99,8 @@ function M.op_whoami()
     -- if using token based auth, give a custom error message
     if not cfg.get_config_immutable().biometric_unlock then
       msg.error(
-        '[ERROR] When using token based sessions, you must run `eval $(op signin)` *before* launching Neovim in order for op.nvim to be able to use the session.'
+        '[ERROR] When using token based sessions, you must run `eval $(op signin)` *before* launching Neovim'
+          .. ' in order for op.nvim to be able to use the session.'
       )
       return
     end
