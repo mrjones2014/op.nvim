@@ -96,14 +96,12 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 
 ## Commands
 
-| Command      | Description                                                     | Accepts Argument (Optional)                                                                                                                   |
-| ------------ | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `:OpSignin`  | Choose a 1Password account to sign in with                      | Account shorthand (usually the first part of the signin address, e.g. "my.1password.com" -> "my"), signin address, account UUID, or user UUID |
-| `:OpSignout` | Sign out of 1Password CLI                                       | None                                                                                                                                          |
-| `:OpWhoami`  | Check which 1Password account you are currently signed in with  | None                                                                                                                                          |
-| `:OpInsert`  | Insert an item reference at current cursor position             | None                                                                                                                                          |
-| `:OpCreate`  | Create a new item using strings in the current buffer as fields | None                                                                                                                                          |
-| `:OpOpen`    | Open an item in the 1Password 8 desktop app                     | None                                                                                                                                          |
+- `:OpSignin` - Choose a 1Password account to sign in with. Accepts account shorthand, signin address, account UUID, or user UUID as an optional argument
+- `:OpSignout` - End your current 1Password CLI session.
+- `:OpWhoami` - Check which 1Password account your current CLI session is using.
+- `:OpInsert` - Insert an item reference at current cursor position.
+- `:OpCreate` - Create a new item using strings in the current buffer as fields.
+- `:OpOpen` - Open an item in the 1Password 8 desktop app.
 
 ## Features
 
