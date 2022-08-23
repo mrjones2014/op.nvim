@@ -2,9 +2,13 @@
 
 # op.nvim
 
+<!-- panvimdoc-ignore-start -->
+
 ![Neovim version](https://img.shields.io/badge/Neovim-0.5-brightgreen?logo=neovim) ![1Password CLI V2](https://img.shields.io/badge/1Password%20CLI-V2-blue?logo=1password) [![GitHub license](https://img.shields.io/github/license/mrjones2014/op.nvim)](https://github.com/mrjones2014/op.nvim/blob/master/LICENSE)
 
 [Prerequisites](#prerequisites) • [Install](#install) • [Configuration](#configuration) • [Commands](#commands) • [Features](#features) • [API](#api)
+
+<!-- panvimdoc-ignore-end -->
 
 </div>
 
@@ -12,12 +16,16 @@
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
 directly from Neovim. Works with biometric unlock!
 
+<!-- panvimdoc-ignore-start -->
+
 ![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-plugin-v2.gif) \
 <sup>
 The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
 I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.*` handlers.
 </sup>
+
+<!-- panvimdoc-ignore-end -->
 
 ## Prerequisites
 
@@ -113,11 +121,17 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 `op.nvim` provides a statusline component as a function that returns a string.
 The statusline component updates asynchronously using [goroutines](https://go.dev/tour/concurrency/1),
 and will either show "1Password: No active session" when you do not have an active 1Password CLI
-session, or "1Password: Account Name" after you've started a session. See screenshots below.
+session, or "1Password: Account Name" after you've started a session.
+
+<!-- panvimdoc-ignore-start -->
+
+See screenshots below.
 
 ![statusline when not signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-statusline-not-signed-in.png)
 
 ![statusline when signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-statusline-signed-in.png)
+
+<!-- panvimdoc-ignore-end -->
 
 ## API
 
