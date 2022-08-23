@@ -100,31 +100,13 @@ Neovim** in order for `op.nvim` to be able to access the session. You also
 
 COMMANDS                                                         *op-commands*
 
-│Comm│     Description     │           Accepts Argument (Optional)           │
-│and │                     │                                                 │
-│:OpS│Choose a 1Password ac│Account shorthand (usually the first part of the │
-│igni│count to sign in with│signin address, e.g. "my.1password.com" -> "my")│
-│n   │                     │, signin address, account UUID, or user UUID     │
-│    │                     │                                                 │
-│:OpS│Sign out of 1Password│None                                             │
-│igno│ CLI                 │                                                 │
-│ut  │                     │                                                 │
-│    │                     │                                                 │
-│:OpW│Check which 1Password│None                                             │
-│hoam│ account you are curr│                                                 │
-│i   │ently signed in with │                                                 │
-│    │                     │                                                 │
-│:OpI│Insert an item refere│None                                             │
-│nser│nce at current cursor│                                                 │
-│t   │ position            │                                                 │
-│    │                     │                                                 │
-│:OpC│Create a new item usi│None                                             │
-│reat│ng strings in the cur│                                                 │
-│e   │rent buffer as fields│                                                 │
-│    │                     │                                                 │
-│:OpO│Open an item in the 1│None                                             │
-│pen │Password 8 desktop ap│                                                 │
-│    │p                    │                                                 │
+
+- `:OpSignin` - Choose a 1Password account to sign in with. Accepts account shorthand, signin address, account UUID, or user UUID as an optional argument
+- `:OpSignout` - End your current 1Password CLI session.
+- `:OpWhoami` - Check which 1Password account your current CLI session is using.
+- `:OpInsert` - Insert an item reference at current cursor position.
+- `:OpCreate` - Create a new item using strings in the current buffer as fields.
+- `:OpOpen` - Open an item in the 1Password 8 desktop app.
 
 
 FEATURES                                                         *op-features*
