@@ -96,7 +96,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 
 ## Commands
 
-- `:OpSignin` - Choose a 1Password account to sign in with. Accepts account shorthand, signin address, account UUID, or user UUID as an optional argument
+- `:OpSignin` - Choose a 1Password account to sign in with. Accepts account shorthand, signin address, account UUID, or user UUID as an optional argument.
 - `:OpSignout` - End your current 1Password CLI session.
 - `:OpWhoami` - Check which 1Password account your current CLI session is using.
 - `:OpInsert` - Insert an item reference at current cursor position.
