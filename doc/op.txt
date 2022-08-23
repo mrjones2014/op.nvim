@@ -1,0 +1,181 @@
+*op.txt*                                                  1Password for Neovim
+
+==============================================================================
+Table of Contents                                       *op-table-of-contents*
+
+1. op.nvim                                                        |op-op.nvim|
+  - Prerequisites                                           |op-prerequisites|
+  - Install                                                       |op-install|
+  - Configuration                                           |op-configuration|
+  - Commands                                                     |op-commands|
+  - Features                                                     |op-features|
+  - API                                                               |op-api|
+
+==============================================================================
+1. op.nvim                                                        *op-op.nvim*
+
+
+
+1Password for Neovim! Create items using strings from the current buffer as
+fields, and insert item reference URIs
+(e.g. `op://vault-name/item-name/field-name`) directly from Neovim. Works with
+biometric unlock!
+
+PREREQUISITES                                               *op-prerequisites*
+
+**Required:**
+
+
+- 1Password CLI v2 <https://developer.1password.com/docs/cli/> installed
+
+
+**Optional, but recommended:**
+
+
+- 1Password 8 desktop app <https://1password.com/downloads/> (required to use biometric unlock for CLI)
+- Biometric unlock for CLI <https://developer.1password.com/docs/cli/get-started#turn-on-biometric-unlock> enabled (see |op-using-token-based-sessions| if you do not use biometric unlock for CLI)
+- A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` — I recommend telescope.nvim <https://github.com/nvim-telescope/telescope.nvim> paired with dressing.nvim <https://github.com/stevearc/dressing.nvim>
+
+
+INSTALL                                                           *op-install*
+
+`packer.nvim`
+
+>
+    use({ 'mrjones2014/op.nvim', run = 'make install' })
+<
+
+
+`vim-plug`
+
+>
+    Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
+<
+
+
+No other setup is required if using biometric unlock for the 1Password CLI,
+however there are a few settings you can change if needed. See
+|op-configuration|.
+
+CONFIGURATION                                               *op-configuration*
+
+Configuration can be set by calling `require('op').setup(config_table)`.
+
+**The `require('op').setup()` function is idempotent** (i.e. can be called
+multiple times without side effects).
+
+>
+    require('op').setup({
+      -- you can change this to a full path if `op`
+      -- is not on your $PATH
+      op_cli_path = 'op',
+      -- Whether to sign in on start.
+      signin_on_start = false,
+      -- global_args accepts any arguments
+      -- listed under "Global Flags" in
+      -- `op --help` output.
+      global_args = {
+        -- use the item cache
+        '--cache',
+        -- print output with no color, since we
+        -- aren't viewing the output directly anyway
+        '--no-color',
+      },
+      -- Use biometric unlock by default,
+      -- set this to false and also see
+      -- "Using Token-Based Sessions" section
+      -- of README.md if you don't use biometric
+      -- unlock for CLI.
+      biometric_unlock = true,
+    })
+<
+
+
+USING TOKEN-BASED SESSIONS ~
+
+If you do not use biometric unlock for the 1Password CLI, you can use
+token-based sessions. **You must run `eval $(op signin)` _before_ launching
+Neovim** in order for `op.nvim` to be able to access the session. You also
+**must** configure `op.nvim` with `biometric_unlock = false`.
+
+COMMANDS                                                         *op-commands*
+
+│Comm│     Description     │           Accepts Argument (Optional)           │
+│and │                     │                                                 │
+│:OpS│Choose a 1Password ac│Account shorthand (usually the first part of the │
+│igni│count to sign in with│signin address, e.g. "my.1password.com" -> "my")│
+│n   │                     │, signin address, account UUID, or user UUID     │
+│    │                     │                                                 │
+│:OpS│Sign out of 1Password│None                                             │
+│igno│ CLI                 │                                                 │
+│ut  │                     │                                                 │
+│    │                     │                                                 │
+│:OpW│Check which 1Password│None                                             │
+│hoam│ account you are curr│                                                 │
+│i   │ently signed in with │                                                 │
+│    │                     │                                                 │
+│:OpI│Insert an item refere│None                                             │
+│nser│nce at current cursor│                                                 │
+│t   │ position            │                                                 │
+│    │                     │                                                 │
+│:OpC│Create a new item usi│None                                             │
+│reat│ng strings in the cur│                                                 │
+│e   │rent buffer as fields│                                                 │
+│    │                     │                                                 │
+│:OpO│Open an item in the 1│None                                             │
+│pen │Password 8 desktop ap│                                                 │
+│    │p                    │                                                 │
+
+
+FEATURES                                                         *op-features*
+
+
+- Biometric unlock! Unlock 1Password with fingerprint or Apple watch from within Neovim
+- Create items from strings in the current buffer
+    - If the Treesitter query fails or there’s no Treesitter parser for the current filetype, fallback to manual value input (if a Treesitter parser exists, please open an issue or PR so we can get the right query added!)
+- Infer default field and item names based on field value patterns
+- Open an item in the 1Password 8 desktop app
+- Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
+- Switch between multiple 1Password accounts (only works with biometric unlock enabled)
+- Statusline component (See |op-statusline|)
+
+
+STATUSLINE ~
+
+`op.nvim` provides a statusline component as a function that returns a string.
+The statusline component updates asynchronously using goroutines
+<https://go.dev/tour/concurrency/1>, and will either show "1Password: No active
+session" when you do not have an active 1Password CLI session, or "1Password:
+Account Name" after you’ve started a session.
+
+API                                                                   *op-api*
+
+Part of `op.nvim`’s design includes complete bindings to the CLI that you can
+use for scripting with Lua. This API is available in the `op.api` module. This
+module returns a table that matches the hierarchy of the 1Password CLI
+commands. The only exception is that `op events-api` is reformatted as
+`op.eventsApi`, for obvious reasons. Each command is accessed as a function
+that takes the command flags and arguments as a list. The functions all return
+three values, which are the `STDOUT` as a list of lines, `STDERR` as a list of
+lines, and the exit code as a number. Some examples are below:
+
+>
+    local op = require('op.api')
+    local stdout, stderr, exit_code = op.signin()
+    local stdout, stderr, exit_code = op.account.get({ '--format', 'json' })
+    local stdout, stderr, exit_code = op.item.list({ '--format', 'json' })
+    local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
+    local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
+<
+
+
+If you implement a cool feature using the API, please consider contributing it
+to this plugin in a PR!
+
+See lua/op/types.lua <./lua/op/types.lua> for type annotations describing the
+`require('op.api')` table. This file should also provide type information and
+completions when using `lua-language-server`.
+
+Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
+
+vim:tw=78:ts=8:noet:ft=help:norl:
