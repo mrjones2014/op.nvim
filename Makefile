@@ -17,6 +17,10 @@ all: build-macos build-linux
 clean:
 	rm -f ./bin/op-nvim-mac-universal ./bin/op-nvim-mac-arm64 ./bin/op-nvim-mac-arm64 ./bin/op-nvim-linux ./bin/op-nvim
 
+.PHONY: test
+test:
+	@cd go && go test && cd ..
+
 .PHONY: update-remote-plugin-manifest
 update-remote-plugin-manifest: all install
 	./bin/op-nvim --manifest op-nvim --location ./plugin/op.vim
