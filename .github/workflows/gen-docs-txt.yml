@@ -7,7 +7,7 @@ jobs:
     name: Autogenerate doc/op.txt
     runs-on: ubuntu-latest
     permissions:
-      contentx: write
+      content: write
       pull-requests: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
