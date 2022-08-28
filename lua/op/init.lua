@@ -1,10 +1,11 @@
 local M = {}
 
-local op = require('op.api')
-local utils = require('op.utils')
-local ts = require('op.treesitter')
-local msg = require('op.msg')
-local cfg = require('op.config')
+local lazyrequire = require('op.lazyrequire').require_on_index
+local op = lazyrequire('op.api')
+local utils = lazyrequire('op.utils')
+local ts = lazyrequire('op.treesitter')
+local msg = lazyrequire('op.msg')
+local cfg = lazyrequire('op.config')
 
 function M.setup(user_config)
   cfg.setup(user_config)
