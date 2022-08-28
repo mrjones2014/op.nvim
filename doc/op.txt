@@ -37,6 +37,12 @@ PREREQUISITES                                               *op-prerequisites*
 - A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` — I recommend telescope.nvim <https://github.com/nvim-telescope/telescope.nvim> paired with dressing.nvim <https://github.com/stevearc/dressing.nvim>
 
 
+WINDOWS SUPPORT ~
+
+This plugin does not currently support Windows. I don’t use Windows so I
+can’t test on Windows. However, I would happily accept Pull Requests adding
+Windows support, with a commitment to ongoing maintenance from the PR author.
+
 INSTALL                                                           *op-install*
 
 `packer.nvim`
