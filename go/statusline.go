@@ -48,7 +48,7 @@ func UpdateStatusline(opCliPath string, lastCmd []string, lastCmdOutput string, 
 
 	// if it's not a command that switches accounts, and we've already got
 	// the account name, no need to update it
-	if lastCmd[0] != "signin" && opAccountNameUpdatedAtLeastOnce {
+	if lastCmd[0] != "signin" && lastCmd[0] != "signout" && opAccountNameUpdatedAtLeastOnce {
 		return
 	}
 
