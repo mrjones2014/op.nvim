@@ -31,5 +31,5 @@ vim.api.nvim_create_user_command('OpWhoami', function()
 end, { desc = 'Check what 1Password account you are currently signed in with' })
 
 vim.api.nvim_create_user_command('OpNote', function()
-  require('op.securenotes').find_secure_note()
+  require('op.securenotes').open_secure_note()
 end, { desc = 'Find and open a 1Password Secure Note' })

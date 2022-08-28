@@ -1,7 +1,11 @@
 local M = {}
 
 local lazyrequire = require('op.lazyrequire').require_on_index
-local utils = lazyrequire('op.utils')
+-- aliasing require like this keeps type intelligence
+-- and LSP go-to-definition etc. working
+local require = lazyrequire
+
+local utils = require('op.utils')
 
 local treesitter_string_nodes = {
   go = 'interpreted_string_literal',

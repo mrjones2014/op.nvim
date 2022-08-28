@@ -1,13 +1,15 @@
 local M = {}
 
 local lazyrequire = require('op.lazyrequire').require_on_index
+-- aliasing require like this keeps type intelligence
+-- and LSP go-to-definition etc. working
+local require = lazyrequire
+
 ---@type Api
-local op = lazyrequire('op.api')
-local msg = lazyrequire('op.msg')
----@type Session
-local session = lazyrequire('op.securenotes.session')
----@type Config
-local config = lazyrequire('op.config')
+local op = require('op.api')
+local msg = require('op.msg')
+local session = require('op.securenotes.session')
+local config = require('op.config')
 
 local function with_note(uuid, vault_uuid, callback)
   op.item.get({ async = true, uuid, '--vault', vault_uuid, '--format', 'json' }, function(stdout, stderr)
@@ -50,6 +52,11 @@ local function note_contents(note)
   return vim.split(normalized, '\n')
 end
 
+function M.save_secure_note(buf_id)
+  -- TODO
+  msg.error("require('op.securenotes).save_secure_note not implemented yet!")
+end
+
 function M.load_secure_note(uuid, vault_uuid)
   local win_id = vim.api.nvim_get_current_win()
   with_note(uuid, vault_uuid, function(note)
@@ -74,7 +81,7 @@ function M.load_secure_note(uuid, vault_uuid)
   end)
 end
 
-function M.find_secure_note()
+function M.open_secure_note()
   local stdout, stderr = op.item.list({ '--categories="Secure Note"', '--format', 'json' })
   if #stderr > 0 then
     msg.error(stderr[1])

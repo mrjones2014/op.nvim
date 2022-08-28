@@ -1,12 +1,16 @@
 local M = {}
 
 local lazyrequire = require('op.lazyrequire').require_on_index
+-- aliasing require like this keeps type intelligence
+-- and LSP go-to-definition etc. working
+local require = lazyrequire
 ---@type Api
 local op = lazyrequire('op.api')
 local utils = lazyrequire('op.utils')
 local ts = lazyrequire('op.treesitter')
 local msg = lazyrequire('op.msg')
 local cfg = lazyrequire('op.config')
+local securenotes = require('op.securenotes')
 
 function M.setup(user_config)
   cfg.setup(user_config)
@@ -237,5 +241,9 @@ M.op_insert_reference = utils.with_inputs(
     end
   end
 )
+
+function M.op_note()
+  securenotes.open_secure_note()
+end
 
 return M

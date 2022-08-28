@@ -1,6 +1,3 @@
----@class Session
----@field new fun(buf_id:number, note:table)
----@field get_for_buf_id fun(buf_id:number):table
 local M = {}
 
 ---Map buf_id={ note_uuid, vault_uuid }
