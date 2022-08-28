@@ -1,6 +1,7 @@
 local M = {}
 
-local utils = require('op.utils')
+local lazyrequire = require('op.lazyrequire').require_on_index
+local utils = lazyrequire('op.utils')
 
 local treesitter_string_nodes = {
   go = 'interpreted_string_literal',

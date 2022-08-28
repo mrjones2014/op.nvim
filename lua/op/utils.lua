@@ -1,8 +1,9 @@
 local M = {}
 
-local op = require('op.api')
-local config = require('op.config')
-local msg = require('op.msg')
+local lazyrequire = require('op.lazyrequire').require_on_index
+local op = lazyrequire('op.api')
+local config = lazyrequire('op.config')
+local msg = lazyrequire('op.msg')
 
 local function with_item_overviews(callback)
   local stdout, stderr = op.item.list({ '--format', 'json' })
