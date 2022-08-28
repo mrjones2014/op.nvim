@@ -249,13 +249,14 @@ function M.with_account_uuid(callback)
     end
   end
 
-  local stdout, stderr = op.account.get({ '--format', 'json' })
-  if #stderr > 0 then
-    msg.error(stderr[1])
-  elseif #stdout > 0 then
-    local account = vim.json.decode(table.concat(stdout, ''))
-    callback(account.id)
-  end
+  op.account.get({ async = true, '--format', 'json' }, function(stdout, stderr)
+    if #stderr > 0 then
+      msg.error(stderr[1])
+    elseif #stdout > 0 then
+      local account = vim.json.decode(table.concat(stdout, ''))
+      callback(account.id)
+    end
+  end)
 end
 
 ---Takes in the stderr output that happens when
@@ -335,6 +336,20 @@ function M.open_url(url)
   end
 
   vim.fn.jobstart({ cmd, url }, { detach = true })
+end
+
+local random_seeded = false
+function M.uuid()
+  if not random_seeded then
+    math.randomseed(os.time())
+    random_seeded = true
+  end
+
+  local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+  return string.gsub(template, '[xy]', function(c)
+    local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+    return string.format('%x', v)
+  end)
 end
 
 return M

@@ -17,6 +17,7 @@ call remote#host#Register('op-nvim', 'x', function('s:RequireOp'))
 
 call remote#host#RegisterPlugin('op-nvim', '0', [
 \ {'type': 'function', 'name': 'OpCmd', 'sync': 1, 'opts': {}},
+\ {'type': 'function', 'name': 'OpCmdAsync', 'sync': 1, 'opts': {}},
 \ {'type': 'function', 'name': 'OpDesignateField', 'sync': 1, 'opts': {}},
 \ {'type': 'function', 'name': 'OpEnableStatusline', 'sync': 0, 'opts': {}},
 \ {'type': 'function', 'name': 'OpSetup', 'sync': 1, 'opts': {}},

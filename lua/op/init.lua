@@ -34,13 +34,14 @@ function M.op_designate_field(value)
 end
 
 function M.op_signout()
-  local _, stderr = op.signout()
-  if #stderr > 0 then
-    msg.error(stderr[1])
-  else
-    msg.success('1Password CLI signed out.')
-    require('op.statusline').update()
-  end
+  op.signout({ async = true }, function(_, stderr)
+    if #stderr > 0 then
+      msg.error(stderr[1])
+    else
+      msg.success('1Password CLI signed out.')
+      require('op.statusline').update()
+    end
+  end)
 end
 
 function M.op_signin(account_identifier)
@@ -49,15 +50,16 @@ function M.op_signin(account_identifier)
   end
 
   local function signin(account)
-    local _, signin_stderr, error_code = op.signin({ '--account', account })
-    if #signin_stderr > 0 then
-      msg.error(signin_stderr[1])
-    elseif error_code == 0 then
-      local account_details = get_account(account)
-      if account_details then
-        msg.success(string.format('Signed into %s', format_account(account_details)))
+    op.signin({ async = true, '--account', account }, function(_, signin_stderr, error_code)
+      if #signin_stderr > 0 then
+        msg.error(signin_stderr[1])
+      elseif error_code == 0 then
+        local account_details = get_account(account)
+        if account_details then
+          msg.success(string.format('Signed into %s', format_account(account_details)))
+        end
       end
-    end
+    end)
   end
 
   if account_identifier and type(account_identifier) == 'string' and #account_identifier > 0 then
@@ -94,25 +96,26 @@ function M.op_signin(account_identifier)
 end
 
 function M.op_whoami()
-  local stdout, stderr = op.whoami({ '--format', 'json' })
-  if #stderr > 0 then
-    -- if using token based auth, give a custom error message
-    if not cfg.get_config_immutable().biometric_unlock then
-      msg.error(
-        '[ERROR] When using token based sessions, you must run `eval $(op signin)` *before* launching Neovim'
-          .. ' in order for op.nvim to be able to use the session.'
-      )
-      return
-    end
+  op.whoami({ async = true, '--format', 'json' }, function(stdout, stderr)
+    if #stderr > 0 then
+      -- if using token based auth, give a custom error message
+      if not cfg.get_config_immutable().biometric_unlock then
+        msg.error(
+          '[ERROR] When using token based sessions, you must run `eval $(op signin)` *before* launching Neovim'
+            .. ' in order for op.nvim to be able to use the session.'
+        )
+        return
+      end
 
-    msg.error(stderr[1])
-  elseif #stdout > 0 then
-    local account_info = vim.json.decode(table.concat(stdout, ''))
-    local account_details = get_account(account_info.account_uuid)
-    if account_details then
-      msg.success(string.format('Current 1Password account: %s', format_account(account_details)))
+      msg.error(stderr[1])
+    elseif #stdout > 0 then
+      local account_info = vim.json.decode(table.concat(stdout, ''))
+      local account_details = get_account(account_info.account_uuid)
+      if account_details then
+        msg.success(string.format('Current 1Password account: %s', format_account(account_details)))
+      end
     end
-  end
+  end)
 end
 
 function M.op_open()
@@ -184,13 +187,15 @@ function M.op_create()
     end
 
     vim.list_extend(args, field_cli_args)
-    local stdout, stderr = op.item.create(args)
-    if #stderr > 0 then
-      msg.error(stderr[1])
-    elseif #stdout > 0 then
-      local item = vim.json.decode(table.concat(stdout, ''))
-      msg.success(string.format("Created 1Password login item '%s' in vault '%s'", item.title, item.vault.name))
-    end
+    args.async = true
+    op.item.create(args, function(stdout, stderr)
+      if #stderr > 0 then
+        msg.error(stderr[1])
+      elseif #stdout > 0 then
+        local item = vim.json.decode(table.concat(stdout, ''))
+        msg.success(string.format("Created 1Password login item '%s' in vault '%s'", item.title, item.vault.name))
+      end
+    end)
   end)
 end
 
