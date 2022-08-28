@@ -4,7 +4,7 @@
 
 <!-- panvimdoc-ignore-start -->
 
-![Neovim version](https://img.shields.io/badge/Neovim-0.5-brightgreen?logo=neovim) ![1Password CLI V2](https://img.shields.io/badge/1Password%20CLI-V2-blue?logo=1password) [![GitHub license](https://img.shields.io/github/license/mrjones2014/op.nvim)](https://github.com/mrjones2014/op.nvim/blob/master/LICENSE)
+![Neovim version](https://img.shields.io/badge/Neovim-0.6-brightgreen?logo=neovim) ![1Password CLI V2](https://img.shields.io/badge/1Password%20CLI-V2-blue?logo=1password) [![GitHub license](https://img.shields.io/github/license/mrjones2014/op.nvim)](https://github.com/mrjones2014/op.nvim/blob/master/LICENSE)
 
 [Prerequisites](#prerequisites) • [Install](#install) • [Configuration](#configuration) • [Commands](#commands) • [Features](#features) • [API](#api)
 
@@ -38,6 +38,12 @@ and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.
 - [1Password 8 desktop app](https://1password.com/downloads/) (required to use biometric unlock for CLI)
 - [Biometric unlock for CLI](https://developer.1password.com/docs/cli/get-started#turn-on-biometric-unlock) enabled (see [Using Token-Based Sessions](#using-token-based-sessions) if you do not use biometric unlock for CLI)
 - A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` &mdash; I recommend [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) paired with [dressing.nvim](https://github.com/stevearc/dressing.nvim)
+
+### Windows Support
+
+This plugin does not currently support Windows. I don't use Windows so I can't test on Windows.
+However, I would happily accept Pull Requests adding Windows support, with a commitment to
+ongoing maintenance from the PR author.
 
 ## Install
 

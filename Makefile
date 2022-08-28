@@ -1,5 +1,9 @@
 default: build-and-install
 
+.PHONY: setup-hooks
+setup-hooks:
+	git config core.hooksPath .githooks/
+
 .PHONY: build-macos
 build-macos: clean
 	cd go && GOOS=darwin GOARCH=amd64 go build -o ../bin/op-nvim-mac-amd64 && GOOS=darwin GOARCH=arm64 go build -o ../bin/op-nvim-mac-arm64
