@@ -5,7 +5,7 @@ local M = {}
 M.requests = {}
 
 function M.create_request(on_done)
-  local success, request_id = pcall(require('op.utils').uuid)
+  local success, request_id = pcall(require('op.utils').rand_id)
   if not success then
     msg.error('Failed to generate request id.')
     return

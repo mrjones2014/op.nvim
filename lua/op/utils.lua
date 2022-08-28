@@ -339,17 +339,19 @@ function M.open_url(url)
 end
 
 local random_seeded = false
-function M.uuid()
+function M.rand_id()
   if not random_seeded then
     math.randomseed(os.time())
     random_seeded = true
   end
 
-  local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-  return string.gsub(template, '[xy]', function(c)
+  local template = 'xxxxxxxx-xxxx-yxxx-yxxx-xxxxxxxxxxxx'
+  local str, _ = string.gsub(template, '[xy]', function(c)
     local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
     return string.format('%x', v)
   end)
+
+  return str
 end
 
 return M
