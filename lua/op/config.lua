@@ -1,5 +1,10 @@
+---@class Config
+---@field setup fun(config:table)
+---@field get_global_args fun():table
+---@field get_config_immutable fun():ConfigTable
 local M = {}
 
+---@class ConfigTable
 local config = {
   op_cli_path = 'op',
   biometric_unlock = true,
@@ -7,6 +12,9 @@ local config = {
   global_args = {
     '--cache',
     '--no-color',
+  },
+  secure_notes = {
+    buf_name_prefix = '1P:',
   },
 }
 

@@ -29,3 +29,7 @@ end, { desc = 'Sign out of 1Password CLI' })
 vim.api.nvim_create_user_command('OpWhoami', function()
   require('op').op_whoami()
 end, { desc = 'Check what 1Password account you are currently signed in with' })
+
+vim.api.nvim_create_user_command('OpNote', function()
+  require('op.securenotes').find_secure_note()
+end, { desc = 'Find and open a 1Password Secure Note' })

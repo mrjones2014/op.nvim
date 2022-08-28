@@ -1,6 +1,7 @@
 local M = {}
 
 local lazyrequire = require('op.lazyrequire').require_on_index
+---@type Api
 local op = lazyrequire('op.api')
 local config = lazyrequire('op.config')
 local msg = lazyrequire('op.msg')
