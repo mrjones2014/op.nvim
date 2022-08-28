@@ -233,7 +233,7 @@ local function quick_uuid_check(uuid)
   return true
 end
 
-function M.with_account_uuid(callback)
+function M.with_account_uuid(callback, opts)
   local global_args = config.get_global_args() or {}
   for idx, arg in pairs(global_args) do
     if arg == '--account' then
@@ -250,14 +250,21 @@ function M.with_account_uuid(callback)
     end
   end
 
-  op.account.get({ async = true, '--format', 'json' }, function(stdout, stderr)
+  local function account_get_handler(stdout, stderr)
     if #stderr > 0 then
       msg.error(stderr[1])
     elseif #stdout > 0 then
       local account = vim.json.decode(table.concat(stdout, ''))
       callback(account.id)
     end
-  end)
+  end
+
+  if opts and opts.async == true then
+    op.account.get({ async = true, '--format', 'json' }, account_get_handler)
+  else
+    local stdout, stderr = op.account.get({ '--format', 'json' })
+    account_get_handler(stdout, stderr)
+  end
 end
 
 ---Takes in the stderr output that happens when

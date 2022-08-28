@@ -142,7 +142,7 @@ function M.op_open()
 
         local url = string.format('onepassword://view-item?a=%s&v=%s&i=%s', account_uuid, item.vault.id, item.id)
         utils.open_url(url)
-      end)
+      end, { async = true })
     end)
   end
 end
