@@ -18,7 +18,7 @@ directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric
 
 <!-- panvimdoc-ignore-start -->
 
-![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-plugin-v2.gif) \
+![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-v2.gif) \
 <sup>
 The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
 I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)

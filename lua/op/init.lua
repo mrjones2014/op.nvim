@@ -213,31 +213,7 @@ M.op_insert_reference = utils.with_inputs(
       local ref = utils.get_op_reference(stdout)
       utils.insert_at_cursor(ref)
     elseif #stderr > 0 then
-      if stderr[1]:find('More than one item matches') then
-        table.remove(stderr, 1)
-        local vaults = utils.parse_vaults_from_more_than_one_match(stderr)
-        vim.ui.select(vaults, {
-          prompt = 'Multiple matching items, select one',
-          format_item = function(item)
-            return item.name .. ': ' .. item.id
-          end,
-        }, function(item)
-          if not item then
-            return
-          end
-
-          local stdout_2, stderr_2 =
-            op.item.get({ item.id, '--fields', string.format('label=%s', field_name), '--format', 'json' })
-          if #stdout_2 > 0 then
-            local ref = utils.get_op_reference(stdout)
-            utils.insert_at_cursor(ref)
-          elseif #stderr_2 > 0 then
-            msg.error(stderr_2[1])
-          end
-        end)
-      else
-        msg.error(stderr[1])
-      end
+      msg.error(stderr[1])
     end
   end
 )

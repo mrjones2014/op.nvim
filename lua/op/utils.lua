@@ -39,7 +39,9 @@ local function collect_inputs(prompts, callback, outputs)
         end
         table.insert(outputs, selected.id)
         table.remove(prompts, 1)
-        collect_inputs(prompts, callback, outputs)
+        vim.schedule(function()
+          collect_inputs(prompts, callback, outputs)
+        end)
       end)
     end)
   else
@@ -52,7 +54,9 @@ local function collect_inputs(prompts, callback, outputs)
     vim.ui.input({ prompt = prompt_str }, function(input)
       table.insert(outputs, input)
       table.remove(prompts, 1)
-      collect_inputs(prompts, callback, outputs)
+      vim.schedule(function()
+        collect_inputs(prompts, callback, outputs)
+      end)
     end)
   end
 end
@@ -200,30 +204,32 @@ function M.select_fields(items, callback)
       return
     end
 
-    local field_with_designation = vim.tbl_filter(function(field)
-      return field.designation ~= nil
+    local field_with_item_title_designation = vim.tbl_filter(function(field)
+      return field.designation ~= nil and field.designation.item_title and #field.designation.item_title > 0
     end, fields)[1]
     local suggested_title = nil
-    if field_with_designation then
+    if field_with_item_title_designation then
       -- designation.item_title may be empty or nil if
       -- designation.field_type is email, URL, etc.
       -- anything not related to a specific site/service
-      suggested_title = field_with_designation.designation.item_title
+      suggested_title = field_with_item_title_designation.designation.item_title
     end
 
-    vim.ui.input({
-      prompt = 'Item Title',
-      default = suggested_title,
-    }, function(item_title)
-      if not item_title or #item_title == 0 then
-        msg.error('Item title is required')
-        return
-      end
-
-      M.with_vault(function(vault)
-        if type(callback) == 'function' then
-          callback(fields, item_title, vault)
+    vim.schedule(function()
+      vim.ui.input({
+        prompt = 'Item Title',
+        default = suggested_title,
+      }, function(item_title)
+        if not item_title or #item_title == 0 then
+          msg.error('Item title is required')
+          return
         end
+
+        M.with_vault(function(vault)
+          if type(callback) == 'function' then
+            callback(fields, item_title, vault)
+          end
+        end)
       end)
     end)
   end)
