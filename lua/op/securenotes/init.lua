@@ -28,7 +28,7 @@ local function buf_set_options(buf, opts)
       local prefix = vim.tbl_get(config.get_config_immutable(), 'secure_notes', 'buf_name_prefix')
       local name = vim.trim(opt)
       if prefix and #prefix > 0 then
-        name = string.format('%s %s', vim.trim(prefix), name)
+        name = string.format('%s %s.md', vim.trim(prefix), name)
       end
       vim.api.nvim_buf_set_name(buf, name)
     else
@@ -91,7 +91,6 @@ function M.load_secure_note(uuid, vault_uuid)
 
       session.new(buf, note)
 
-      vim.api.nvim_win_set_buf(win_id, buf)
       local contents = note_contents(note)
       vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
       buf_set_options(buf, {
@@ -125,6 +124,9 @@ function M.load_secure_note(uuid, vault_uuid)
           session.close_session_for_buf_id(buf)
         end,
       })
+
+      -- finally, open the buffer
+      vim.api.nvim_win_set_buf(win_id, buf)
     end)
   end)
 end
