@@ -14,7 +14,7 @@
 
 1Password for Neovim! Create items using strings from the current buffer as fields,
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
-directly from Neovim. Works with biometric unlock!
+directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric unlock!
 
 <!-- panvimdoc-ignore-start -->
 
