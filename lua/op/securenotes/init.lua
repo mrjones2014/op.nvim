@@ -91,20 +91,24 @@ function M.load_secure_note(uuid, vault_uuid)
 
       session.new(buf, note)
 
+      vim.api.nvim_win_set_buf(win_id, buf)
+      local contents = note_contents(note)
+      vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
       buf_set_options(buf, {
         filetype = 'markdown',
         buftype = 'acwrite',
         title = note.title,
+        modified = false,
       })
-      vim.api.nvim_win_set_buf(win_id, buf)
-      local contents = note_contents(note)
-      vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
+
+      local contents_str = table.concat(contents, '\n')
 
       -- set modified on TextChanged, :OpCommit sets nomodified
       vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
         buffer = buf,
         callback = function()
-          vim.api.nvim_buf_set_option(buf, 'modified', true)
+          local has_changes = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), '\n') ~= contents_str
+          vim.api.nvim_buf_set_option(buf, 'modified', has_changes)
         end,
       })
 
