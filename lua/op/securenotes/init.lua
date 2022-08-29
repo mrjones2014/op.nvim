@@ -108,6 +108,12 @@ function M.load_secure_note(uuid, vault_uuid)
         end,
       })
 
+      -- Handle autocmd BufWriteCmd so that :w can be used to update the Secure Note in 1Password
+      vim.api.nvim_create_autocmd('BufWriteCmd', {
+        buffer = buf,
+        callback = M.save_secure_note,
+      })
+
       -- kill session on buffer delete
       vim.api.nvim_create_autocmd('BufDelete', {
         buffer = buf,

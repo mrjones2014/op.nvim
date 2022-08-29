@@ -33,7 +33,3 @@ end, { desc = 'Check what 1Password account you are currently signed in with' })
 vim.api.nvim_create_user_command('OpNote', function()
   require('op.securenotes').open_secure_note()
 end, { desc = 'Find and open a 1Password Secure Note' })
-
-vim.api.nvim_create_user_command('OpCommit', function()
-  require('op.securenotes').save_secure_note()
-end, { desc = 'Commit secure note changes to 1Password' })
