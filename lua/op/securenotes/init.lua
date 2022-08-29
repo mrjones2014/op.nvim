@@ -38,6 +38,7 @@ local function buf_set_options(buf, opts)
 end
 
 ---Return note contents as an array of lines
+---@return table
 local function note_contents(note)
   local contents = vim.tbl_filter(function(field)
     return field.id == 'notesPlain' and field.purpose == 'NOTES'
@@ -50,6 +51,53 @@ local function note_contents(note)
 
   local normalized, _ = string.gsub(contents, '\r\n', '\n')
   return vim.split(normalized, '\n')
+end
+
+function M.load_note_changes()
+  local buf_id = vim.api.nvim_get_current_buf()
+  local modified = vim.api.nvim_buf_get_option(buf_id, 'modified')
+
+  local function sync()
+    local editing_session = session.get_for_buf_id(buf_id)
+    if not editing_session then
+      msg.error(string.format('No active editing session for buffer %s', buf_id))
+      return
+    end
+
+    local stdout, stderr =
+      op.item.get({ editing_session.uuid, '--vault', editing_session.vault_uuid, '--format', 'json' })
+    if #stderr > 0 then
+      msg.error(stderr[1])
+    elseif #stdout > 0 then
+      local note = vim.json.decode(table.concat(stdout, ''))
+      local contents = note_contents(note)
+      vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, contents)
+      vim.defer_fn(function()
+        vim.api.nvim_buf_set_option(buf_id, 'modified', false)
+      end, 5)
+    end
+  end
+
+  if modified then
+    local choices = [[&Overwrite with current buffer text
+&Discard current buffer changes
+&Cancel]]
+    local choice = vim.fn.confirm('Unsaved changes in your Secure Note:', choices, '&Cancel', 'Error')
+    -- 0 = <ESC>, 3 = [C]ancel
+    if choice == 0 or choice == 3 then
+      return
+    end
+
+    if choice == 1 then
+      M.save_secure_note()
+      return
+    end
+
+    -- choice == 2, Discard current buffer changes
+    sync()
+  else
+    sync()
+  end
 end
 
 function M.save_secure_note()
@@ -97,17 +145,13 @@ function M.load_secure_note(uuid, vault_uuid)
         filetype = 'markdown',
         buftype = 'acwrite',
         title = note.title,
-        modified = false,
       })
-
-      local contents_str = table.concat(contents, '\n')
 
       -- set modified on TextChanged, :OpCommit sets nomodified
       vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
         buffer = buf,
         callback = function()
-          local has_changes = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), '\n') ~= contents_str
-          vim.api.nvim_buf_set_option(buf, 'modified', has_changes)
+          vim.api.nvim_buf_set_option(buf, 'modified', true)
         end,
       })
 
@@ -127,6 +171,10 @@ function M.load_secure_note(uuid, vault_uuid)
 
       -- finally, open the buffer
       vim.api.nvim_win_set_buf(win_id, buf)
+      -- set buffer nomodified on load
+      vim.defer_fn(function()
+        vim.api.nvim_buf_set_option(buf, 'modified', false)
+      end, 5)
     end)
   end)
 end
