@@ -79,25 +79,6 @@ function M.with_inputs(prompts, callback)
   end
 end
 
-local function select_vault(callback)
-  local stdout, stderr = op.vault.list({ '--format', 'json' })
-  if #stdout > 0 then
-    local vaults = vim.json.decode(table.concat(stdout, ''))
-    local vault_names = vim.tbl_map(function(vault)
-      return vault.name
-    end, vaults)
-    vim.ui.select(vault_names, { prompt = 'What vault do you want to store the 1Password item in?' }, function(selected)
-      if not selected or #selected == 0 then
-        msg.error('Vault is required.')
-        return
-      end
-      callback(selected)
-    end)
-  elseif #stderr > 0 then
-    msg.error(stderr[1])
-  end
-end
-
 local function get_field_designation(value)
   local json, _ = vim.fn.OpDesignateField(value)
   if json and json ~= vim.NIL then
@@ -129,7 +110,7 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 
     -- local field_type = opfields.detect_field_type(selected)
     local designation = get_field_designation(selected)
-    local input_params = { prompt = 'What do you want to call this field?' }
+    local input_params = { prompt = 'Field Label' }
     if designation then
       input_params.default = designation.field_title
     end
@@ -172,6 +153,35 @@ local function select_fields_inner(items, fields, callback, used_items, done)
   )
 end
 
+function M.with_vault(callback, async)
+  local function handler(stdout, stderr)
+    if #stdout > 0 then
+      local vaults = vim.json.decode(table.concat(stdout, ''))
+      vim.ui.select(vaults, {
+        prompt = 'Select Vault',
+        format_item = function(vault)
+          return vault.name
+        end,
+      }, function(selected)
+        if not selected then
+          msg.error('Vault is required.')
+          return
+        end
+        callback(selected)
+      end)
+    elseif #stderr > 0 then
+      msg.error(stderr[1])
+    end
+  end
+
+  if async == true then
+    op.vault.list({ async = true, '--format', 'json' }, handler)
+  else
+    local stdout, stderr = op.vault.list({ '--format', 'json' })
+    handler(stdout, stderr)
+  end
+end
+
 function M.select_fields(items, callback)
   select_fields_inner(items, {}, function(fields)
     if not fields or #fields == 0 then
@@ -200,7 +210,7 @@ function M.select_fields(items, callback)
     end
 
     vim.ui.input({
-      prompt = 'What do you want to call the 1Password item?',
+      prompt = 'Item Title',
       default = suggested_title,
     }, function(item_title)
       if not item_title or #item_title == 0 then
@@ -208,7 +218,7 @@ function M.select_fields(items, callback)
         return
       end
 
-      select_vault(function(vault)
+      M.with_vault(function(vault)
         if type(callback) == 'function' then
           callback(fields, item_title, vault)
         end

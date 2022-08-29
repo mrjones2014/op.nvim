@@ -10,6 +10,7 @@ local op = require('op.api')
 local msg = require('op.msg')
 local session = require('op.securenotes.session')
 local config = require('op.config')
+local utils = require('op.utils')
 
 local function with_note(uuid, vault_uuid, callback)
   op.item.get({ async = true, uuid, '--vault', vault_uuid, '--format', 'json' }, function(stdout, stderr)
@@ -49,8 +50,57 @@ local function note_contents(note)
     contents = contents.value
   end
 
+  contents = contents or ''
+
   local normalized, _ = string.gsub(contents, '\r\n', '\n')
   return vim.split(normalized, '\n')
+end
+
+local function setup_secure_note_buf(win_id, note)
+  local buf = vim.api.nvim_create_buf(true, true)
+  if buf == 0 then
+    msg.error('Failed to create buffer for Secure Notes.')
+    return nil
+  end
+
+  session.create(buf, note)
+
+  local contents = note_contents(note)
+  vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
+  buf_set_options(buf, {
+    filetype = 'markdown',
+    buftype = 'acwrite',
+    title = note.title,
+  })
+
+  -- set modified on TextChanged, :OpCommit sets nomodified
+  vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
+    buffer = buf,
+    callback = function()
+      vim.api.nvim_buf_set_option(buf, 'modified', true)
+    end,
+  })
+
+  -- Handle autocmd BufWriteCmd so that :w can be used to update the Secure Note in 1Password
+  vim.api.nvim_create_autocmd('BufWriteCmd', {
+    buffer = buf,
+    callback = M.save_secure_note,
+  })
+
+  -- kill session on buffer delete
+  vim.api.nvim_create_autocmd('BufDelete', {
+    buffer = buf,
+    callback = function()
+      session.close_session_for_buf_id(buf)
+    end,
+  })
+
+  -- finally, open the buffer
+  vim.api.nvim_win_set_buf(win_id, buf)
+  -- set buffer nomodified on load
+  vim.defer_fn(function()
+    vim.api.nvim_buf_set_option(buf, 'modified', false)
+  end, 5)
 end
 
 function M.load_note_changes()
@@ -127,54 +177,39 @@ function M.save_secure_note()
   end)
 end
 
+function M.new_secure_note()
+  local win_id = vim.api.nvim_get_current_win()
+  utils.with_vault(function(vault)
+    vim.schedule(function()
+      vim.ui.input({ prompt = 'Secure Note Title' }, function(input)
+        if not input or #input == 0 then
+          msg.error('Secure Note title is required.')
+          return
+        end
+
+        op.item.create(
+          { async = true, '--format', 'json', '--category', 'Secure Note', '--vault', vault.id, '--title', input },
+          function(stdout, stderr)
+            if #stderr > 0 then
+              msg.error(stderr[1])
+            elseif #stdout > 0 then
+              local note = vim.json.decode(table.concat(stdout, ''))
+              vim.schedule(function()
+                setup_secure_note_buf(win_id, note)
+              end)
+            end
+          end
+        )
+      end)
+    end)
+  end)
+end
+
 function M.load_secure_note(uuid, vault_uuid)
   local win_id = vim.api.nvim_get_current_win()
   with_note(uuid, vault_uuid, function(note)
     vim.schedule(function()
-      local buf = vim.api.nvim_create_buf(true, true)
-      if buf == 0 then
-        msg.error('Failed to create buffer for Secure Notes.')
-        return
-      end
-
-      session.new(buf, note)
-
-      local contents = note_contents(note)
-      vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
-      buf_set_options(buf, {
-        filetype = 'markdown',
-        buftype = 'acwrite',
-        title = note.title,
-      })
-
-      -- set modified on TextChanged, :OpCommit sets nomodified
-      vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
-        buffer = buf,
-        callback = function()
-          vim.api.nvim_buf_set_option(buf, 'modified', true)
-        end,
-      })
-
-      -- Handle autocmd BufWriteCmd so that :w can be used to update the Secure Note in 1Password
-      vim.api.nvim_create_autocmd('BufWriteCmd', {
-        buffer = buf,
-        callback = M.save_secure_note,
-      })
-
-      -- kill session on buffer delete
-      vim.api.nvim_create_autocmd('BufDelete', {
-        buffer = buf,
-        callback = function()
-          session.close_session_for_buf_id(buf)
-        end,
-      })
-
-      -- finally, open the buffer
-      vim.api.nvim_win_set_buf(win_id, buf)
-      -- set buffer nomodified on load
-      vim.defer_fn(function()
-        vim.api.nvim_buf_set_option(buf, 'modified', false)
-      end, 5)
+      setup_secure_note_buf(win_id, note)
     end)
   end)
 end

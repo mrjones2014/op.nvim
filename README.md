@@ -117,7 +117,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpCreate` † - Create a new item using strings in the current buffer as fields.
 - `:OpOpen` † - Open an item in the 1Password 8 desktop app.
 - `:OpInsert` - Insert an item reference at current cursor position.
-- `:OpNote` - Find and open a 1Password Secure Note item
+- `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 
 ## Features
 
@@ -148,6 +148,9 @@ to completely handle "writing" the Secure Note by updating it via the 1Password 
 
 Note that in order to write the contents back to the correct item, `op.nvim` associates buffer IDs with `{ uuid, vault_uuid }` pairs.
 **`op.nvim` does not store the note title or anything other than the UUID and vault UUID in the edit session**.
+
+In order to avoid storing your note title in memory when creating a _new_ note, the note will be initially created without any
+body text, then opened in a buffer where you can add contents and `:w` to save it.
 
 ### Statusline
 

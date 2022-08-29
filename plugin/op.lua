@@ -30,9 +30,13 @@ vim.api.nvim_create_user_command('OpWhoami', function()
   require('op').op_whoami()
 end, { desc = 'Check what 1Password account you are currently signed in with' })
 
-vim.api.nvim_create_user_command('OpNote', function()
-  require('op.securenotes').open_secure_note()
-end, { desc = 'Find and open a 1Password Secure Note' })
+vim.api.nvim_create_user_command('OpNote', function(args)
+  if args and args.fargs and (args.fargs[1] == 'new' or args.fargs[1] == 'create') then
+    require('op.securenotes').new_secure_note()
+  else
+    require('op.securenotes').open_secure_note()
+  end
+end, { desc = 'Find and open a 1Password Secure Note', nargs = '?' })
 
 vim.api.nvim_create_user_command('OpNoteSync', function()
   require('op.securenotes').load_note_changes()

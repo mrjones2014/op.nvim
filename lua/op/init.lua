@@ -183,7 +183,7 @@ function M.op_create()
       '--title',
       item_title,
       '--vault',
-      vault,
+      vault.id,
     }
 
     if #url_fields > 0 then
