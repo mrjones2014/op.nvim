@@ -181,19 +181,20 @@ function M.new_secure_note()
   local win_id = vim.api.nvim_get_current_win()
   utils.with_vault(function(vault)
     vim.schedule(function()
-      vim.ui.input({ prompt = 'Secure Note Title' }, function(input)
-        if not input or #input == 0 then
+      vim.ui.input({ prompt = 'Secure Note Title' }, function(title)
+        if not title or #title == 0 then
           msg.error('Secure Note title is required.')
           return
         end
 
         op.item.create(
-          { async = true, '--format', 'json', '--category', 'Secure Note', '--vault', vault.id, '--title', input },
+          { async = true, '--format', 'json', '--category', 'Secure Note', '--vault', vault.id, '--title', title },
           function(stdout, stderr)
             if #stderr > 0 then
               msg.error(stderr[1])
             elseif #stdout > 0 then
               local note = vim.json.decode(table.concat(stdout, ''))
+              msg.success(string.format("Created Secure Note '%s'", title))
               vim.schedule(function()
                 setup_secure_note_buf(win_id, note)
               end)
