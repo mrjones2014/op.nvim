@@ -52,9 +52,30 @@ local function note_contents(note)
   return vim.split(normalized, '\n')
 end
 
-function M.save_secure_note(buf_id)
-  -- TODO
-  msg.error("require('op.securenotes).save_secure_note not implemented yet!")
+function M.save_secure_note()
+  local buf_id = vim.api.nvim_get_current_buf()
+  local editing_session = session.get_for_buf_id(buf_id)
+  if not editing_session then
+    msg.error(string.format('No active editing session for buffer %s', buf_id))
+  end
+
+  local buf_lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
+  local buf_str = table.concat(buf_lines, '\n')
+  op.item.edit({
+    async = true,
+    '--format',
+    'json',
+    '--vault',
+    editing_session.vault_uuid,
+    editing_session.uuid,
+    string.format('notesPlain=%s', buf_str),
+  }, function(stdout, stderr)
+    if #stderr > 0 then
+      msg.error(stderr[1])
+    elseif #stdout > 0 then
+      msg.success('1Password Secure Note updated.')
+    end
+  end)
 end
 
 function M.load_secure_note(uuid, vault_uuid)
@@ -63,7 +84,7 @@ function M.load_secure_note(uuid, vault_uuid)
     vim.schedule(function()
       local buf = vim.api.nvim_create_buf(true, false)
       if buf == 0 then
-        msg.error('Failed to create buffer for secure notes.')
+        msg.error('Failed to create buffer for Secure Notes.')
         return
       end
 
@@ -77,6 +98,13 @@ function M.load_secure_note(uuid, vault_uuid)
       vim.api.nvim_win_set_buf(win_id, buf)
       local contents = note_contents(note)
       vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
+
+      vim.api.nvim_create_autocmd('BufDelete', {
+        buffer = buf,
+        callback = function()
+          session.close_session_for_buf_id(buf)
+        end,
+      })
     end)
   end)
 end
