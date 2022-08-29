@@ -111,6 +111,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpCreate` † - Create a new item using strings in the current buffer as fields.
 - `:OpOpen` † - Open an item in the 1Password 8 desktop app.
 - `:OpInsert` - Insert an item reference at current cursor position.
+- `:OpNote` - Find and open a 1Password Secure Note item
 
 ## Features
 
@@ -121,8 +122,23 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
 - Switch between multiple 1Password accounts (only works with biometric unlock enabled)
+- Secure Notes Editor (See [Secure Notes Editor](#secure-notes-editor))
 - Statusline component that updates asynchronously (See [Statusline](#statusline))
 - Most commands are partially or fully asynchronous
+
+### Secure Notes Editor
+
+Edit your 1Password Secure Notes items directly in Neovim! Run `:OpNote` to find a Secure Note item (via `vim.ui.select()`)
+and open it in a new buffer. The buffer will have `filetype=markdown` so you get Markdown filetype highlighting.
+
+#### Security
+
+The Secure Notes editor **will never write your notes to disk**. It uses a special `buftype` option, `buftype=acwrite`,
+which allows `op.nvim` to intercept the `:w` command by setting up an `autocmd BufWriteCmd`, which then allows `op.nvim`
+to completely handle "writing" the Secure Note by updating it via the 1Password CLI.
+
+Note that in order to write the contents back to the correct item, `op.nvim` associates buffer IDs with `{ uuid, vault_uuid }` pairs.
+**`op.nvim` does not store the note title or anything other than the UUID and vault UUID in the edit session**.
 
 ### Statusline
 
