@@ -115,21 +115,23 @@ local function select_fields_inner(items, fields, callback, used_items, done)
       input_params.default = designation.field_title
     end
 
-    vim.ui.input(input_params, function(input)
-      if not input or #input == 0 then
-        msg.error('Field name is required.')
-        -- insert invalid field
-        table.insert(fields, {})
-        return select_fields_inner(items, fields, callback, used_items, true)
-      end
+    vim.schedule(function()
+      vim.ui.input(input_params, function(input)
+        if not input or #input == 0 then
+          msg.error('Field name is required.')
+          -- insert invalid field
+          table.insert(fields, {})
+          return select_fields_inner(items, fields, callback, used_items, true)
+        end
 
-      local field = {
-        name = input,
-        value = selected,
-        designation = designation,
-      }
-      table.insert(fields, field)
-      select_fields_inner(items, fields, callback, used_items, false)
+        local field = {
+          name = input,
+          value = selected,
+          designation = designation,
+        }
+        table.insert(fields, field)
+        select_fields_inner(items, fields, callback, used_items, false)
+      end)
     end)
   end
 
