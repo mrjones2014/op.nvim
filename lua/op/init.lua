@@ -242,8 +242,16 @@ M.op_insert_reference = utils.with_inputs(
   end
 )
 
-function M.op_note()
-  securenotes.open_secure_note()
+function M.op_note(create_note)
+  if create_note then
+    securenotes.new_secure_note()
+  else
+    securenotes.open_secure_note()
+  end
+end
+
+function M.op_note_sync()
+  securenotes.load_note_changes()
 end
 
 return M
