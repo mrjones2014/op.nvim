@@ -106,13 +106,15 @@ Neovim** in order for `op.nvim` to be able to access the session. You also
 
 COMMANDS                                                         *op-commands*
 
+* = Asynchronous<br/>† = Partially asynchronous
 
-- `:OpSignin` - Choose a 1Password account to sign in with. Accepts account shorthand, signin address, account UUID, or user UUID as an optional argument.
-- `:OpSignout` - End your current 1Password CLI session.
-- `:OpWhoami` - Check which 1Password account your current CLI session is using.
+
+- `:OpSignin` * - Choose a 1Password account to sign in with. Accepts account shorthand, signin address, account UUID, or user UUID as an optional argument.
+- `:OpSignout` * - End your current 1Password CLI session.
+- `:OpWhoami` * - Check which 1Password account your current CLI session is using.
+- `:OpCreate` † - Create a new item using strings in the current buffer as fields.
+- `:OpOpen` † - Open an item in the 1Password 8 desktop app.
 - `:OpInsert` - Insert an item reference at current cursor position.
-- `:OpCreate` - Create a new item using strings in the current buffer as fields.
-- `:OpOpen` - Open an item in the 1Password 8 desktop app.
 
 
 FEATURES                                                         *op-features*
@@ -125,7 +127,8 @@ FEATURES                                                         *op-features*
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
 - Switch between multiple 1Password accounts (only works with biometric unlock enabled)
-- Statusline component (See |op-statusline|)
+- Statusline component that updates asynchronously (See |op-statusline|)
+- Most commands are partially or fully asynchronous
 
 
 STATUSLINE ~
@@ -154,6 +157,12 @@ lines, and the exit code as a number. Some examples are below:
     local stdout, stderr, exit_code = op.item.list({ '--format', 'json' })
     local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
     local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
+    
+    -- all API functions can be called asynchronously by setting `args.async = true`
+    -- and passing a callback as a second parameter
+    op.account.get({ async = true, '--format', 'json' }, function(stdout, stderr, exit_code)
+      -- do stuff with stdout, stderr, exit_code
+    end)
 <
 
 
