@@ -74,6 +74,7 @@ function M.save_secure_note()
       msg.error(stderr[1])
     elseif #stdout > 0 then
       msg.success('1Password Secure Note updated.')
+      vim.api.nvim_buf_set_option(buf_id, 'modified', false)
     end
   end)
 end
@@ -82,7 +83,7 @@ function M.load_secure_note(uuid, vault_uuid)
   local win_id = vim.api.nvim_get_current_win()
   with_note(uuid, vault_uuid, function(note)
     vim.schedule(function()
-      local buf = vim.api.nvim_create_buf(true, false)
+      local buf = vim.api.nvim_create_buf(true, true)
       if buf == 0 then
         msg.error('Failed to create buffer for Secure Notes.')
         return
@@ -92,13 +93,22 @@ function M.load_secure_note(uuid, vault_uuid)
 
       buf_set_options(buf, {
         filetype = 'markdown',
-        buftype = 'nofile',
+        buftype = 'acwrite',
         title = note.title,
       })
       vim.api.nvim_win_set_buf(win_id, buf)
       local contents = note_contents(note)
       vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
 
+      -- set modified on TextChanged, :OpCommit sets nomodified
+      vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
+        buffer = buf,
+        callback = function()
+          vim.api.nvim_buf_set_option(buf, 'modified', true)
+        end,
+      })
+
+      -- kill session on buffer delete
       vim.api.nvim_create_autocmd('BufDelete', {
         buffer = buf,
         callback = function()
