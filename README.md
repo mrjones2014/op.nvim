@@ -134,9 +134,9 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 
 ### Secure Notes Editor
 
-Edit your 1Password Secure Notes items directly in Neovim! Run `:OpNote` to find a Secure Note item (via `vim.ui.select()`)
-and open it in a new buffer. The buffer will have `filetype=markdown` so you get Markdown filetype highlighting. Note
-that it will also append `.md` in the buffer name &mdash; this is just so that [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons)
+Edit your 1Password Secure Notes items directly in Neovim! Run `:OpNote` to find a Secure Note item, or `:OpNote new`/`:OpNote create`
+to create a new one, and open it in a new buffer. The buffer will have `filetype=markdown` so you get Markdown filetype highlighting,
+and will append `.md` in the buffer name &mdash; this is just so that [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons)
 will assign the Markdown icon to the buffer, e.g. if you're using [bufferline.nvim](https://github.com/akinsho/bufferline.nvim)
 or similar. It will not change the title of your Secure Note in 1Password.
 
