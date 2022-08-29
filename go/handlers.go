@@ -16,6 +16,10 @@ var Handlers = []HandlerDefinition{
 		Handler: OpCmd,
 	},
 	{
+		Options: &plugin.FunctionOptions{Name: "OpCmdAsync"},
+		Handler: OpCmdAsync,
+	},
+	{
 		Options: &plugin.FunctionOptions{Name: "OpSetup"},
 		Handler: OpSetup,
 	},

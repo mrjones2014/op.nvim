@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -35,9 +36,7 @@ func OpSetup(args []string) (*string, error) {
 	return &opCliPath, nil
 }
 
-// Execute a subcommand of the 1Password CLI.
-// Returns the output and exit code serialized to a JSON string.
-func OpCmd(args []string) (*string, error) {
+func runCli(args []string) (*string, error) {
 	if !opCliPathValid {
 		if err := exec.Command(opCliPath, "--version").Run(); err != nil {
 			output := CliOutput{
@@ -79,4 +78,31 @@ func OpCmd(args []string) (*string, error) {
 
 	json := string(value)
 	return &json, nil
+}
+
+// Execute a subcommand of the 1Password CLI.
+// Returns the output and exit code serialized to a JSON string.
+func OpCmd(args []string) (*string, error) {
+	return runCli(args)
+}
+
+func OpCmdAsync(args []string) error {
+	if len(args) < 2 {
+		return errors.New("Need at least 2 arguments (request ID, then `op` cmd).")
+	}
+
+	go func(args []string) {
+		request_id := args[0]
+		op_cli_args := args[1:]
+		json, err := runCli(op_cli_args)
+		if err != nil {
+			lua_code := fmt.Sprintf("require('op.api.async').callback([[%s]], nil, [[%s]])", request_id, err)
+			PluginInstance.Nvim.ExecLua(lua_code, nil)
+		} else {
+			lua_code := fmt.Sprintf("require('op.api.async').callback([[%s]], [[%s]], nil)", request_id, *json)
+			PluginInstance.Nvim.ExecLua(lua_code, nil)
+		}
+	}(args)
+
+	return nil
 }
