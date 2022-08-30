@@ -8,6 +8,9 @@ local config = {
     '--cache',
     '--no-color',
   },
+  secure_notes = {
+    buf_name_prefix = '1P:',
+  },
 }
 
 local function handle_setup()

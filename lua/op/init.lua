@@ -1,11 +1,16 @@
 local M = {}
 
 local lazyrequire = require('op.lazyrequire').require_on_index
-local op = lazyrequire('op.api')
-local utils = lazyrequire('op.utils')
-local ts = lazyrequire('op.treesitter')
-local msg = lazyrequire('op.msg')
-local cfg = lazyrequire('op.config')
+-- aliasing require like this keeps type intelligence
+-- and LSP go-to-definition etc. working
+local require = lazyrequire
+---@type Api
+local op = require('op.api')
+local utils = require('op.utils')
+local ts = require('op.treesitter')
+local msg = require('op.msg')
+local cfg = require('op.config')
+local securenotes = require('op.securenotes')
 
 function M.setup(user_config)
   cfg.setup(user_config)
@@ -178,7 +183,7 @@ function M.op_create()
       '--title',
       item_title,
       '--vault',
-      vault,
+      vault.id,
     }
 
     if #url_fields > 0 then
@@ -208,33 +213,21 @@ M.op_insert_reference = utils.with_inputs(
       local ref = utils.get_op_reference(stdout)
       utils.insert_at_cursor(ref)
     elseif #stderr > 0 then
-      if stderr[1]:find('More than one item matches') then
-        table.remove(stderr, 1)
-        local vaults = utils.parse_vaults_from_more_than_one_match(stderr)
-        vim.ui.select(vaults, {
-          prompt = 'Multiple matching items, select one',
-          format_item = function(item)
-            return item.name .. ': ' .. item.id
-          end,
-        }, function(item)
-          if not item then
-            return
-          end
-
-          local stdout_2, stderr_2 =
-            op.item.get({ item.id, '--fields', string.format('label=%s', field_name), '--format', 'json' })
-          if #stdout_2 > 0 then
-            local ref = utils.get_op_reference(stdout)
-            utils.insert_at_cursor(ref)
-          elseif #stderr_2 > 0 then
-            msg.error(stderr_2[1])
-          end
-        end)
-      else
-        msg.error(stderr[1])
-      end
+      msg.error(stderr[1])
     end
   end
 )
+
+function M.op_note(create_note)
+  if create_note then
+    securenotes.new_secure_note()
+  else
+    securenotes.open_secure_note()
+  end
+end
+
+function M.op_note_sync()
+  securenotes.load_note_changes()
+end
 
 return M

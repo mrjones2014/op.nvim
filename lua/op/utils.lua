@@ -1,9 +1,14 @@
 local M = {}
 
 local lazyrequire = require('op.lazyrequire').require_on_index
-local op = lazyrequire('op.api')
-local config = lazyrequire('op.config')
-local msg = lazyrequire('op.msg')
+-- aliasing require like this keeps type intelligence
+-- and LSP go-to-definition etc. working
+local require = lazyrequire
+
+---@type Api
+local op = require('op.api')
+local config = require('op.config')
+local msg = require('op.msg')
 
 local function with_item_overviews(callback)
   local stdout, stderr = op.item.list({ '--format', 'json' })
@@ -34,7 +39,9 @@ local function collect_inputs(prompts, callback, outputs)
         end
         table.insert(outputs, selected.id)
         table.remove(prompts, 1)
-        collect_inputs(prompts, callback, outputs)
+        vim.schedule(function()
+          collect_inputs(prompts, callback, outputs)
+        end)
       end)
     end)
   else
@@ -47,7 +54,9 @@ local function collect_inputs(prompts, callback, outputs)
     vim.ui.input({ prompt = prompt_str }, function(input)
       table.insert(outputs, input)
       table.remove(prompts, 1)
-      collect_inputs(prompts, callback, outputs)
+      vim.schedule(function()
+        collect_inputs(prompts, callback, outputs)
+      end)
     end)
   end
 end
@@ -71,25 +80,6 @@ function M.with_inputs(prompts, callback)
     end
 
     collect_inputs(prompts_copy, callback, { ... })
-  end
-end
-
-local function select_vault(callback)
-  local stdout, stderr = op.vault.list({ '--format', 'json' })
-  if #stdout > 0 then
-    local vaults = vim.json.decode(table.concat(stdout, ''))
-    local vault_names = vim.tbl_map(function(vault)
-      return vault.name
-    end, vaults)
-    vim.ui.select(vault_names, { prompt = 'What vault do you want to store the 1Password item in?' }, function(selected)
-      if not selected or #selected == 0 then
-        msg.error('Vault is required.')
-        return
-      end
-      callback(selected)
-    end)
-  elseif #stderr > 0 then
-    msg.error(stderr[1])
   end
 end
 
@@ -124,26 +114,28 @@ local function select_fields_inner(items, fields, callback, used_items, done)
 
     -- local field_type = opfields.detect_field_type(selected)
     local designation = get_field_designation(selected)
-    local input_params = { prompt = 'What do you want to call this field?' }
+    local input_params = { prompt = 'Field Label' }
     if designation then
       input_params.default = designation.field_title
     end
 
-    vim.ui.input(input_params, function(input)
-      if not input or #input == 0 then
-        msg.error('Field name is required.')
-        -- insert invalid field
-        table.insert(fields, {})
-        return select_fields_inner(items, fields, callback, used_items, true)
-      end
+    vim.schedule(function()
+      vim.ui.input(input_params, function(input)
+        if not input or #input == 0 then
+          msg.error('Field name is required.')
+          -- insert invalid field
+          table.insert(fields, {})
+          return select_fields_inner(items, fields, callback, used_items, true)
+        end
 
-      local field = {
-        name = input,
-        value = selected,
-        designation = designation,
-      }
-      table.insert(fields, field)
-      select_fields_inner(items, fields, callback, used_items, false)
+        local field = {
+          name = input,
+          value = selected,
+          designation = designation,
+        }
+        table.insert(fields, field)
+        select_fields_inner(items, fields, callback, used_items, false)
+      end)
     end)
   end
 
@@ -167,6 +159,35 @@ local function select_fields_inner(items, fields, callback, used_items, done)
   )
 end
 
+function M.with_vault(callback, async)
+  local function handler(stdout, stderr)
+    if #stdout > 0 then
+      local vaults = vim.json.decode(table.concat(stdout, ''))
+      vim.ui.select(vaults, {
+        prompt = 'Select Vault',
+        format_item = function(vault)
+          return vault.name
+        end,
+      }, function(selected)
+        if not selected then
+          msg.error('Vault is required.')
+          return
+        end
+        callback(selected)
+      end)
+    elseif #stderr > 0 then
+      msg.error(stderr[1])
+    end
+  end
+
+  if async == true then
+    op.vault.list({ async = true, '--format', 'json' }, handler)
+  else
+    local stdout, stderr = op.vault.list({ '--format', 'json' })
+    handler(stdout, stderr)
+  end
+end
+
 function M.select_fields(items, callback)
   select_fields_inner(items, {}, function(fields)
     if not fields or #fields == 0 then
@@ -183,30 +204,32 @@ function M.select_fields(items, callback)
       return
     end
 
-    local field_with_designation = vim.tbl_filter(function(field)
-      return field.designation ~= nil
+    local field_with_item_title_designation = vim.tbl_filter(function(field)
+      return field.designation ~= nil and field.designation.item_title and #field.designation.item_title > 0
     end, fields)[1]
     local suggested_title = nil
-    if field_with_designation then
+    if field_with_item_title_designation then
       -- designation.item_title may be empty or nil if
       -- designation.field_type is email, URL, etc.
       -- anything not related to a specific site/service
-      suggested_title = field_with_designation.designation.item_title
+      suggested_title = field_with_item_title_designation.designation.item_title
     end
 
-    vim.ui.input({
-      prompt = 'What do you want to call the 1Password item?',
-      default = suggested_title,
-    }, function(item_title)
-      if not item_title or #item_title == 0 then
-        msg.error('Item title is required')
-        return
-      end
-
-      select_vault(function(vault)
-        if type(callback) == 'function' then
-          callback(fields, item_title, vault)
+    vim.schedule(function()
+      vim.ui.input({
+        prompt = 'Item Title',
+        default = suggested_title,
+      }, function(item_title)
+        if not item_title or #item_title == 0 then
+          msg.error('Item title is required')
+          return
         end
+
+        M.with_vault(function(vault)
+          if type(callback) == 'function' then
+            callback(fields, item_title, vault)
+          end
+        end)
       end)
     end)
   end)
