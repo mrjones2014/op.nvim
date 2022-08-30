@@ -151,9 +151,6 @@ to completely handle "writing" the Secure Note by updating it via the 1Password 
 Note that in order to write the contents back to the correct item, `op.nvim` associates buffer IDs with `{ uuid, vault_uuid }` pairs.
 **`op.nvim` does not store the note title or anything other than the UUID and vault UUID in the edit session**.
 
-In order to avoid storing your note title in memory when creating a _new_ note, the note will be initially created without any
-body text, then opened in a buffer where you can add contents and `:w` to save it.
-
 ### Statusline
 
 `op.nvim` provides a statusline component as a function that returns a string.
