@@ -5,11 +5,11 @@ local lazyrequire = require('op.lazyrequire').require_on_index
 -- and LSP go-to-definition etc. working
 local require = lazyrequire
 ---@type Api
-local op = lazyrequire('op.api')
-local utils = lazyrequire('op.utils')
-local ts = lazyrequire('op.treesitter')
-local msg = lazyrequire('op.msg')
-local cfg = lazyrequire('op.config')
+local op = require('op.api')
+local utils = require('op.utils')
+local ts = require('op.treesitter')
+local msg = require('op.msg')
+local cfg = require('op.config')
 local securenotes = require('op.securenotes')
 
 function M.setup(user_config)
