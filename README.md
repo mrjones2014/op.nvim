@@ -140,7 +140,7 @@ and will append `.md` in the buffer name &mdash; this is just so that [nvim-web-
 will assign the Markdown icon to the buffer, e.g. if you're using [bufferline.nvim](https://github.com/akinsho/bufferline.nvim)
 or similar. It will not change the title of your Secure Note in 1Password.
 
-Running `:OpNoteSync` will sync the current Secure Note from 1Password into the buffer (must be run from the Secure Note buffer).
+Running `:e` will sync the current Secure Note from 1Password into the buffer.
 
 #### Security
 

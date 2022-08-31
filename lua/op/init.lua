@@ -226,8 +226,4 @@ function M.op_note(create_note)
   end
 end
 
-function M.op_note_sync()
-  securenotes.load_note_changes()
-end
-
 return M
