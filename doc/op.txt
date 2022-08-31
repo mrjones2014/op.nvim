@@ -151,7 +151,8 @@ to the buffer, e.g. if you’re using bufferline.nvim
 <https://github.com/akinsho/bufferline.nvim> or similar. It will not change the
 title of your Secure Note in 1Password.
 
-Running `:e` will sync the current Secure Note from 1Password into the buffer.
+Running `:w` will update the Secure Note in 1Password, and `:e` will sync the
+current Secure Note from 1Password into the buffer.
 
                                                                  *op-Security*
 
@@ -159,12 +160,13 @@ Security                               The Secure Notes editor **will never
                                        write your notes to disk**. It uses a
                                        special `buftype` option,
                                        `buftype=acwrite`, which allows
-                                       `op.nvim` to intercept the `:w` command
-                                       by setting up an `autocmd BufWriteCmd`,
-                                       which then allows `op.nvim` to
-                                       completely handle "writing" the Secure
-                                       Note by updating it via the 1Password
-                                       CLI.
+                                       `op.nvim` to intercept the `:w` and `:e`
+                                       commands by setting up an `autocmd
+                                       BufWriteCmd` and `autocmd BufReadCmd`,
+                                       respectively, which then allows
+                                       `op.nvim` to completely handle "writing"
+                                       and "reading" the Secure Note by
+                                       updating it via the 1Password CLI.
 
 
 Note that in order to write the contents back to the correct item, `op.nvim`
