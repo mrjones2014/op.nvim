@@ -32,7 +32,7 @@ update-remote-plugin-manifest: all install
 .PHONY: install
 install:
 	mkdir -p bin
-	if [[ "$$OSTYPE" == "linux-gnu"* ]]; then cp ./bin/op-nvim-linux ./bin/op-nivm; elif [[ "$$OSTYPE" == "darwin"* ]]; then cp ./bin/op-nvim-mac-universal ./bin/op-nvim; fi
+	./install.bash
 	chmod +x ./bin/op-nvim
 
 .PHONY: build-and-install
