@@ -123,36 +123,15 @@ function M.op_whoami()
   end)
 end
 
-function M.op_open()
-  local stdout, stderr = op.item.list({ '--format', 'json' })
-  if #stderr > 0 then
-    msg.error(stderr[1])
-  elseif #stdout > 0 then
-    local items = vim.json.decode(table.concat(stdout, ''))
-    vim.ui.select(items, {
-      prompt = 'Select 1Password item',
-      format_item = function(item)
-        return utils.format_item_for_select(item)
-      end,
-    }, function(item)
-      if not item then
-        return
-      end
-
-      utils.with_account_uuid(function(account_uuid)
-        if not account_uuid then
-          msg.error('Failed to retrieve account UUID')
-          return
-        end
-
-        local url = string.format('onepassword://view-item?a=%s&v=%s&i=%s', account_uuid, item.vault.id, item.id)
-        utils.open_url(url)
-      end, { async = true })
-    end)
-  end
+function M.op_view_item()
+  utils.open_desktop_app_url('view')
 end
 
-function M.op_fill()
+function M.op_edit_item()
+  utils.open_desktop_app_url('edit')
+end
+
+function M.op_open_and_fill()
   local stdout, stderr = op.item.list({ '--format', 'json' })
   if #stderr > 0 then
     msg.error(stderr[1])

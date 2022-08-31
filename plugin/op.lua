@@ -13,12 +13,16 @@ vim.api.nvim_create_user_command('OpCreate', function()
   require('op').op_create()
 end, { desc = 'Create a new 1Password item from strings in the current buffer' })
 
-vim.api.nvim_create_user_command('OpOpen', function()
-  require('op').op_open()
+vim.api.nvim_create_user_command('OpView', function()
+  require('op').op_view_item()
 end, { desc = 'Open an item in the 1Password 8 desktop app' })
 
-vim.api.nvim_create_user_command('OpFill', function()
-  require('op').op_fill()
+vim.api.nvim_create_user_command('OpEdit', function()
+  require('op').op_edit_item()
+end, { desc = 'Open an item to the edit view in the 1Password 8 desktop app' })
+
+vim.api.nvim_create_user_command('OpOpen', function()
+  require('op').op_open_and_fill()
 end, { desc = 'Open and fill an item in your default browser' })
 
 vim.api.nvim_create_user_command('OpSignin', function(input)

@@ -350,6 +350,42 @@ function M.dedup_list(list)
   return result
 end
 
+---Open a 1Password 8 desktop app URL
+---@param action "view" | "edit"
+function M.open_desktop_app_url(action)
+  if action ~= 'view' and 'action' ~= 'edit' then
+    msg.error(string.format("Unsupported URL action '%s'", action))
+    return
+  end
+
+  local stdout, stderr = op.item.list({ '--format', 'json' })
+  if #stderr > 0 then
+    msg.error(stderr[1])
+  elseif #stdout > 0 then
+    local items = vim.json.decode(table.concat(stdout, ''))
+    vim.ui.select(items, {
+      prompt = 'Select 1Password item',
+      format_item = function(item)
+        return M.format_item_for_select(item)
+      end,
+    }, function(item)
+      if not item then
+        return
+      end
+
+      M.with_account_uuid(function(account_uuid)
+        if not account_uuid then
+          msg.error('Failed to retrieve account UUID')
+          return
+        end
+
+        local url = string.format('onepassword://%s-item?a=%s&v=%s&i=%s', action, account_uuid, item.vault.id, item.id)
+        M.open_url(url)
+      end, { async = true })
+    end)
+  end
+end
+
 ---Open URL in default handler
 function M.open_url(url)
   local cmd = nil
@@ -371,6 +407,9 @@ end
 
 local random_seeded = false
 local uuid_gen_template = 'xxxxxxxxxxxxxxxxxxxxxxxxxx'
+
+---Generate a short (26 character) random UUID
+---@return string the UUID
 function M.uuid_short()
   if not random_seeded then
     math.randomseed(tonumber((tostring(os.time())):reverse()) + 0)
@@ -385,6 +424,9 @@ function M.uuid_short()
   return str
 end
 
+---Given an item URL and an item UUID, open and fill it
+---@param url string
+---@param uuid string
 function M.open_and_fill(url, uuid)
   local key_value = string.format('%s=%s', M.uuid_short(), uuid)
   local url_with_params
