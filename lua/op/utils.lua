@@ -353,7 +353,7 @@ end
 ---Open a 1Password 8 desktop app URL
 ---@param action "view" | "edit"
 function M.open_desktop_app_url(action)
-  if action ~= 'view' and 'action' ~= 'edit' then
+  if action ~= 'view' and action ~= 'edit' then
     msg.error(string.format("Unsupported URL action '%s'", action))
     return
   end
