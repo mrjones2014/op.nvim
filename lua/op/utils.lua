@@ -370,19 +370,31 @@ function M.open_url(url)
 end
 
 local random_seeded = false
-function M.rand_id()
+local uuid_gen_template = 'xxxxxxxxxxxxxxxxxxxxxxxxxx'
+function M.uuid_short()
   if not random_seeded then
-    math.randomseed(os.time())
+    math.randomseed(tonumber((tostring(os.time())):reverse()) + 0)
     random_seeded = true
   end
 
-  local template = 'xxxxxxxx-xxxx-yxxx-yxxx-xxxxxxxxxxxx'
-  local str, _ = string.gsub(template, '[xy]', function(c)
-    local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+  local str, _ = string.gsub(uuid_gen_template, 'x', function()
+    local v = math.random(0, 0xf)
     return string.format('%x', v)
   end)
 
   return str
+end
+
+function M.open_and_fill(url, uuid)
+  local key_value = string.format('%s=%s', M.uuid_short(), uuid)
+  local url_with_params
+  if string.find(url, '?') then
+    url_with_params = string.format('%s&%s', url, key_value)
+  else
+    url_with_params = string.format('%s?%s', url, key_value)
+  end
+
+  M.open_url(url_with_params)
 end
 
 return M

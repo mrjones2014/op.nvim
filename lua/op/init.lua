@@ -152,6 +152,31 @@ function M.op_open()
   end
 end
 
+function M.op_fill()
+  local stdout, stderr = op.item.list({ '--format', 'json' })
+  if #stderr > 0 then
+    msg.error(stderr[1])
+  elseif #stdout > 0 then
+    local items = vim.json.decode(table.concat(stdout, ''))
+    vim.ui.select(items, {
+      prompt = 'Select 1Password item',
+      format_item = function(item)
+        return utils.format_item_for_select(item)
+      end,
+    }, function(item)
+      if not item then
+        return
+      end
+
+      if not item.urls or #item.urls < 1 then
+        msg.error('No URLs associated with item.')
+        return
+      end
+      utils.open_and_fill(item.urls[1].href, item.id)
+    end)
+  end
+end
+
 function M.op_create()
   local strings = ts.get_all_strings()
   utils.select_fields(strings, function(fields, item_title, vault)

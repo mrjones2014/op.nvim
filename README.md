@@ -116,6 +116,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpWhoami` \* - Check which 1Password account your current CLI session is using.
 - `:OpCreate` † - Create a new item using strings in the current buffer as fields.
 - `:OpOpen` † - Open an item in the 1Password 8 desktop app.
+- `:OpFill` - Select an item to open & fill in your default browser (requires `xdg-open` on Linux)
 - `:OpInsert` - Insert an item reference at current cursor position.
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 
@@ -128,6 +129,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
 - Switch between multiple 1Password accounts (only works with biometric unlock enabled)
+- Select an item to open & fill in your default browser
 - Secure Notes Editor (See [Secure Notes Editor](#secure-notes-editor))
 - Statusline component that updates asynchronously (See [Statusline](#statusline))
 - Most commands are partially or fully asynchronous

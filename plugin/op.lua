@@ -17,6 +17,10 @@ vim.api.nvim_create_user_command('OpOpen', function()
   require('op').op_open()
 end, { desc = 'Open an item in the 1Password 8 desktop app' })
 
+vim.api.nvim_create_user_command('OpFill', function()
+  require('op').op_fill()
+end, { desc = 'Open and fill an item in your default browser' })
+
 vim.api.nvim_create_user_command('OpSignin', function(input)
   local account_identifier = input and input.fargs and input.fargs[1] or nil
   require('op').op_signin(account_identifier)
