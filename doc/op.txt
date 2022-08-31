@@ -119,8 +119,9 @@ COMMANDS                                                         *op-commands*
 - `:OpSignout` * - End your current 1Password CLI session.
 - `:OpWhoami` * - Check which 1Password account your current CLI session is using.
 - `:OpCreate` † - Create a new item using strings in the current buffer as fields.
-- `:OpOpen` † - Open an item in the 1Password 8 desktop app.
-- `:OpFill` - Select an item to open & fill in your default browser (requires `xdg-open` on Linux)
+- `:OpView` † - Open an item in the 1Password 8 desktop app.
+- `:OpView` † - Open an item to the edit view in the 1Password 8 desktop app.
+- `:OpOpen` - Select an item to open & fill in your default browser (requires `xdg-open` on Linux)
 - `:OpInsert` - Insert an item reference at current cursor position.
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 
