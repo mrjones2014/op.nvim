@@ -2,7 +2,7 @@ local msg = require('op.msg')
 
 local M = {}
 
-M.requests = {}
+local requests = {}
 
 function M.create_request(on_done)
   local success, request_id = pcall(require('op.utils').uuid_short)
@@ -11,7 +11,7 @@ function M.create_request(on_done)
     return
   end
 
-  M.requests[request_id] = on_done
+  requests[request_id] = on_done
   return request_id
 end
 
@@ -21,10 +21,10 @@ function M.callback(request_id, json, err)
   end
 
   if type(json) == 'string' then
-    local callbackfn = M.requests[request_id]
+    local callbackfn = requests[request_id]
     if type(callbackfn) == 'function' then
       local fn = vim.deepcopy(callbackfn)
-      M.requests[request_id] = nil
+      requests[request_id] = nil
       fn(json)
     end
   end
