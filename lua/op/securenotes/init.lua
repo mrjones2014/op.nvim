@@ -130,6 +130,10 @@ function M.load_note_changes()
       vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, contents)
       vim.defer_fn(function()
         vim.api.nvim_buf_set_option(buf_id, 'modified', false)
+        -- reset filetype to restore highlighting
+        -- luacheck thinks this is readonly for some reason
+        -- luacheck:ignore
+        vim.bo.filetype = 'markdown'
       end, 5)
     end
   end
