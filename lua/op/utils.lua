@@ -9,6 +9,7 @@ local require = lazyrequire
 local op = require('op.api')
 local config = require('op.config')
 local msg = require('op.msg')
+local icons = require('op.icons')
 
 local function with_item_overviews(callback)
   local stdout, stderr = op.item.list({ '--format', 'json' })
@@ -62,6 +63,15 @@ local function collect_inputs(prompts, callback, outputs)
 end
 
 function M.format_item_for_select(item)
+  if config.get_config_immutable().use_icons then
+    return string.format(
+      "%s '%s' in vault '%s'",
+      icons.category_icons[item.category or 'CUSTOM'],
+      item.title,
+      item.vault.name
+    )
+  end
+
   return string.format("'%s' in vault '%s'", item.title, item.vault.name)
 end
 
