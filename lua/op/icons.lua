@@ -25,4 +25,8 @@ M.category_icons = {
   ['CUSTOM'] = '',
 }
 
+function M.category_icon(category)
+  return M.category_icons[category or 'CUSTOM'] or M.category_icons['CUSTOM']
+end
+
 return M

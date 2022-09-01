@@ -64,12 +64,7 @@ end
 
 function M.format_item_for_select(item)
   if config.get_config_immutable().use_icons then
-    return string.format(
-      "%s '%s' in vault '%s'",
-      icons.category_icons[item.category or 'CUSTOM'],
-      item.title,
-      item.vault.name
-    )
+    return string.format("%s '%s' in vault '%s'", icons.category_icon(item.category), item.title, item.vault.name)
   end
 
   return string.format("'%s' in vault '%s'", item.title, item.vault.name)

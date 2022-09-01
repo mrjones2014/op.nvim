@@ -11,6 +11,7 @@ local msg = require('op.msg')
 local session = require('op.securenotes.session')
 local config = require('op.config')
 local utils = require('op.utils')
+local bufs = require('op.buffers')
 
 local function with_note(uuid, vault_uuid, callback)
   op.item.get({ async = true, uuid, '--vault', vault_uuid, '--format', 'json' }, function(stdout, stderr)
@@ -23,19 +24,13 @@ local function with_note(uuid, vault_uuid, callback)
   end)
 end
 
-local function buf_set_options(buf, opts)
-  for key, opt in pairs(opts) do
-    if key == 'title' or key == 'name' then
-      local prefix = vim.tbl_get(config.get_config_immutable(), 'secure_notes', 'buf_name_prefix')
-      local name = vim.trim(opt)
-      if prefix and #prefix > 0 then
-        name = string.format('%s %s.md', vim.trim(prefix), name)
-      end
-      vim.api.nvim_buf_set_name(buf, name)
-    else
-      vim.api.nvim_buf_set_option(buf, key, opt)
-    end
+local function format_title(title)
+  local prefix = vim.tbl_get(config.get_config_immutable(), 'secure_notes', 'buf_name_prefix')
+  if prefix then
+    return string.format('%s %s', vim.trim(prefix), vim.trim(title))
   end
+
+  return vim.trim(title)
 end
 
 ---Return note contents as an array of lines
@@ -57,21 +52,19 @@ local function note_contents(note)
 end
 
 local function setup_secure_note_buf(win_id, note)
-  local buf = vim.api.nvim_create_buf(true, true)
+  local buf = bufs.create({
+    filetype = 'markdown',
+    buftype = 'acwrite',
+    title = format_title(note.title),
+    lines = note_contents(note),
+  })
+
   if buf == 0 then
     msg.error('Failed to create buffer for Secure Notes.')
     return nil
   end
 
   session.create(buf, note)
-
-  local contents = note_contents(note)
-  vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
-  buf_set_options(buf, {
-    filetype = 'markdown',
-    buftype = 'acwrite',
-    title = note.title,
-  })
 
   -- set modified on TextChanged, :OpCommit sets nomodified
   vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {

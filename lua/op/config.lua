@@ -13,6 +13,10 @@ local config = {
     end
     return nil
   end,
+  sidebar = {
+    'favorites',
+    'secure_notes',
+  },
   global_args = {
     '--cache',
     '--no-color',
