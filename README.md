@@ -75,6 +75,10 @@ require('op').setup({
   op_cli_path = 'op',
   -- Whether to sign in on start.
   signin_on_start = false,
+  -- show NerdFont icons in `vim.ui.select()` interfaces,
+  -- set to false if you do not use a NerdFont or just
+  -- don't want icons
+  use_icons = true,
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
   -- `op --help` output.

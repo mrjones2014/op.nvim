@@ -4,6 +4,7 @@ local config = {
   op_cli_path = 'op',
   biometric_unlock = true,
   signin_on_start = false,
+  use_icons = true,
   global_args = {
     '--cache',
     '--no-color',
