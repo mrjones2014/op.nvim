@@ -30,6 +30,19 @@ function M.create(opts)
   return buf
 end
 
+function M.autocmds(autocmds)
+  for _, au in ipairs(autocmds) do
+    -- separate out numeric keys from string keys
+    local options = {}
+    for key, value in pairs(au) do
+      if type(key) == 'string' then
+        options[key] = value
+      end
+    end
+    vim.api.nvim_create_autocmd(au[1], options)
+  end
+end
+
 function M.update_lines(buf, lines)
   local readonly = vim.api.nvim_buf_get_option(buf, 'readonly')
   local modifiable = vim.api.nvim_buf_get_option(buf, 'modifiable')

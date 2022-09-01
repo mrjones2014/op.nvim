@@ -66,32 +66,35 @@ local function setup_secure_note_buf(win_id, note)
 
   session.create(buf, note)
 
-  -- set modified on TextChanged, :OpCommit sets nomodified
-  vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
-    buffer = buf,
-    callback = function()
-      vim.api.nvim_buf_set_option(buf, 'modified', true)
-    end,
-  })
-
-  -- Handle autocmd BufWriteCmd so that :w can be used to update the Secure Note in 1Password
-  vim.api.nvim_create_autocmd('BufWriteCmd', {
-    buffer = buf,
-    callback = M.save_secure_note,
-  })
-
-  -- Handle autocmd BufReadCmd so that :e can be used to load changes from 1Password into the buffer
-  vim.api.nvim_create_autocmd('BufReadCmd', {
-    buffer = buf,
-    callback = M.load_note_changes,
-  })
-
-  -- kill session on buffer delete
-  vim.api.nvim_create_autocmd('BufDelete', {
-    buffer = buf,
-    callback = function()
-      session.close_session_for_buf_id(buf)
-    end,
+  bufs.autocmds({
+    {
+      -- set modified on TextChanged, :w sets nomodified
+      { 'TextChanged', 'TextChangedI' },
+      buffer = buf,
+      callback = function()
+        vim.api.nvim_buf_set_option(buf, 'modified', true)
+      end,
+    },
+    {
+      -- Handle autocmd BufWriteCmd so that :w can be used to update the Secure Note in 1Password
+      'BufWriteCmd',
+      buffer = buf,
+      callback = M.save_secure_note,
+    },
+    {
+      -- Handle autocmd BufReadCmd so that :e can be used to load changes from 1Password into the buffer
+      'BufReadCmd',
+      buffer = buf,
+      callback = M.load_note_changes,
+    },
+    {
+      -- kill session on buffer delete
+      'BufDelete',
+      buffer = buf,
+      callback = function()
+        session.close_session_for_buf_id(buf)
+      end,
+    },
   })
 
   -- finally, open the buffer
