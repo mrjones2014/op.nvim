@@ -398,17 +398,13 @@ end
 
 ---Open URL in default handler
 function M.open_url(url)
-  local cmd = nil
-  if vim.fn.has('mac') == 1 then
-    cmd = 'open'
-  elseif vim.fn.has('unix') == 1 then
-    cmd = 'xdg-open'
-  elseif vim.fn.has('win32') == 1 then
-    cmd = 'start'
+  local cmd = config.get_config_immutable().url_open_command
+  if type(cmd) == 'function' then
+    cmd = cmd()
   end
 
   if not cmd then
-    msg.error('Opening URLs is not supported on this OS.')
+    msg.error('op.nvim: config.url_open_command must return a string value')
     return
   end
 

@@ -5,6 +5,14 @@ local config = {
   biometric_unlock = true,
   signin_on_start = false,
   use_icons = true,
+  url_open_command = function()
+    if vim.fn.has('mac') == 1 then
+      return 'open'
+    elseif vim.fn.has('unix') == 1 then
+      return 'xdg-open'
+    end
+    return nil
+  end,
   global_args = {
     '--cache',
     '--no-color',

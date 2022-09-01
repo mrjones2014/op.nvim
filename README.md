@@ -79,6 +79,16 @@ require('op').setup({
   -- set to false if you do not use a NerdFont or just
   -- don't want icons
   use_icons = true,
+  -- command to use for opening URLs,
+  -- can be a function or a string
+  url_open_command = function()
+    if vim.fn.has('mac') == 1 then
+      return 'open'
+    elseif vim.fn.has('unix') == 1 then
+      return 'xdg-open'
+    end
+    return nil
+  end,
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
   -- `op --help` output.
@@ -121,7 +131,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpCreate` † - Create a new item using strings in the current buffer as fields.
 - `:OpView` † - Open an item in the 1Password 8 desktop app.
 - `:OpEdit` † - Open an item to the edit view in the 1Password 8 desktop app.
-- `:OpOpen` - Select an item to open & fill in your default browser (requires `xdg-open` on Linux)
+- `:OpOpen` - Select an item to open & fill in your default browser
 - `:OpInsert` - Insert an item reference at current cursor position.
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 
