@@ -13,6 +13,13 @@ local config = {
     end
     return nil
   end,
+  statusline_fmt = function(account_name)
+    if not account_name or #account_name == 0 then
+      return ' 1Password: No active session'
+    end
+
+    return string.format(' 1Password: %s', account_name)
+  end,
   global_args = {
     '--cache',
     '--no-color',
