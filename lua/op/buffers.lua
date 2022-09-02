@@ -27,6 +27,8 @@ function M.create(opts)
     end
   end
 
+  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+
   return buf
 end
 

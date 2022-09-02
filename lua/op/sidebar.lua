@@ -17,17 +17,7 @@ local sidebar_items = {
   secure_notes = {},
 }
 
-local op_winbuf = {
-  buf = nil,
-  win = nil,
-}
-
-local function clearwinbuf()
-  op_winbuf = {
-    buf = nil,
-    win = nil,
-  }
-end
+local op_buf_id = nil
 
 local function should_load_favorites()
   local cfg = config.get_config_immutable()
@@ -125,9 +115,9 @@ function M.load_sidebar_items()
 end
 
 function M.toggle()
-  if op_winbuf.buf then
-    vim.api.nvim_buf_delete(op_winbuf.buf, { force = true })
-    clearwinbuf()
+  if op_buf_id and op_buf_id ~= 0 then
+    vim.api.nvim_buf_delete(op_buf_id, { force = true })
+    op_buf_id = nil
   end
 
   if not initialized then
@@ -135,7 +125,7 @@ function M.toggle()
     initialized = true
   end
 
-  op_winbuf.buf = bufs.create({
+  op_buf_id = bufs.create({
     filetype = '1PasswordSidebar',
     buftype = 'nofile',
     readonly = true,
@@ -144,48 +134,65 @@ function M.toggle()
     unlisted = true,
   })
 
-  if op_winbuf.buf == 0 then
+  if op_buf_id == 0 then
     msg.error('Failed to create sidebar buffer.')
-    clearwinbuf()
+    op_buf_id = nil
     return
   end
-
-  bufs.autocmds({
-    {
-      'BufEnter',
-      callback = function()
-        if op_winbuf.win and op_winbuf.buf then
-          local win_buf = vim.api.nvim_win_get_buf(op_winbuf.win)
-          if win_buf ~= op_winbuf.buf then
-            vim.cmd('noautocmd wincmd w')
-            vim.schedule(function()
-              vim.api.nvim_win_set_buf(0, win_buf)
-              vim.api.nvim_win_set_buf(op_winbuf.win, op_winbuf.buf)
-            end)
-          end
-        end
-      end,
-    },
-  })
 
   vim.cmd('vsplit')
   -- luacheck thinks it's readonly for some reason
   -- luacheck:ignore
   vim.wo.number = false
-  op_winbuf.win = vim.api.nvim_get_current_win()
-  vim.api.nvim_win_set_buf(op_winbuf.win, op_winbuf.buf)
-  vim.w.op_nvim_sidebar = true
+  local win_id = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_set_buf(win_id, op_buf_id)
+
+  bufs.autocmds({
+    {
+      'BufWinEnter',
+      callback = function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        if bufnr ~= op_buf_id and vim.fn.bufnr('#') == op_buf_id then
+          vim.notify('switching bufs')
+          local op_win_id = vim.api.nvim_get_current_win()
+          vim.cmd('noautocmd wincmd p')
+          local alt_win_id = vim.api.nvim_get_current_win()
+          if alt_win_id == op_win_id then
+            vim.cmd('noautocmd wincmd h')
+          end
+          alt_win_id = vim.api.nvim_get_current_win()
+          if alt_win_id == op_win_id then
+            vim.cmd('noautocmd wincmd j')
+          end
+          alt_win_id = vim.api.nvim_get_current_win()
+          if alt_win_id == op_win_id then
+            vim.cmd('noautocmd wincmd l')
+          end
+          alt_win_id = vim.api.nvim_get_current_win()
+          if alt_win_id == op_win_id then
+            vim.cmd('noautocmd vsplit')
+          end
+          alt_win_id = vim.api.nvim_get_current_win()
+          vim.api.nvim_win_set_buf(0, bufnr)
+          vim.api.nvim_win_set_buf(op_win_id, op_buf_id)
+          vim.defer_fn(function()
+            vim.api.nvim_set_current_win(alt_win_id)
+          end, 5)
+        end
+      end,
+    },
+  })
 
   M.render()
 end
 
 function M.render()
-  if not op_winbuf.buf then
+  if not op_buf_id or op_buf_id == 0 then
     return
   end
 
   local buf_lines = get_lines()
-  bufs.update_lines(op_winbuf.buf, buf_lines)
+  bufs.update_lines(op_buf_id, buf_lines)
 end
 
 return M
