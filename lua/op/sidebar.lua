@@ -41,26 +41,26 @@ end
 
 local function favorites_header(use_icons)
   if use_icons then
-    return ' Favorites'
+    return '  Favorites'
   else
-    return 'Favorites'
+    return ' Favorites'
   end
 end
 
 local function secure_notes_header(use_icons)
   if use_icons then
-    return string.format('%s Secure Notes', icons.category_icon('SECURE_NOTE'))
+    return string.format(' %s Secure Notes', icons.category_icon('SECURE_NOTE'))
   else
-    return 'Secure Notes'
+    return ' Secure Notes'
   end
 end
 
 local function format_item(item, use_icons)
   if use_icons then
-    return string.format('  %s %s', icons.category_icon(item.category), item.title)
+    return string.format('   %s %s', icons.category_icon(item.category), item.title)
   end
 
-  return string.format('  • %s', item.title)
+  return string.format('   • %s', item.title)
 end
 
 local function get_lines()
@@ -140,15 +140,18 @@ function M.toggle()
     return
   end
 
-  vim.cmd('vsplit')
+  local cfg = config.get_config_immutable()
+  vim.cmd(tostring(cfg.sidebar.width or 40) .. 'vsplit')
   -- luacheck thinks it's readonly for some reason
   -- luacheck:ignore
   vim.wo.number = false
   local win_id = vim.api.nvim_get_current_win()
+  vim.wo.signcolumn = 'no'
   vim.api.nvim_win_set_buf(win_id, op_buf_id)
 
   bufs.autocmds({
     {
+      -- prevent other buffers from being loaded in the sidebar window
       'BufWinEnter',
       callback = function()
         local bufnr = vim.api.nvim_get_current_buf()
@@ -162,11 +165,15 @@ function M.toggle()
           end
           alt_win_id = vim.api.nvim_get_current_win()
           if alt_win_id == op_win_id then
+            vim.cmd('noautocmd wincmd l')
+          end
+          alt_win_id = vim.api.nvim_get_current_win()
+          if alt_win_id == op_win_id then
             vim.cmd('noautocmd wincmd j')
           end
           alt_win_id = vim.api.nvim_get_current_win()
           if alt_win_id == op_win_id then
-            vim.cmd('noautocmd wincmd l')
+            vim.cmd('noautocmd wincmd k')
           end
           alt_win_id = vim.api.nvim_get_current_win()
           if alt_win_id == op_win_id then

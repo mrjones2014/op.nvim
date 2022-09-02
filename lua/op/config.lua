@@ -14,6 +14,7 @@ local config = {
     return nil
   end,
   sidebar = {
+    width = 40,
     'favorites',
     'secure_notes',
   },
