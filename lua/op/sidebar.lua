@@ -17,7 +17,17 @@ local sidebar_items = {
   secure_notes = {},
 }
 
-local op_buf_id = nil
+local op_winbuf = {
+  buf = nil,
+  win = nil,
+}
+
+local function clearwinbuf()
+  op_winbuf = {
+    buf = nil,
+    win = nil,
+  }
+end
 
 local function should_load_favorites()
   local cfg = config.get_config_immutable()
@@ -115,9 +125,9 @@ function M.load_sidebar_items()
 end
 
 function M.toggle()
-  if op_buf_id then
-    vim.api.nvim_buf_delete(op_buf_id, { force = true })
-    op_buf_id = nil
+  if op_winbuf.buf then
+    vim.api.nvim_buf_delete(op_winbuf.buf, { force = true })
+    clearwinbuf()
   end
 
   if not initialized then
@@ -125,37 +135,57 @@ function M.toggle()
     initialized = true
   end
 
-  op_buf_id = bufs.create({
+  op_winbuf.buf = bufs.create({
     filetype = '1PasswordSidebar',
     buftype = 'nofile',
     readonly = true,
     title = '1Password',
     lines = get_lines(),
+    unlisted = true,
   })
 
-  if op_buf_id == 0 then
+  if op_winbuf.buf == 0 then
     msg.error('Failed to create sidebar buffer.')
-    op_buf_id = nil
+    clearwinbuf()
     return
   end
+
+  bufs.autocmds({
+    {
+      'BufEnter',
+      callback = function()
+        if op_winbuf.win and op_winbuf.buf then
+          local win_buf = vim.api.nvim_win_get_buf(op_winbuf.win)
+          if win_buf ~= op_winbuf.buf then
+            vim.cmd('noautocmd wincmd w')
+            vim.schedule(function()
+              vim.api.nvim_win_set_buf(0, win_buf)
+              vim.api.nvim_win_set_buf(op_winbuf.win, op_winbuf.buf)
+            end)
+          end
+        end
+      end,
+    },
+  })
 
   vim.cmd('vsplit')
   -- luacheck thinks it's readonly for some reason
   -- luacheck:ignore
   vim.wo.number = false
-  local win_id = vim.api.nvim_get_current_win()
-  vim.api.nvim_win_set_buf(win_id, op_buf_id)
+  op_winbuf.win = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_set_buf(op_winbuf.win, op_winbuf.buf)
+  vim.w.op_nvim_sidebar = true
 
   M.render()
 end
 
 function M.render()
-  if not op_buf_id then
+  if not op_winbuf.buf then
     return
   end
 
   local buf_lines = get_lines()
-  bufs.update_lines(op_buf_id, buf_lines)
+  bufs.update_lines(op_winbuf.buf, buf_lines)
 end
 
 return M

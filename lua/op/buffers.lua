@@ -1,7 +1,7 @@
 local M = {}
 
 function M.create(opts)
-  local buf = vim.api.nvim_create_buf(true, false)
+  local buf = vim.api.nvim_create_buf(not opts.unlisted, false)
   if buf == 0 then
     return buf
   end
@@ -22,7 +22,7 @@ function M.create(opts)
     elseif key == 'readonly' or key == 'modifiable' then
       vim.api.nvim_buf_set_option(buf, 'readonly', true)
       vim.api.nvim_buf_set_option(buf, 'modifiable', false)
-    elseif key ~= 'lines' then
+    elseif key ~= 'lines' and key ~= 'unlisted' then
       vim.api.nvim_buf_set_option(buf, key, opt)
     end
   end
