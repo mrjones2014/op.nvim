@@ -10,6 +10,8 @@ local icons = require('op.icons')
 local bufs = require('op.buffers')
 local op = require('op.api')
 local sidebaritem = require('op.sidebar.sidebaritems')
+local utils = require('op.utils')
+local securenotes = require('op.securenotes')
 
 local initialized = false
 
@@ -33,6 +35,7 @@ local function strip_sensitive_data(items)
       id = item.id,
       title = item.title,
       category = item.category,
+      url = vim.tbl_get(item, 'urls', 1),
       vault = {
         id = item.vault.id,
       },
@@ -62,6 +65,43 @@ local function build_sidebar_items(items)
   end
 
   return lines
+end
+
+local function on_enter()
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+  local sidebar_item = sidebar_items[line]
+  if not sidebar_item then
+    msg.error('Failed to open 1Password sidebar item.')
+    return
+  end
+
+  if sidebar_item.type ~= 'item' then
+    return
+  end
+
+  if sidebar_item.data.category == 'SECURE_NOTE' then
+    securenotes.load_secure_note(sidebar_item.data.uuid, sidebar_item.data.vault_uuid)
+    return
+  end
+
+  if sidebar_item.data.url and #sidebar_item.data.url > 0 then
+    utils.open_and_fill(sidebar_item.data.url, sidebar_item.data.uuid)
+    return
+  end
+
+  local stdout, stderr = op.account.get({ '--format', 'json' })
+  if #stderr > 0 then
+    msg.error(stderr[1])
+  elseif #stdout > 0 then
+    local account = vim.json.decode(table.concat(stdout, ''))
+    local url = string.format(
+      'onepassword://view-item?a=%s&v=%s&i=%s',
+      account.id,
+      sidebar_item.data.vault_uuid,
+      sidebar_item.data.uuid
+    )
+    utils.open_url(url)
+  end
 end
 
 function M.load_sidebar_items()
@@ -103,7 +143,6 @@ function M.toggle()
     initialized = true
   end
 
-  print(vim.inspect(sidebar_items))
   op_buf_id = bufs.create({
     filetype = '1PasswordSidebar',
     buftype = 'nofile',
@@ -114,6 +153,8 @@ function M.toggle()
     end, sidebar_items),
     unlisted = true,
   })
+
+  vim.keymap.set('n', '<CR>', on_enter, { buffer = op_buf_id })
 
   if op_buf_id == 0 then
     msg.error('Failed to create sidebar buffer.')

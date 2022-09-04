@@ -124,11 +124,11 @@ function M.op_whoami()
 end
 
 function M.op_view_item()
-  utils.open_desktop_app_url('view')
+  utils.find_and_open_desktop_app_url('view')
 end
 
 function M.op_edit_item()
-  utils.open_desktop_app_url('edit')
+  utils.find_and_open_desktop_app_url('edit')
 end
 
 function M.op_open_and_fill()

@@ -52,10 +52,21 @@ local function note_contents(note)
 end
 
 local function setup_secure_note_buf(win_id, note)
+  local title = format_title(note.title)
+  local existing_buf = vim.tbl_filter(function(buf)
+    local buf_name = vim.api.nvim_buf_get_name(buf):sub(#title * -1)
+    return buf_name == title
+  end, vim.api.nvim_list_bufs())[1]
+  if existing_buf then
+    vim.api.nvim_win_set_buf(0, existing_buf)
+    return
+  end
+
   local buf = bufs.create({
     filetype = 'markdown',
     buftype = 'acwrite',
-    title = format_title(note.title),
+    modified = false,
+    title = title,
     lines = note_contents(note),
   })
 
@@ -72,7 +83,14 @@ local function setup_secure_note_buf(win_id, note)
       { 'TextChanged', 'TextChangedI' },
       buffer = buf,
       callback = function()
-        vim.api.nvim_buf_set_option(buf, 'modified', true)
+        -- wait till after text is set the first time
+        if vim.b.op_nvim_secure_note_initialized then
+          vim.api.nvim_buf_set_option(buf, 'modified', true)
+          return
+        end
+
+        vim.api.nvim_buf_set_option(buf, 'modified', false)
+        vim.b.op_nvim_secure_note_initialized = true
       end,
     },
     {
@@ -99,10 +117,6 @@ local function setup_secure_note_buf(win_id, note)
 
   -- finally, open the buffer
   vim.api.nvim_win_set_buf(win_id, buf)
-  -- set buffer nomodified on load
-  vim.defer_fn(function()
-    vim.api.nvim_buf_set_option(buf, 'modified', false)
-  end, 5)
 end
 
 function M.load_note_changes()

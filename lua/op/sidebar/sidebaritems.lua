@@ -12,7 +12,7 @@ function M.item(item)
   local sidebar_item = setmetatable({}, M)
   sidebar_item.title = item.title
   sidebar_item.icon = require('op.icons').category_icon(item.category)
-  sidebar_item.data = { uuid = item.id, vault_uuid = item.vault.id }
+  sidebar_item.data = { uuid = item.id, vault_uuid = item.vault.id, category = item.category, url = item.url }
   sidebar_item.type = 'item'
   return sidebar_item
 end
