@@ -84,8 +84,9 @@ local function on_enter()
     return
   end
 
-  print(vim.inspect(sidebar_item.data))
-  if sidebar_item.data.url and #sidebar_item.data.url > 0 then
+  local cfg = config.get_config_immutable()
+  local open_and_fill = cfg.sidebar.default_login_item_mapping == 'open_and_fill'
+  if open_and_fill and sidebar_item.data.url and #sidebar_item.data.url > 0 then
     utils.open_and_fill(sidebar_item.data.url, sidebar_item.data.uuid)
     return
   end

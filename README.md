@@ -89,6 +89,20 @@ require('op').setup({
     end
     return nil
   end,
+  -- settings for op.nvim sidebar
+  sidebar = {
+    -- sections to include, available sections
+    -- are 'favorites' and `secure_notes`
+    'favorites',
+    'secure_notes',
+    -- sidebar width
+    width = 40,
+    -- default `<CR>` mapping, if item has a URL,
+    -- open and fill, otherwise open in 1Password 8
+    -- desktop app. To open in desktop app by default,
+    -- change this to 'open_in_app'.
+    default_login_item_mapping = 'open_and_fill',
+  },
   -- global_args accepts any arguments
   -- listed under "Global Flags" in
   -- `op --help` output.

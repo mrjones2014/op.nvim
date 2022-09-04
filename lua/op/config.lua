@@ -14,9 +14,10 @@ local config = {
     return nil
   end,
   sidebar = {
-    width = 40,
     'favorites',
     'secure_notes',
+    width = 40,
+    default_login_item_mapping = 'open_and_fill',
   },
   global_args = {
     '--cache',
