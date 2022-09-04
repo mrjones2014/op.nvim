@@ -146,6 +146,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - Switch between multiple 1Password accounts (only works with biometric unlock enabled)
 - Select an item to open & fill in your default browser
 - Secure Notes Editor (See [Secure Notes Editor](#secure-notes-editor))
+- 1Password sidebar (See [Sidebar](#sidebar))
 - Statusline component that updates asynchronously (See [Statusline](#statusline))
 - Most commands are partially or fully asynchronous
 
@@ -167,6 +168,16 @@ respectively, which then allows `op.nvim` to completely handle "writing" and "re
 
 Note that in order to write the contents back to the correct item, `op.nvim` associates buffer IDs with `{ uuid, vault_uuid }` pairs.
 **`op.nvim` does not store the note title or anything other than the UUID and vault UUID in the edit session**.
+
+### Sidebar
+
+`op.nvim` can show a sidebar listing your favorites, Secure Notes, or both. -- TODO elaborate
+
+#### Security
+
+In order to implement key mappings on the sidebar, the item's title, ID, vault ID, category, and primary URL are stored in memory
+to render the sidebar. **No other data is stored, and this data is stored internally to the plugin and never exported**. Other Lua
+code should not be able to access this data.
 
 ### Statusline
 

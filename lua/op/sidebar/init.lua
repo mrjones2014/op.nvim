@@ -35,7 +35,7 @@ local function strip_sensitive_data(items)
       id = item.id,
       title = item.title,
       category = item.category,
-      url = vim.tbl_get(item, 'urls', 1),
+      url = vim.tbl_get(item, 'urls', 1, 'href'),
       vault = {
         id = item.vault.id,
       },
@@ -84,6 +84,7 @@ local function on_enter()
     return
   end
 
+  print(vim.inspect(sidebar_item.data))
   if sidebar_item.data.url and #sidebar_item.data.url > 0 then
     utils.open_and_fill(sidebar_item.data.url, sidebar_item.data.uuid)
     return
