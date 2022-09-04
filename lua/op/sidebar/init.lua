@@ -9,13 +9,11 @@ local msg = require('op.msg')
 local icons = require('op.icons')
 local bufs = require('op.buffers')
 local op = require('op.api')
+local sidebaritem = require('op.sidebar.sidebaritems')
 
 local initialized = false
 
-local sidebar_items = {
-  favorites = {},
-  secure_notes = {},
-}
+local sidebar_items = {}
 
 local op_buf_id = nil
 
@@ -35,83 +33,63 @@ local function strip_sensitive_data(items)
       id = item.id,
       title = item.title,
       category = item.category,
+      vault = {
+        id = item.vault.id,
+      },
     }
   end, items)
 end
 
-local function favorites_header(use_icons)
-  if use_icons then
-    return '  Favorites'
-  else
-    return ' Favorites'
-  end
-end
-
-local function secure_notes_header(use_icons)
-  if use_icons then
-    return string.format(' %s Secure Notes', icons.category_icon('SECURE_NOTE'))
-  else
-    return ' Secure Notes'
-  end
-end
-
-local function format_item(item, use_icons)
-  if use_icons then
-    return string.format('   %s %s', icons.category_icon(item.category), item.title)
-  end
-
-  return string.format('   • %s', item.title)
-end
-
-local function get_lines()
-  local cfg = config.get_config_immutable()
-  local use_icons = cfg.use_icons
-
+local function build_sidebar_items(items)
   local lines = {}
-  if #sidebar_items.favorites > 0 then
-    table.insert(lines, favorites_header(use_icons))
+  if #items.favorites > 0 then
+    table.insert(lines, sidebaritem.header({ title = 'Favorites', icon = '' }))
 
     vim.tbl_map(function(favorite)
-      table.insert(lines, format_item(favorite, use_icons))
-    end, sidebar_items.favorites)
+      table.insert(lines, sidebaritem.item(favorite))
+    end, items.favorites)
   end
 
-  if #sidebar_items.favorites > 0 and #sidebar_items.secure_notes > 0 then
-    table.insert(lines, '')
+  if #items.favorites > 0 and #items.secure_notes > 0 then
+    table.insert(lines, sidebaritem.separator())
   end
 
-  if #sidebar_items.secure_notes > 0 then
-    table.insert(lines, secure_notes_header(use_icons))
+  if #items.secure_notes > 0 then
+    table.insert(lines, sidebaritem.header({ title = 'Secure Notes', icon = icons.category_icon('SECURE_NOTE') }))
     vim.tbl_map(function(note)
-      table.insert(lines, format_item(note, use_icons))
-    end, sidebar_items.secure_notes)
+      table.insert(lines, sidebaritem.item(note))
+    end, items.secure_notes)
   end
 
   return lines
 end
 
 function M.load_sidebar_items()
+  local items = {
+    favorites = {},
+    secure_notes = {},
+  }
+
   local function set_items(stdout, stderr, type)
     if #stderr > 0 then
       msg.error(stderr[1])
     elseif #stdout > 0 then
       local favorites = vim.json.decode(table.concat(stdout, ''))
-      sidebar_items[type] = strip_sensitive_data(favorites)
-      M.render()
+      items[type] = strip_sensitive_data(favorites)
     end
   end
 
   if should_load_favorites() then
-    op.item.list({ async = true, '--format', 'json', '--favorite' }, function(stdout, stderr)
-      set_items(stdout, stderr, 'favorites')
-    end)
+    local stdout, stderr = op.item.list({ '--format', 'json', '--favorite' })
+    set_items(stdout, stderr, 'favorites')
   end
 
   if should_load_notes() then
-    op.item.list({ async = true, '--format', 'json', '--categories="Secure Note"' }, function(stdout, stderr)
-      set_items(stdout, stderr, 'secure_notes')
-    end)
+    local stdout, stderr = op.item.list({ '--format', 'json', '--categories="Secure Note"' })
+    set_items(stdout, stderr, 'secure_notes')
   end
+
+  sidebar_items = build_sidebar_items(items)
 end
 
 function M.toggle()
@@ -125,12 +103,15 @@ function M.toggle()
     initialized = true
   end
 
+  print(vim.inspect(sidebar_items))
   op_buf_id = bufs.create({
     filetype = '1PasswordSidebar',
     buftype = 'nofile',
     readonly = true,
     title = '1Password',
-    lines = get_lines(),
+    lines = vim.tbl_map(function(line)
+      return sidebaritem.render(line)
+    end, sidebar_items),
     unlisted = true,
   })
 
@@ -156,7 +137,6 @@ function M.toggle()
       callback = function()
         local bufnr = vim.api.nvim_get_current_buf()
         if bufnr ~= op_buf_id and vim.fn.bufnr('#') == op_buf_id then
-          vim.notify('switching bufs')
           local op_win_id = vim.api.nvim_get_current_win()
           vim.cmd('noautocmd wincmd p')
           local alt_win_id = vim.api.nvim_get_current_win()
@@ -198,7 +178,9 @@ function M.render()
     return
   end
 
-  local buf_lines = get_lines()
+  local buf_lines = vim.tbl_map(function(line)
+    return sidebaritem.render(line)
+  end, sidebar_items)
   bufs.update_lines(op_buf_id, buf_lines)
 end
 
