@@ -13,11 +13,18 @@ function M.component()
     initialized = true
   end
 
-  if op_account_name then
-    return string.format(' 1Password: %s', op_account_name)
-  else
-    return ' 1Password: No active session'
+  local fmt = require('op.config').get_config_immutable().statusline_fmt
+  if type(fmt) ~= 'function' then
+    fmt = function(account_name)
+      if not account_name or #account_name == 0 then
+        return ' 1Password: No active session'
+      end
+
+      return string.format(' 1Password: %s', account_name)
+    end
   end
+
+  return fmt(op_account_name)
 end
 
 return M
