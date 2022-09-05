@@ -12,6 +12,7 @@ local session = require('op.securenotes.session')
 local config = require('op.config')
 local utils = require('op.utils')
 local bufs = require('op.buffers')
+local categories = require('op.categories')
 
 local function with_note(uuid, vault_uuid, callback)
   op.item.get({ async = true, uuid, '--vault', vault_uuid, '--format', 'json' }, function(stdout, stderr)
@@ -208,7 +209,17 @@ function M.new_secure_note()
         end
 
         op.item.create(
-          { async = true, '--format', 'json', '--category', 'Secure Note', '--vault', vault.id, '--title', title },
+          {
+            async = true,
+            '--format',
+            'json',
+            '--category',
+            categories.SECURE_NOTE.text,
+            '--vault',
+            vault.id,
+            '--title',
+            title,
+          },
           function(stdout, stderr)
             if #stderr > 0 then
               msg.error(stderr[1])

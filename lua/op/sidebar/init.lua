@@ -46,7 +46,7 @@ end
 local function build_sidebar_items(items)
   local lines = {}
   if #items.favorites > 0 then
-    table.insert(lines, sidebaritem.header({ title = 'Favorites', icon = '' }))
+    table.insert(lines, sidebaritem.favorites_header())
 
     vim.tbl_map(function(favorite)
       table.insert(lines, sidebaritem.item(favorite))
@@ -58,7 +58,7 @@ local function build_sidebar_items(items)
   end
 
   if #items.secure_notes > 0 then
-    table.insert(lines, sidebaritem.header({ title = 'Secure Notes', icon = icons.category_icon('SECURE_NOTE') }))
+    table.insert(lines, sidebaritem.secure_notes_header())
     vim.tbl_map(function(note)
       table.insert(lines, sidebaritem.item(note))
     end, items.secure_notes)
@@ -225,6 +225,7 @@ function M.render()
     return sidebaritem.render(line)
   end, sidebar_items)
   bufs.update_lines(op_buf_id, buf_lines)
+  sidebaritem.apply_highlights(sidebar_items, op_buf_id)
 end
 
 return M

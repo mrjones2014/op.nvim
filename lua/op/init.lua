@@ -11,6 +11,7 @@ local ts = require('op.treesitter')
 local msg = require('op.msg')
 local cfg = require('op.config')
 local securenotes = require('op.securenotes')
+local categories = require('op.categories')
 
 function M.setup(user_config)
   cfg.setup(user_config)
@@ -183,7 +184,7 @@ function M.op_create()
       '--format',
       'json',
       '--category',
-      'login',
+      categories.LOGIN.text,
       '--title',
       item_title,
       '--vault',
