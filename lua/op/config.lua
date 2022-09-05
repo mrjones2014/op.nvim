@@ -17,6 +17,7 @@ local config = {
     'favorites',
     'secure_notes',
     width = 40,
+    side = 'right',
     default_login_item_mapping = 'open_and_fill',
   },
   statusline_fmt = function(account_name)
@@ -48,7 +49,7 @@ end
 
 function M.setup(user_config)
   user_config = user_config or {}
-  config = vim.tbl_extend('force', config, user_config)
+  config = vim.tbl_deep_extend('force', config, user_config)
 
   if vim.g.op_nvim_remote_loaded then
     handle_setup()

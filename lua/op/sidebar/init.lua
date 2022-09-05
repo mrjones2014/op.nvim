@@ -165,7 +165,9 @@ function M.toggle()
   end
 
   local cfg = config.get_config_immutable()
-  vim.cmd(tostring(cfg.sidebar.width or 40) .. 'vsplit')
+  local sidebar_side = cfg.sidebar.side
+  local split_cmd = sidebar_side == 'right' and 'belowright' or 'aboveleft'
+  vim.cmd(string.format('%s %svsplit', split_cmd, tostring(cfg.sidebar.width or 40)))
   -- luacheck thinks it's readonly for some reason
   -- luacheck:ignore
   vim.wo.number = false

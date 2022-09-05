@@ -97,6 +97,8 @@ require('op').setup({
     'secure_notes',
     -- sidebar width
     width = 40,
+    -- put the sidebar on the right or left side
+    side = 'right',
     -- default `<CR>` mapping, if item has a URL,
     -- open and fill, otherwise open in 1Password 8
     -- desktop app. To open in desktop app by default,
