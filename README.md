@@ -181,6 +181,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpOpen` - Select an item to open & fill in your default browser
 - `:OpInsert` - Insert an item reference at current cursor position.
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
+- `:OpSidebar` \* - Toggle the 1Password sidebar open/closed.
 
 ## Features
 
