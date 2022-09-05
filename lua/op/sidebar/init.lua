@@ -168,12 +168,10 @@ function M.toggle()
   local sidebar_side = cfg.sidebar.side
   local split_cmd = sidebar_side == 'right' and 'belowright' or 'aboveleft'
   vim.cmd(string.format('%s %svsplit', split_cmd, tostring(cfg.sidebar.width or 40)))
-  -- luacheck thinks it's readonly for some reason
-  -- luacheck:ignore
-  vim.wo.number = false
   local win_id = vim.api.nvim_get_current_win()
-  vim.wo.signcolumn = 'no'
   vim.api.nvim_win_set_buf(win_id, op_buf_id)
+  vim.api.nvim_win_set_option(win_id, 'number', false)
+  vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
 
   bufs.autocmds({
     {

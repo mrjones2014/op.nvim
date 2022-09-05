@@ -2,7 +2,6 @@ if vim.g.op_nvim_loaded == true then
   return
 end
 
---luacheck:ignore
 vim.g.op_nvim_loaded = true
 
 vim.api.nvim_create_user_command('OpInsert', function()

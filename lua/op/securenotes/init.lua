@@ -142,8 +142,6 @@ function M.load_note_changes()
       vim.defer_fn(function()
         vim.api.nvim_buf_set_option(buf_id, 'modified', false)
         -- reset filetype to restore highlighting
-        -- luacheck thinks this is readonly for some reason
-        -- luacheck:ignore
         vim.bo.filetype = 'markdown'
       end, 5)
     end
@@ -208,30 +206,27 @@ function M.new_secure_note()
           return
         end
 
-        op.item.create(
-          {
-            async = true,
-            '--format',
-            'json',
-            '--category',
-            categories.SECURE_NOTE.text,
-            '--vault',
-            vault.id,
-            '--title',
-            title,
-          },
-          function(stdout, stderr)
-            if #stderr > 0 then
-              msg.error(stderr[1])
-            elseif #stdout > 0 then
-              local note = vim.json.decode(table.concat(stdout, ''))
-              msg.success(string.format("Created Secure Note '%s'", title))
-              vim.schedule(function()
-                setup_secure_note_buf(win_id, note)
-              end)
-            end
+        op.item.create({
+          async = true,
+          '--format',
+          'json',
+          '--category',
+          categories.SECURE_NOTE.text,
+          '--vault',
+          vault.id,
+          '--title',
+          title,
+        }, function(stdout, stderr)
+          if #stderr > 0 then
+            msg.error(stderr[1])
+          elseif #stdout > 0 then
+            local note = vim.json.decode(table.concat(stdout, ''))
+            msg.success(string.format("Created Secure Note '%s'", title))
+            vim.schedule(function()
+              setup_secure_note_buf(win_id, note)
+            end)
           end
-        )
+        end)
       end)
     end)
   end)
