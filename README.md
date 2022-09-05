@@ -218,13 +218,26 @@ Note that in order to write the contents back to the correct item, `op.nvim` ass
 
 ### Sidebar
 
-`op.nvim` can show a sidebar listing your favorites, Secure Notes, or both. -- TODO elaborate
+`op.nvim` can show a sidebar listing your favorites, Secure Notes, or both. Keymappings can be added to open, view, etc. the items
+in the sidebar. See screenshot below:
+
+![op.nvim sidebar](https://github.com/mrjones2014/demo-gifs/raw/master/op_nvim_sidebar.png)
+
+#### Highlighting Groups
+
+For colorscheme authors, you can use the following highlighting group names:
+
+- `OpSidebarHeader` - the section header text
+- `OpSidebarItem` - the text for items under a section header
+- `OpSidebarFavoriteIcon` - the star icon used for the 'Favorites' section header
+- `OpSidebarIconDefault` - all other icons in the sidebar (e.g. item category icons)
 
 #### Security
 
 In order to implement key mappings on the sidebar, the item's title, ID, vault ID, category, and primary URL are stored in memory
 to render the sidebar. **No other data is stored, and this data is stored internally to the plugin and never exported**. Other Lua
-code should not be able to access this data.
+code should not be able to access this data. However, this data is passed to functions which are setup as sidebar
+keymappings (see `sidebar.mappings` section under [Configuration](#configuration)).
 
 ### Statusline
 

@@ -97,6 +97,7 @@ function M.toggle()
   if op_buf_id and op_buf_id ~= 0 then
     vim.api.nvim_buf_delete(op_buf_id, { force = true })
     op_buf_id = nil
+    return
   end
 
   if not initialized then
