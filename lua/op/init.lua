@@ -12,6 +12,7 @@ local msg = require('op.msg')
 local cfg = require('op.config')
 local securenotes = require('op.securenotes')
 local categories = require('op.categories')
+local sidebar = require('op.sidebar')
 
 function M.setup(user_config)
   cfg.setup(user_config)
@@ -209,7 +210,7 @@ function M.op_create()
   end)
 end
 
-M.op_insert_reference = utils.with_inputs(
+M.op_insert = utils.with_inputs(
   { { 'Select 1Password item', find = true }, 'Enter item field name' },
   function(item_name, field_name)
     local stdout, stderr =
@@ -229,6 +230,10 @@ function M.op_note(create_note)
   else
     securenotes.open_secure_note()
   end
+end
+
+function M.op_sidebar()
+  sidebar.toggle()
 end
 
 return M

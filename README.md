@@ -16,16 +16,7 @@
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
 directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric unlock!
 
-<!-- panvimdoc-ignore-start -->
-
-![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-v2.gif) \
-<sup>
-The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
-I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
-and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.*` handlers.
-</sup>
-
-<!-- panvimdoc-ignore-end -->
+See some [screenshots and demo gifs in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs)!
 
 ## Prerequisites
 
@@ -183,6 +174,21 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 - `:OpSidebar` \* - Toggle the 1Password sidebar open/closed.
 
+### Lua API
+
+All commands are also available as a Lua API as described below:
+
+- `require('op').op_signin(account_identifier: string | nil)`
+- `require('op).signout()`
+- `require('op').op_whoami()`
+- `require('op').op_create()`
+- `require('op').op_view()`
+- `require('op').op_edit()`
+- `require('op').op_open()`
+- `require('op').op_insert()`
+- `require('op').op_note(create_new: boolean)`
+- `require('op').op_sidebar()`
+
 ## Features
 
 - Biometric unlock! Unlock 1Password with fingerprint or Apple watch from within Neovim
@@ -220,9 +226,7 @@ Note that in order to write the contents back to the correct item, `op.nvim` ass
 ### Sidebar
 
 `op.nvim` can show a sidebar listing your favorites, Secure Notes, or both. Keymappings can be added to open, view, etc. the items
-in the sidebar. See screenshot below:
-
-![op.nvim sidebar](https://github.com/mrjones2014/demo-gifs/raw/master/op_nvim_sidebar.png)
+in the sidebar. See [screenshot in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs#sidebar).
 
 #### Highlighting Groups
 
@@ -246,16 +250,7 @@ keymappings (see `sidebar.mappings` section under [Configuration](#configuration
 The statusline component updates asynchronously using [goroutines](https://go.dev/tour/concurrency/1),
 and will either show "1Password: No active session" when you do not have an active 1Password CLI
 session, or "1Password: Account Name" after you've started a session.
-
-<!-- panvimdoc-ignore-start -->
-
-See screenshots below.
-
-![statusline when not signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-statusline-not-signed-in.png)
-
-![statusline when signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-statusline-signed-in.png)
-
-<!-- panvimdoc-ignore-end -->
+See [screenshots in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs#statusline).
 
 ## API
 

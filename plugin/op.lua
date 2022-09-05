@@ -5,7 +5,7 @@ end
 vim.g.op_nvim_loaded = true
 
 vim.api.nvim_create_user_command('OpInsert', function()
-  require('op').op_insert_reference()
+  require('op').op_insert()
 end, { desc = 'Insert a 1Password item reference at the current cursor position' })
 
 vim.api.nvim_create_user_command('OpCreate', function()
@@ -42,5 +42,5 @@ vim.api.nvim_create_user_command('OpNote', function(args)
 end, { desc = 'Find and open a 1Password Secure Note', nargs = '?' })
 
 vim.api.nvim_create_user_command('OpSidebar', function()
-  require('op.sidebar').toggle()
+  require('op').op_sidebar()
 end, { desc = 'Toggle the 1Password sidebar' })

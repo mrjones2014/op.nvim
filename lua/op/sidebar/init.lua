@@ -146,8 +146,6 @@ function M.toggle()
           return
         end
 
-        print(vim.inspect(sidebar_item))
-
         if sidebar_item.type ~= 'item' then
           return
         end
