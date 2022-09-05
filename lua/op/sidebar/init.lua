@@ -17,6 +17,11 @@ local sidebar_items = {}
 
 local op_buf_id = nil
 
+local function update_items(items)
+  sidebar_items = items
+  M.render()
+end
+
 local function should_load_favorites()
   local cfg = config.get_config_immutable()
   return vim.tbl_contains(cfg.sidebar, 'favorites')
@@ -77,20 +82,22 @@ function M.load_sidebar_items()
     elseif #stdout > 0 then
       local favorites = vim.json.decode(table.concat(stdout, ''))
       items[type] = strip_sensitive_data(favorites)
+
+      update_items(build_sidebar_items(items))
     end
   end
 
   if should_load_favorites() then
-    local stdout, stderr = op.item.list({ '--format', 'json', '--favorite' })
-    set_items(stdout, stderr, 'favorites')
+    op.item.list({ async = true, '--format', 'json', '--favorite' }, function(stdout, stderr)
+      set_items(stdout, stderr, 'favorites')
+    end)
   end
 
   if should_load_notes() then
-    local stdout, stderr = op.item.list({ '--format', 'json', '--categories="Secure Note"' })
-    set_items(stdout, stderr, 'secure_notes')
+    op.item.list({ async = true, '--format', 'json', '--categories="Secure Note"' }, function(stdout, stderr)
+      set_items(stdout, stderr, 'secure_notes')
+    end)
   end
-
-  sidebar_items = build_sidebar_items(items)
 end
 
 function M.toggle()
