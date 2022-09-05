@@ -99,11 +99,34 @@ require('op').setup({
     width = 40,
     -- put the sidebar on the right or left side
     side = 'right',
-    -- default `<CR>` mapping, if item has a URL,
-    -- open and fill, otherwise open in 1Password 8
-    -- desktop app. To open in desktop app by default,
-    -- change this to 'open_in_app'.
-    default_login_item_mapping = 'open_and_fill',
+    -- keymappings for the sidebar buffer.
+    -- can be a string mapping to a function from
+    -- the module `op.sidebar.actions`,
+    -- an editor command string, or a function.
+    -- if you supply a function, a table with the following
+    -- fields will be passed as an argument:
+    -- {
+    --   title: string,
+    --   icon: string,
+    --   type: 'header' | 'item'
+    --   -- data will be nil if type == 'header'
+    --   data: nil | {
+    --       uuid: string,
+    --       vault_uuid: string,
+    --       category: string,
+    --       url: string
+    --     }
+    -- }
+    mappings = {
+      -- if it's a Secure Note, open in op.nvim's Secure Notes editor;
+      -- if it's an item with a URL, open & fill the item in default browser;
+      -- otherwise, open in 1Password 8 desktop app
+      ['<CR>'] = 'default_open',
+      -- open in 1Password 8 desktop app
+      ['go'] = 'open_in_desktop_app',
+      -- edit in 1Password 8 desktop app
+      ['ge'] = 'edit_in_desktop_app',
+    },
   },
   -- Custom formatter function for statusline component
   statusline_fmt = function(account_name)

@@ -18,7 +18,11 @@ local config = {
     'secure_notes',
     width = 40,
     side = 'right',
-    default_login_item_mapping = 'open_and_fill',
+    mappings = {
+      ['<CR>'] = 'default_open',
+      ['go'] = 'open_in_desktop_app',
+      ['ge'] = 'edit_in_desktop_app',
+    },
   },
   statusline_fmt = function(account_name)
     if not account_name or #account_name == 0 then

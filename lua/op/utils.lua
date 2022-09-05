@@ -425,6 +425,17 @@ function M.uuid_short()
   return str
 end
 
+---Get fully qualified URL (prefix with https:// if protocol is missing)
+---@param url string
+---@return string
+function M.fqurl(url)
+  if not vim.startswith(url, 'http://') and not vim.startswith(url, 'https://') then
+    return string.format('https://%s', url)
+  end
+
+  return url
+end
+
 ---Given an item URL and an item UUID, open and fill it
 ---@param url string
 ---@param uuid string
@@ -437,7 +448,7 @@ function M.open_and_fill(url, uuid)
     url_with_params = string.format('%s?%s', url, key_value)
   end
 
-  M.open_url(url_with_params)
+  M.open_url(M.fqurl(url_with_params))
 end
 
 return M

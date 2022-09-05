@@ -6,12 +6,10 @@ local lazyrequire = require('op.lazyrequire').require_on_index
 local require = lazyrequire
 local config = require('op.config')
 local msg = require('op.msg')
-local icons = require('op.icons')
 local bufs = require('op.buffers')
 local op = require('op.api')
 local sidebaritem = require('op.sidebar.sidebaritems')
-local utils = require('op.utils')
-local securenotes = require('op.securenotes')
+local actions = require('op.sidebar.actions')
 
 local initialized = false
 
@@ -67,45 +65,6 @@ local function build_sidebar_items(items)
   return lines
 end
 
-local function on_enter()
-  local line = vim.api.nvim_win_get_cursor(0)[1]
-  local sidebar_item = sidebar_items[line]
-  if not sidebar_item then
-    msg.error('Failed to open 1Password sidebar item.')
-    return
-  end
-
-  if sidebar_item.type ~= 'item' then
-    return
-  end
-
-  if sidebar_item.data.category == 'SECURE_NOTE' then
-    securenotes.load_secure_note(sidebar_item.data.uuid, sidebar_item.data.vault_uuid)
-    return
-  end
-
-  local cfg = config.get_config_immutable()
-  local open_and_fill = cfg.sidebar.default_login_item_mapping == 'open_and_fill'
-  if open_and_fill and sidebar_item.data.url and #sidebar_item.data.url > 0 then
-    utils.open_and_fill(sidebar_item.data.url, sidebar_item.data.uuid)
-    return
-  end
-
-  local stdout, stderr = op.account.get({ '--format', 'json' })
-  if #stderr > 0 then
-    msg.error(stderr[1])
-  elseif #stdout > 0 then
-    local account = vim.json.decode(table.concat(stdout, ''))
-    local url = string.format(
-      'onepassword://view-item?a=%s&v=%s&i=%s',
-      account.id,
-      sidebar_item.data.vault_uuid,
-      sidebar_item.data.uuid
-    )
-    utils.open_url(url)
-  end
-end
-
 function M.load_sidebar_items()
   local items = {
     favorites = {},
@@ -156,7 +115,41 @@ function M.toggle()
     unlisted = true,
   })
 
-  vim.keymap.set('n', '<CR>', on_enter, { buffer = op_buf_id })
+  local cfg = config.get_config_immutable()
+
+  for lhs, rhs in pairs(cfg.sidebar.mappings) do
+    local action = actions[rhs]
+    -- if not an action name, then treat as a vim :cmd
+    if not action and type(rhs) == 'string' then
+      action = rhs
+    end
+
+    -- wrap with our handler
+    if type(action) == 'function' then
+      local copied_fn = vim.deepcopy(action)
+      action = function()
+        local line = vim.api.nvim_win_get_cursor(0)[1]
+        local sidebar_item = sidebar_items[line]
+        if not sidebar_item then
+          msg.error(
+            'Failed to get 1Password sidebar item. This probably indicated a bug in op.nvim, '
+              .. 'please open an issue if the problem persists.'
+          )
+          return
+        end
+
+        print(vim.inspect(sidebar_item))
+
+        if sidebar_item.type ~= 'item' then
+          return
+        end
+
+        copied_fn(sidebar_item)
+      end
+    end
+
+    vim.keymap.set('n', lhs, action, { buffer = op_buf_id })
+  end
 
   if op_buf_id == 0 then
     msg.error('Failed to create sidebar buffer.')
@@ -164,7 +157,6 @@ function M.toggle()
     return
   end
 
-  local cfg = config.get_config_immutable()
   local sidebar_side = cfg.sidebar.side
   local split_cmd = sidebar_side == 'right' and 'belowright' or 'aboveleft'
   vim.cmd(string.format('%s %svsplit', split_cmd, tostring(cfg.sidebar.width or 40)))
