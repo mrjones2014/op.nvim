@@ -1,5 +1,6 @@
 local M = {}
 
+---@class OpNvimConfig
 local config = {
   op_cli_path = 'op',
   biometric_unlock = true,
@@ -14,8 +15,10 @@ local config = {
     return nil
   end,
   sidebar = {
-    'favorites',
-    'secure_notes',
+    sections = {
+      favorites = true,
+      secure_notes = true,
+    },
     width = 30,
     side = 'right',
     mappings = {
@@ -66,10 +69,8 @@ function M.setup(user_config)
   end
 end
 
-function M.get_global_args()
-  return vim.deepcopy(config.global_args or {})
-end
-
+---Get config table
+---@return OpNvimConfig
 function M.get_config_immutable()
   return vim.deepcopy(config)
 end

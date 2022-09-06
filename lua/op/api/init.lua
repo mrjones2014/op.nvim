@@ -103,8 +103,10 @@ end
 local function build_cmd(full_cmd)
   return function(args, on_done)
     args = args or {}
-    local full_cmd_args =
-      vim.list_extend(vim.deepcopy(full_cmd), vim.list_extend(vim.deepcopy(config.get_global_args()), args))
+    local full_cmd_args = vim.list_extend(
+      vim.deepcopy(full_cmd),
+      vim.list_extend(vim.deepcopy(config.get_config_immutable().global_args or {}), args)
+    )
 
     local function callback(data, on_done_cb)
       local parsed_data = vim.json.decode(data)

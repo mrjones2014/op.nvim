@@ -59,16 +59,6 @@ local function update_items(items)
   M.render()
 end
 
-local function should_load_favorites()
-  local cfg = config.get_config_immutable()
-  return vim.tbl_contains(cfg.sidebar, 'favorites')
-end
-
-local function should_load_notes()
-  local cfg = config.get_config_immutable()
-  return vim.tbl_contains(cfg.sidebar, 'secure_notes')
-end
-
 local function strip_sensitive_data(items)
   return vim.tbl_map(function(item)
     return {
@@ -108,10 +98,9 @@ local function build_sidebar_items(items)
 end
 
 function M.load_sidebar_items()
-  local load_favorites = should_load_favorites()
-  local load_notes = should_load_notes()
+  local cfg = config.get_config_immutable()
 
-  if not load_favorites and not load_notes then
+  if not cfg.sidebar.sections.favorites and not cfg.sidebar.sections.secure_notes then
     return
   end
 
@@ -132,13 +121,13 @@ function M.load_sidebar_items()
   end
 
   local function load_data()
-    if load_favorites then
+    if cfg.sidebar.sections.favorites then
       op.item.list({ async = true, '--format', 'json', '--favorite' }, function(stdout, stderr)
         set_items(stdout, stderr, 'favorites')
       end)
     end
 
-    if load_notes then
+    if cfg.sidebar.sections.secure_notes then
       op.item.list(
         { async = true, '--format', 'json', string.format('--categories="%s"', categories.SECURE_NOTE.text) },
         function(stdout, stderr)
