@@ -1,3 +1,7 @@
+local lazyrequire = require('op.lazyrequire').require_on_index
+-- aliasing require like this keeps type intelligence
+-- and LSP go-to-definition etc. working
+local require = lazyrequire
 local config = require('op.config')
 
 local OP_COMMANDS = {
