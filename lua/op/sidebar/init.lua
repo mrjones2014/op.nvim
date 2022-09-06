@@ -11,6 +11,7 @@ local op = require('op.api')
 local sidebaritem = require('op.sidebar.sidebaritems')
 local actions = require('op.sidebar.actions')
 local state = require('op.state')
+local categories = require('op.categories')
 local main = require('op')
 
 local initialized = false
@@ -135,9 +136,12 @@ function M.load_sidebar_items()
     end
 
     if load_notes then
-      op.item.list({ async = true, '--format', 'json', '--categories="Secure Note"' }, function(stdout, stderr)
-        set_items(stdout, stderr, 'secure_notes')
-      end)
+      op.item.list(
+        { async = true, '--format', 'json', string.format('--categories="%s"', categories.SECURE_NOTE.text) },
+        function(stdout, stderr)
+          set_items(stdout, stderr, 'secure_notes')
+        end
+      )
     end
   end
 
@@ -149,6 +153,8 @@ function M.load_sidebar_items()
 end
 
 function M.open()
+  local parent_win = vim.api.nvim_get_current_win()
+
   if not initialized then
     M.load_sidebar_items()
     initialized = true
@@ -209,8 +215,6 @@ function M.open()
     vim.keymap.set('n', lhs, action, { buffer = buf_id })
   end
 
-  local parent_win = vim.api.nvim_get_current_win()
-
   local sidebar_side = cfg.sidebar.side
   local split_cmd = sidebar_side == 'right' and 'belowright' or 'aboveleft'
   vim.cmd(string.format('%s %svsplit', split_cmd, tostring(cfg.sidebar.width or 40)))
@@ -238,7 +242,9 @@ function M.open()
           vim.defer_fn(function()
             vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
             vim.api.nvim_set_current_win(op_view.parent_win)
+            print(op_view.parent_win)
             -- HACK: some window options need to be reset
+            print(window_or_global_opt(op_view.parent_win, 'signcolumn', 'yes'))
             vim.api.nvim_win_set_option(
               op_view.parent_win,
               'number',

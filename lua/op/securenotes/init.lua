@@ -242,7 +242,8 @@ function M.load_secure_note(uuid, vault_uuid)
 end
 
 function M.open_secure_note()
-  local stdout, stderr = op.item.list({ '--categories="Secure Note"', '--format', 'json' })
+  local stdout, stderr =
+    op.item.list({ string.format('--categories="%s"', categories.SECURE_NOTE.text), '--format', 'json' })
   if #stderr > 0 then
     msg.error(stderr[1])
   elseif #stdout > 0 then
