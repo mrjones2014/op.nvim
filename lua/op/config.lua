@@ -55,7 +55,7 @@ function M.setup(user_config)
   user_config = user_config or {}
   config = vim.tbl_deep_extend('force', config, user_config)
 
-  if vim.g.op_nvim_remote_loaded then
+  if require('op.state').remote_plugin_loaded then
     handle_setup()
   else
     vim.api.nvim_create_autocmd('User', {

@@ -10,6 +10,8 @@ local bufs = require('op.buffers')
 local op = require('op.api')
 local sidebaritem = require('op.sidebar.sidebaritems')
 local actions = require('op.sidebar.actions')
+local state = require('op.state')
+local main = require('op')
 
 local initialized = false
 
@@ -71,6 +73,13 @@ local function build_sidebar_items(items)
 end
 
 function M.load_sidebar_items()
+  local load_favorites = should_load_favorites()
+  local load_notes = should_load_notes()
+
+  if not load_favorites and not load_notes then
+    return
+  end
+
   local items = {
     favorites = {},
     secure_notes = {},
@@ -87,29 +96,35 @@ function M.load_sidebar_items()
     end
   end
 
-  if should_load_favorites() then
-    op.item.list({ async = true, '--format', 'json', '--favorite' }, function(stdout, stderr)
-      set_items(stdout, stderr, 'favorites')
-    end)
+  local function load_data()
+    if load_favorites then
+      op.item.list({ async = true, '--format', 'json', '--favorite' }, function(stdout, stderr)
+        set_items(stdout, stderr, 'favorites')
+      end)
+    end
+
+    if load_notes then
+      op.item.list({ async = true, '--format', 'json', '--categories="Secure Note"' }, function(stdout, stderr)
+        set_items(stdout, stderr, 'secure_notes')
+      end)
+    end
   end
 
-  if should_load_notes() then
-    op.item.list({ async = true, '--format', 'json', '--categories="Secure Note"' }, function(stdout, stderr)
-      set_items(stdout, stderr, 'secure_notes')
-    end)
+  if not state.signed_in then
+    main.op_signin(nil, load_data)
+  else
+    load_data()
   end
 end
 
-function M.toggle()
-  if op_buf_id and op_buf_id ~= 0 then
-    vim.api.nvim_buf_delete(op_buf_id, { force = true })
-    op_buf_id = nil
-    return
-  end
-
+function M.open()
   if not initialized then
     M.load_sidebar_items()
     initialized = true
+  end
+
+  if op_buf_id ~= nil and op_buf_id > 0 then
+    return -- already open
   end
 
   op_buf_id = bufs.create({
@@ -212,6 +227,22 @@ function M.toggle()
   })
 
   M.render()
+end
+
+function M.close()
+  if op_buf_id and op_buf_id ~= 0 then
+    vim.api.nvim_buf_delete(op_buf_id, { force = true })
+    op_buf_id = nil
+  end
+end
+
+function M.toggle()
+  if op_buf_id and op_buf_id ~= 0 then
+    M.close()
+    return
+  end
+
+  M.open()
 end
 
 function M.render()

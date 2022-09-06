@@ -172,7 +172,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpOpen` - Select an item to open & fill in your default browser
 - `:OpInsert` - Insert an item reference at current cursor position.
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
-- `:OpSidebar` \* - Toggle the 1Password sidebar open/closed.
+- `:OpSidebar` \* - Toggle the 1Password sidebar open/closed. Accepts `refresh` as an argument to reload items.
 
 ### Lua API
 
@@ -187,7 +187,7 @@ All commands are also available as a Lua API as described below:
 - `require('op').op_open()`
 - `require('op').op_insert()`
 - `require('op').op_note(create_new: boolean)`
-- `require('op').op_sidebar()`
+- `require('op').op_sidebar(should_refresh: boolean)`
 
 ## Features
 
