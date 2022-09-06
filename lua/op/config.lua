@@ -16,7 +16,7 @@ local config = {
   sidebar = {
     'favorites',
     'secure_notes',
-    width = 40,
+    width = 30,
     side = 'right',
     mappings = {
       ['<CR>'] = 'default_open',
