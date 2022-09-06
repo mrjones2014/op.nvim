@@ -28,10 +28,10 @@ end
 local function format_title(title)
   local prefix = vim.tbl_get(config.get_config_immutable(), 'secure_notes', 'buf_name_prefix')
   if prefix then
-    return string.format('%s %s', vim.trim(prefix), vim.trim(title))
+    return string.format('%s %s.md', vim.trim(prefix), vim.trim(title))
   end
 
-  return vim.trim(title)
+  return string.format('%s.md', vim.trim(title))
 end
 
 ---Return note contents as an array of lines
