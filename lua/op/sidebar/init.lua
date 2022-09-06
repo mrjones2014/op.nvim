@@ -17,7 +17,38 @@ local initialized = false
 
 local sidebar_items = {}
 
-local op_buf_id = nil
+local op_view = {
+  buf = nil,
+  win = nil,
+  parent_win = nil,
+}
+
+local function update_view(view)
+  view = view or {}
+  op_view = {
+    buf = view.buf,
+    win = view.win,
+    parent_win = view.parent_win,
+  }
+end
+
+local function is_open()
+  return op_view.buf and op_view.buf ~= 0
+end
+
+local function window_or_global_opt(win, opt, fallback)
+  local ok, value = pcall(vim.api.nvim_win_get_option, win, opt)
+  if ok and value ~= nil then
+    return value
+  end
+
+  local global_ok, global_opt = pcall(vim.api.nvim_get_option, opt)
+  if global_ok and global_opt ~= nil then
+    return global_opt
+  end
+
+  return fallback
+end
 
 local function update_items(items)
   sidebar_items = items
@@ -123,11 +154,11 @@ function M.open()
     initialized = true
   end
 
-  if op_buf_id ~= nil and op_buf_id > 0 then
-    return -- already open
+  if is_open() then
+    return
   end
 
-  op_buf_id = bufs.create({
+  local buf_id = bufs.create({
     filetype = '1PasswordSidebar',
     buftype = 'nofile',
     readonly = true,
@@ -137,6 +168,12 @@ function M.open()
     end, sidebar_items),
     unlisted = true,
   })
+
+  if buf_id == 0 then
+    msg.error('Failed to create sidebar buffer.')
+    update_view()
+    return
+  end
 
   local cfg = config.get_config_immutable()
 
@@ -169,75 +206,112 @@ function M.open()
       end
     end
 
-    vim.keymap.set('n', lhs, action, { buffer = op_buf_id })
+    vim.keymap.set('n', lhs, action, { buffer = buf_id })
   end
 
-  if op_buf_id == 0 then
-    msg.error('Failed to create sidebar buffer.')
-    op_buf_id = nil
-    return
-  end
+  local parent_win = vim.api.nvim_get_current_win()
 
   local sidebar_side = cfg.sidebar.side
   local split_cmd = sidebar_side == 'right' and 'belowright' or 'aboveleft'
   vim.cmd(string.format('%s %svsplit', split_cmd, tostring(cfg.sidebar.width or 40)))
   local win_id = vim.api.nvim_get_current_win()
-  vim.api.nvim_win_set_buf(win_id, op_buf_id)
+  update_view({ buf = buf_id, win = win_id, parent_win = parent_win })
+  vim.api.nvim_win_set_buf(win_id, buf_id)
   vim.api.nvim_win_set_option(win_id, 'number', false)
   vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
 
   bufs.autocmds({
     {
-      -- prevent other buffers from being loaded in the sidebar window
-      'BufWinEnter',
+      { 'BufEnter', 'BufWinEnter' },
       callback = function()
-        local bufnr = vim.api.nvim_get_current_buf()
-        if bufnr ~= op_buf_id and vim.fn.bufnr('#') == op_buf_id then
-          local op_win_id = vim.api.nvim_get_current_win()
-          vim.cmd('noautocmd wincmd p')
-          local alt_win_id = vim.api.nvim_get_current_win()
-          if alt_win_id == op_win_id then
-            vim.cmd('noautocmd wincmd h')
-          end
-          alt_win_id = vim.api.nvim_get_current_win()
-          if alt_win_id == op_win_id then
-            vim.cmd('noautocmd wincmd l')
-          end
-          alt_win_id = vim.api.nvim_get_current_win()
-          if alt_win_id == op_win_id then
-            vim.cmd('noautocmd wincmd j')
-          end
-          alt_win_id = vim.api.nvim_get_current_win()
-          if alt_win_id == op_win_id then
-            vim.cmd('noautocmd wincmd k')
-          end
-          alt_win_id = vim.api.nvim_get_current_win()
-          if alt_win_id == op_win_id then
-            vim.cmd('noautocmd vsplit')
-          end
-          alt_win_id = vim.api.nvim_get_current_win()
-          vim.api.nvim_win_set_buf(0, bufnr)
-          vim.api.nvim_win_set_buf(op_win_id, op_buf_id)
+        -- if not open or not in sidebar window
+        local curwin = vim.api.nvim_get_current_win()
+        if not is_open() or curwin ~= op_view.win then
+          return
+        end
+
+        local curbuf = vim.api.nvim_win_get_buf(curwin)
+        -- if another buffer took over our window
+        if curbuf ~= op_view.buf then
+          -- restore our window and move new buf to parent window
+          vim.api.nvim_win_set_buf(op_view.win, op_view.buf)
           vim.defer_fn(function()
-            vim.api.nvim_set_current_win(alt_win_id)
-          end, 5)
+            vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
+            vim.api.nvim_set_current_win(op_view.parent_win)
+            -- HACK: some window options need to be reset
+            vim.api.nvim_win_set_option(
+              op_view.parent_win,
+              'number',
+              window_or_global_opt(op_view.parent_win, 'number', true)
+            )
+            vim.api.nvim_win_set_option(
+              op_view.parent_win,
+              'relativenumber',
+              window_or_global_opt(op_view.parent_win, 'relativenumber', false)
+            )
+            vim.api.nvim_win_set_option(
+              op_view.parent_win,
+              'signcolumn',
+              window_or_global_opt(op_view.parent_win, 'signcolumn', 'yes')
+            )
+          end, 1)
         end
       end,
     },
   })
 
+  -- bufs.autocmds({
+  --   {
+  --     -- prevent other buffers from being loaded in the sidebar window
+  --     'BufWinEnter',
+  --     callback = function()
+  --       local bufnr = vim.api.nvim_get_current_buf()
+  --       if bufnr ~= op_buf_id and vim.fn.bufnr('#') == op_buf_id then
+  --         local op_win_id = vim.api.nvim_get_current_win()
+  --         vim.cmd('noautocmd wincmd p')
+  --         local alt_win_id = vim.api.nvim_get_current_win()
+  --         if alt_win_id == op_win_id then
+  --           vim.cmd('noautocmd wincmd h')
+  --         end
+  --         alt_win_id = vim.api.nvim_get_current_win()
+  --         if alt_win_id == op_win_id then
+  --           vim.cmd('noautocmd wincmd l')
+  --         end
+  --         alt_win_id = vim.api.nvim_get_current_win()
+  --         if alt_win_id == op_win_id then
+  --           vim.cmd('noautocmd wincmd j')
+  --         end
+  --         alt_win_id = vim.api.nvim_get_current_win()
+  --         if alt_win_id == op_win_id then
+  --           vim.cmd('noautocmd wincmd k')
+  --         end
+  --         alt_win_id = vim.api.nvim_get_current_win()
+  --         if alt_win_id == op_win_id then
+  --           vim.cmd('noautocmd vsplit')
+  --         end
+  --         alt_win_id = vim.api.nvim_get_current_win()
+  --         vim.api.nvim_win_set_buf(0, bufnr)
+  --         vim.api.nvim_win_set_buf(op_win_id, op_buf_id)
+  --         vim.defer_fn(function()
+  --           vim.api.nvim_set_current_win(alt_win_id)
+  --         end, 5)
+  --       end
+  --     end,
+  --   },
+  -- })
+
   M.render()
 end
 
 function M.close()
-  if op_buf_id and op_buf_id ~= 0 then
-    vim.api.nvim_buf_delete(op_buf_id, { force = true })
-    op_buf_id = nil
+  if is_open() then
+    vim.api.nvim_buf_delete(op_view.buf, { force = true })
+    update_view()
   end
 end
 
 function M.toggle()
-  if op_buf_id and op_buf_id ~= 0 then
+  if is_open() then
     M.close()
     return
   end
@@ -246,15 +320,15 @@ function M.toggle()
 end
 
 function M.render()
-  if not op_buf_id or op_buf_id == 0 then
+  if not is_open() then
     return
   end
 
   local buf_lines = vim.tbl_map(function(line)
     return sidebaritem.render(line)
   end, sidebar_items)
-  bufs.update_lines(op_buf_id, buf_lines)
-  sidebaritem.apply_highlights(sidebar_items, op_buf_id)
+  bufs.update_lines(op_view.buf, buf_lines)
+  sidebaritem.apply_highlights(sidebar_items, op_view.buf)
 end
 
 return M

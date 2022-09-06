@@ -15,6 +15,7 @@ local op = require('op.api')
 ---@param sidebar_item table
 function M.default_open(sidebar_item)
   if sidebar_item.data.category == 'SECURE_NOTE' then
+    vim.cmd('wincmd p') -- move to last window before opening buffer
     securenotes.load_secure_note(sidebar_item.data.uuid, sidebar_item.data.vault_uuid)
     return
   end
