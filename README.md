@@ -16,7 +16,27 @@
 and insert item reference URIs (e.g. `op://vault-name/item-name/field-name`)
 directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric unlock!
 
-See some [screenshots and demo gifs in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs)!
+<!-- panvimdoc-ignore-start -->
+
+<details>
+<summary>Screenshots and Gifs (click to expand)</summary>
+
+**Secure Notes Editor**
+![Secure Notes Editor](https://user-images.githubusercontent.com/8648891/188518923-1165ed52-4915-4443-9a8c-6285bf601055.gif)
+
+**1Password Sidebar**
+
+![1Password Sidebar](https://user-images.githubusercontent.com/8648891/188519356-ba166555-a587-4628-9756-520ca8fd8864.gif)
+
+**Item Creation**
+
+![Item creation](https://user-images.githubusercontent.com/8648891/188519718-8fbdde4b-14cc-4d2c-b534-83b7fa1829c9.gif)
+
+</details>
+
+<!-- panvimdoc-ignore-end -->
+
+[More screenshots and demo gifs in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs)!
 
 ## Prerequisites
 
@@ -197,86 +217,4 @@ All commands are also available as a Lua API as described below:
 - Infer default field and item names based on field value patterns
 - Open an item in the 1Password 8 desktop app
 - Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
-- Switch between multiple 1Password accounts (only works with biometric unlock enabled)
-- Select an item to open & fill in your default browser
-- Secure Notes Editor (See [Secure Notes Editor](#secure-notes-editor))
-- 1Password sidebar (See [Sidebar](#sidebar))
-- Statusline component that updates asynchronously (See [Statusline](#statusline))
-- Most commands are partially or fully asynchronous
-
-### Secure Notes Editor
-
-Edit your 1Password Secure Notes items directly in Neovim! Run `:OpNote` to find a Secure Note item, or `:OpNote new`/`:OpNote create`
-to create a new one, and open it in a new buffer. The buffer will have `filetype=markdown` so you get Markdown filetype highlighting,
-and will append `.md` in the buffer name &mdash; this is just so that [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons)
-will assign the Markdown icon to the buffer, e.g. if you're using [bufferline.nvim](https://github.com/akinsho/bufferline.nvim)
-or similar. It will not change the title of your Secure Note in 1Password.
-
-Running `:w` will update the Secure Note in 1Password, and `:e` will sync the current Secure Note from 1Password into the buffer.
-
-#### Security
-
-The Secure Notes editor **will never write your notes to disk**. It uses a special `buftype` option, `buftype=acwrite`,
-which allows `op.nvim` to intercept the `:w` and `:e` commands by setting up an `autocmd BufWriteCmd` and `autocmd BufReadCmd`,
-respectively, which then allows `op.nvim` to completely handle "writing" and "reading" the Secure Note by updating it via the 1Password CLI.
-
-Note that in order to write the contents back to the correct item, `op.nvim` associates buffer IDs with `{ uuid, vault_uuid }` pairs.
-**`op.nvim` does not store the note title or anything other than the UUID and vault UUID in the edit session**.
-
-### Sidebar
-
-`op.nvim` can show a sidebar listing your favorites, Secure Notes, or both. Keymappings can be added to open, view, etc. the items
-in the sidebar. See [screenshot in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs#sidebar).
-
-#### Highlighting Groups
-
-For colorscheme authors, you can use the following highlighting group names:
-
-- `OpSidebarHeader` - the section header text
-- `OpSidebarItem` - the text for items under a section header
-- `OpSidebarFavoriteIcon` - the star icon used for the 'Favorites' section header
-- `OpSidebarIconDefault` - all other icons in the sidebar (e.g. item category icons)
-
-#### Security
-
-In order to implement key mappings on the sidebar, the item's title, ID, vault ID, category, and primary URL are stored in memory
-to render the sidebar. **No other data is stored, and this data is stored internally to the plugin and never exported**. Other Lua
-code should not be able to access this data. However, this data is passed to functions which are setup as sidebar
-keymappings (see `sidebar.mappings` section under [Configuration](#configuration)).
-
-### Statusline
-
-`op.nvim` provides a statusline component as a function that returns a string.
-The statusline component updates asynchronously using [goroutines](https://go.dev/tour/concurrency/1),
-and will either show "1Password: No active session" when you do not have an active 1Password CLI
-session, or "1Password: Account Name" after you've started a session.
-See [screenshots in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs#statusline).
-
-## API
-
-Part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
-is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.
-The only exception is that `op events-api` is reformatted as `op.eventsApi`, for obvious reasons. Each command is accessed
-as a function that takes the command flags and arguments as a list. The functions all return three values, which are
-the `STDOUT` as a list of lines, `STDERR` as a list of lines, and the exit code as a number.
-Some examples are below:
-
-```lua
-local op = require('op.api')
-local stdout, stderr, exit_code = op.signin()
-local stdout, stderr, exit_code = op.account.get({ '--format', 'json' })
-local stdout, stderr, exit_code = op.item.list({ '--format', 'json' })
-local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
-local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
-
--- all API functions can be called asynchronously by setting `args.async = true`
--- and passing a callback as a second parameter
-op.account.get({ async = true, '--format', 'json' }, function(stdout, stderr, exit_code)
-  -- do stuff with stdout, stderr, exit_code
-end)
-```
-
-If you implement a cool feature using the API, please consider contributing it to this plugin in a PR!
-
-See [lua/op/types.lua](./lua/op/types.lua) for type annotations describing the `require('op.api')` table. This file
-should also provide type information and completions when using `lua-language-server`.
+- Switch between multiple 1Password accounts (only works with biometric unl
