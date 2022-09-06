@@ -22,6 +22,7 @@ directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric
 <summary>Screenshots and Gifs (click to expand)</summary>
 
 **Secure Notes Editor**
+
 ![Secure Notes Editor](https://user-images.githubusercontent.com/8648891/188518923-1165ed52-4915-4443-9a8c-6285bf601055.gif)
 
 **1Password Sidebar**
@@ -195,20 +196,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 - `:OpSidebar` \* - Toggle the 1Password sidebar open/closed. Accepts `refresh` as an argument to reload items.
 
-### Lua API
-
-All commands are also available as a Lua API as described below:
-
-- `require('op').op_signin(account_identifier: string | nil)`
-- `require('op).signout()`
-- `require('op').op_whoami()`
-- `require('op').op_create()`
-- `require('op').op_view()`
-- `require('op').op_edit()`
-- `require('op').op_open()`
-- `require('op').op_insert()`
-- `require('op').op_note(create_new: boolean)`
-- `require('op').op_sidebar(should_refresh: boolean)`
+All commands are also available as a Lua API, see [API](#api).
 
 ## Features
 
@@ -262,7 +250,20 @@ See screenshots below.
 
 ## API
 
-Part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
+All commands are also available as a Lua API as described below:
+
+- `require('op').op_signin(account_identifier: string | nil)`
+- `require('op).signout()`
+- `require('op').op_whoami()`
+- `require('op').op_create()`
+- `require('op').op_view()`
+- `require('op').op_edit()`
+- `require('op').op_open()`
+- `require('op').op_insert()`
+- `require('op').op_note(create_new: boolean)`
+- `require('op').op_sidebar(should_refresh: boolean)`
+
+Additionally, part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
 is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.
 The only exception is that `op events-api` is reformatted as `op.eventsApi`, for obvious reasons. Each command is accessed
 as a function that takes the command flags and arguments as a list. The functions all return three values, which are
