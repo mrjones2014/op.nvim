@@ -257,10 +257,12 @@ function M.open()
         if curbuf ~= op_view.buf then
           -- restore our window and move new buf to parent window
           vim.api.nvim_win_set_buf(op_view.win, op_view.buf)
-          vim.api.nvim_set_current_win(op_view.parent_win)
           reset_win_options(function()
             vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
           end)
+          vim.defer_fn(function()
+            vim.api.nvim_set_current_win(op_view.parent_win)
+          end, 1)
         end
       end,
     },
