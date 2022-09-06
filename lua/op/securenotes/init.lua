@@ -58,7 +58,7 @@ local function setup_secure_note_buf(win_id, note)
     local buf_name = vim.api.nvim_buf_get_name(buf):sub(#title * -1)
     return buf_name == title
   end, vim.api.nvim_list_bufs())[1]
-  if existing_buf then
+  if existing_buf and session.get_for_buf_id(existing_buf) then
     vim.api.nvim_win_set_buf(0, existing_buf)
     return
   end
@@ -108,7 +108,7 @@ local function setup_secure_note_buf(win_id, note)
     },
     {
       -- kill session on buffer delete
-      'BufDelete',
+      { 'BufDelete', 'BufWipeout' },
       buffer = buf,
       callback = function()
         session.close_session_for_buf_id(buf)
