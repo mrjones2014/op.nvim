@@ -24,20 +24,6 @@ local op_view = {
   parent_win = nil,
 }
 
-local function window_or_global_opt(win, opt, fallback)
-  local ok, value = pcall(vim.api.nvim_win_get_option, win, opt)
-  if ok and value ~= nil then
-    return value
-  end
-
-  local global_ok, global_opt = pcall(vim.api.nvim_get_option, opt)
-  if global_ok and global_opt ~= nil then
-    return global_opt
-  end
-
-  return fallback
-end
-
 local function update_view(view)
   view = view or {}
   op_view = {
@@ -49,6 +35,23 @@ end
 
 local function is_open()
   return op_view.buf and op_view.buf ~= 0
+end
+
+-- HACK: some window options need to be reset
+local function reset_win_options(in_between)
+  local parent_win_opts = {
+    number = vim.api.nvim_win_get_option(op_view.parent_win, 'number'),
+    relativenumber = vim.api.nvim_win_get_option(op_view.parent_win, 'relativenumber'),
+    signcolumn = vim.api.nvim_win_get_option(op_view.parent_win, 'signcolumn'),
+    winfixwidth = vim.api.nvim_win_get_option(op_view.parent_win, 'winfixwidth'),
+    winfixheight = vim.api.nvim_win_get_option(op_view.parent_win, 'winfixheight'),
+  }
+  if type(in_between) == 'function' then
+    in_between()
+  end
+  for opt, value in pairs(parent_win_opts) do
+    vim.api.nvim_win_set_option(op_view.parent_win, opt, value)
+  end
 end
 
 local function update_items(items)
@@ -223,8 +226,23 @@ function M.open()
   vim.api.nvim_win_set_buf(win_id, buf_id)
   vim.api.nvim_win_set_option(win_id, 'number', false)
   vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
+  vim.api.nvim_win_set_option(win_id, 'winfixwidth', true)
+  vim.api.nvim_win_set_option(win_id, 'winfixheight', true)
 
   bufs.autocmds({
+    {
+      'WinEnter',
+      callback = function()
+        -- if it's not our window but it is the sidebar buffer,
+        -- go to next buffer and reset window options
+        if vim.api.nvim_get_current_win() ~= op_view.win and vim.api.nvim_get_current_buf() == op_view.buf then
+          reset_win_options(function()
+            vim.cmd('bnext')
+          end)
+          return
+        end
+      end,
+    },
     {
       { 'BufEnter', 'BufWinEnter' },
       callback = function()
@@ -240,16 +258,9 @@ function M.open()
           -- restore our window and move new buf to parent window
           vim.api.nvim_win_set_buf(op_view.win, op_view.buf)
           vim.api.nvim_set_current_win(op_view.parent_win)
-          -- HACK: some window options need to be reset
-          local parent_win_opts = {
-            number = vim.api.nvim_win_get_option(op_view.parent_win, 'number'),
-            relativenumber = vim.api.nvim_win_get_option(op_view.parent_win, 'relativenumber'),
-            signcolumn = vim.api.nvim_win_get_option(op_view.parent_win, 'signcolumn'),
-          }
-          vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
-          for opt, value in pairs(parent_win_opts) do
-            vim.api.nvim_win_set_option(op_view.parent_win, opt, value)
-          end
+          reset_win_options(function()
+            vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
+          end)
         end
       end,
     },
