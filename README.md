@@ -102,10 +102,11 @@ require('op').setup({
   end,
   -- settings for op.nvim sidebar
   sidebar = {
-    -- sections to include, available sections
-    -- are 'favorites' and `secure_notes`
-    'favorites',
-    'secure_notes',
+    -- sections to include in the sidebar
+    sections = {
+      favorites = true,
+      secure_notes = true,
+    },
     -- sidebar width
     width = 40,
     -- put the sidebar on the right or left side
