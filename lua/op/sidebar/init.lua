@@ -24,19 +24,6 @@ local op_view = {
   parent_win = nil,
 }
 
-local function update_view(view)
-  view = view or {}
-  op_view = {
-    buf = view.buf,
-    win = view.win,
-    parent_win = view.parent_win,
-  }
-end
-
-local function is_open()
-  return op_view.buf and op_view.buf ~= 0
-end
-
 local function window_or_global_opt(win, opt, fallback)
   local ok, value = pcall(vim.api.nvim_win_get_option, win, opt)
   if ok and value ~= nil then
@@ -49,6 +36,19 @@ local function window_or_global_opt(win, opt, fallback)
   end
 
   return fallback
+end
+
+local function update_view(view)
+  view = view or {}
+  op_view = {
+    buf = view.buf,
+    win = view.win,
+    parent_win = view.parent_win,
+  }
+end
+
+local function is_open()
+  return op_view.buf and op_view.buf ~= 0
 end
 
 local function update_items(items)
@@ -153,7 +153,7 @@ function M.load_sidebar_items()
 end
 
 function M.open()
-  local parent_win = vim.api.nvim_get_current_win()
+  local parent_win = vim.fn.win_getid(vim.fn.winnr('#'))
 
   if not initialized then
     M.load_sidebar_items()
@@ -239,72 +239,21 @@ function M.open()
         if curbuf ~= op_view.buf then
           -- restore our window and move new buf to parent window
           vim.api.nvim_win_set_buf(op_view.win, op_view.buf)
-          vim.defer_fn(function()
-            vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
-            vim.api.nvim_set_current_win(op_view.parent_win)
-            print(op_view.parent_win)
-            -- HACK: some window options need to be reset
-            print(window_or_global_opt(op_view.parent_win, 'signcolumn', 'yes'))
-            vim.api.nvim_win_set_option(
-              op_view.parent_win,
-              'number',
-              window_or_global_opt(op_view.parent_win, 'number', true)
-            )
-            vim.api.nvim_win_set_option(
-              op_view.parent_win,
-              'relativenumber',
-              window_or_global_opt(op_view.parent_win, 'relativenumber', false)
-            )
-            vim.api.nvim_win_set_option(
-              op_view.parent_win,
-              'signcolumn',
-              window_or_global_opt(op_view.parent_win, 'signcolumn', 'yes')
-            )
-          end, 1)
+          vim.api.nvim_set_current_win(op_view.parent_win)
+          -- HACK: some window options need to be reset
+          local parent_win_opts = {
+            number = vim.api.nvim_win_get_option(op_view.parent_win, 'number'),
+            relativenumber = vim.api.nvim_win_get_option(op_view.parent_win, 'relativenumber'),
+            signcolumn = vim.api.nvim_win_get_option(op_view.parent_win, 'signcolumn'),
+          }
+          vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
+          for opt, value in pairs(parent_win_opts) do
+            vim.api.nvim_win_set_option(op_view.parent_win, opt, value)
+          end
         end
       end,
     },
   })
-
-  -- bufs.autocmds({
-  --   {
-  --     -- prevent other buffers from being loaded in the sidebar window
-  --     'BufWinEnter',
-  --     callback = function()
-  --       local bufnr = vim.api.nvim_get_current_buf()
-  --       if bufnr ~= op_buf_id and vim.fn.bufnr('#') == op_buf_id then
-  --         local op_win_id = vim.api.nvim_get_current_win()
-  --         vim.cmd('noautocmd wincmd p')
-  --         local alt_win_id = vim.api.nvim_get_current_win()
-  --         if alt_win_id == op_win_id then
-  --           vim.cmd('noautocmd wincmd h')
-  --         end
-  --         alt_win_id = vim.api.nvim_get_current_win()
-  --         if alt_win_id == op_win_id then
-  --           vim.cmd('noautocmd wincmd l')
-  --         end
-  --         alt_win_id = vim.api.nvim_get_current_win()
-  --         if alt_win_id == op_win_id then
-  --           vim.cmd('noautocmd wincmd j')
-  --         end
-  --         alt_win_id = vim.api.nvim_get_current_win()
-  --         if alt_win_id == op_win_id then
-  --           vim.cmd('noautocmd wincmd k')
-  --         end
-  --         alt_win_id = vim.api.nvim_get_current_win()
-  --         if alt_win_id == op_win_id then
-  --           vim.cmd('noautocmd vsplit')
-  --         end
-  --         alt_win_id = vim.api.nvim_get_current_win()
-  --         vim.api.nvim_win_set_buf(0, bufnr)
-  --         vim.api.nvim_win_set_buf(op_win_id, op_buf_id)
-  --         vim.defer_fn(function()
-  --           vim.api.nvim_set_current_win(alt_win_id)
-  --         end, 5)
-  --       end
-  --     end,
-  --   },
-  -- })
 
   M.render()
 end
