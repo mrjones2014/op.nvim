@@ -143,7 +143,7 @@ function M.load_note_changes()
         vim.api.nvim_buf_set_option(buf_id, 'modified', false)
         -- reset filetype to restore highlighting
         vim.bo.filetype = 'markdown'
-      end, 5)
+      end, 1)
     end
   end
 
