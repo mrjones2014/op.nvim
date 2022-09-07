@@ -220,6 +220,11 @@ function M.open()
 
   bufs.autocmds({
     {
+      'BufReadCmd',
+      buffer = op_view.buf,
+      callback = M.render,
+    },
+    {
       'WinEnter',
       callback = function()
         -- if it's not our window but it is the sidebar buffer,
@@ -286,6 +291,7 @@ function M.render()
   end, sidebar_items)
   bufs.update_lines(op_view.buf, buf_lines)
   sidebaritem.apply_highlights(sidebar_items, op_view.buf)
+  vim.api.nvim_buf_set_option(op_view.buf, 'buflisted', false)
 end
 
 return M
