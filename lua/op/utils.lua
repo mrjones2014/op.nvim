@@ -64,12 +64,7 @@ end
 
 function M.format_item_for_select(item)
   if config.get_config_immutable().use_icons then
-    return string.format(
-      "%s '%s' in vault '%s'",
-      icons.category_icons[item.category or 'CUSTOM'],
-      item.title,
-      item.vault.name
-    )
+    return string.format("%s '%s' in vault '%s'", icons.category_icon(item.category), item.title, item.vault.name)
   end
 
   return string.format("'%s' in vault '%s'", item.title, item.vault.name)
@@ -267,7 +262,7 @@ local function quick_uuid_check(uuid)
 end
 
 function M.with_account_uuid(callback, opts)
-  local global_args = config.get_global_args() or {}
+  local global_args = config.get_config_immutable.global_args or {}
   for idx, arg in pairs(global_args) do
     if arg == '--account' then
       -- next arg should be the account UUID
@@ -362,7 +357,7 @@ end
 
 ---Open a 1Password 8 desktop app URL
 ---@param action "view" | "edit"
-function M.open_desktop_app_url(action)
+function M.find_and_open_desktop_app_url(action)
   if action ~= 'view' and action ~= 'edit' then
     msg.error(string.format("Unsupported URL action '%s'", action))
     return
@@ -430,6 +425,17 @@ function M.uuid_short()
   return str
 end
 
+---Get fully qualified URL (prefix with https:// if protocol is missing)
+---@param url string
+---@return string
+function M.fqurl(url)
+  if not vim.startswith(url, 'http://') and not vim.startswith(url, 'https://') then
+    return string.format('https://%s', url)
+  end
+
+  return url
+end
+
 ---Given an item URL and an item UUID, open and fill it
 ---@param url string
 ---@param uuid string
@@ -442,7 +448,7 @@ function M.open_and_fill(url, uuid)
     url_with_params = string.format('%s?%s', url, key_value)
   end
 
-  M.open_url(url_with_params)
+  M.open_url(M.fqurl(url_with_params))
 end
 
 return M

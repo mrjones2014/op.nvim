@@ -11,6 +11,9 @@ local ts = require('op.treesitter')
 local msg = require('op.msg')
 local cfg = require('op.config')
 local securenotes = require('op.securenotes')
+local categories = require('op.categories')
+local sidebar = require('op.sidebar')
+local state = require('op.state')
 
 function M.setup(user_config)
   cfg.setup(user_config)
@@ -44,12 +47,13 @@ function M.op_signout()
     if #stderr > 0 then
       msg.error(stderr[1])
     else
+      state.signed_in = false
       msg.success('1Password CLI signed out.')
     end
   end)
 end
 
-function M.op_signin(account_identifier)
+function M.op_signin(account_identifier, on_done)
   if not cfg.get_config_immutable().biometric_unlock then
     return M.op_whoami()
   end
@@ -62,6 +66,10 @@ function M.op_signin(account_identifier)
         local account_details = get_account(account)
         if account_details then
           msg.success(string.format('Signed into %s', format_account(account_details)))
+          state.signed_in = true
+          if type(on_done) == 'function' then
+            on_done()
+          end
         end
       end
     end)
@@ -124,11 +132,11 @@ function M.op_whoami()
 end
 
 function M.op_view_item()
-  utils.open_desktop_app_url('view')
+  utils.find_and_open_desktop_app_url('view')
 end
 
 function M.op_edit_item()
-  utils.open_desktop_app_url('edit')
+  utils.find_and_open_desktop_app_url('edit')
 end
 
 function M.op_open_and_fill()
@@ -183,7 +191,7 @@ function M.op_create()
       '--format',
       'json',
       '--category',
-      'login',
+      categories.LOGIN.text,
       '--title',
       item_title,
       '--vault',
@@ -208,7 +216,7 @@ function M.op_create()
   end)
 end
 
-M.op_insert_reference = utils.with_inputs(
+M.op_insert = utils.with_inputs(
   { { 'Select 1Password item', find = true }, 'Enter item field name' },
   function(item_name, field_name)
     local stdout, stderr =
@@ -228,6 +236,16 @@ function M.op_note(create_note)
   else
     securenotes.open_secure_note()
   end
+end
+
+function M.op_sidebar(should_refresh)
+  if should_refresh then
+    sidebar.load_sidebar_items()
+    sidebar.open()
+    return
+  end
+
+  sidebar.toggle()
 end
 
 return M

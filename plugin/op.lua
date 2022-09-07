@@ -1,12 +1,12 @@
-if vim.g.op_nvim_loaded == true then
+local state = require('op.state')
+if state.commands_initialized == true then
   return
 end
 
---luacheck:ignore
-vim.g.op_nvim_loaded = true
+state.commands_initialized = true
 
 vim.api.nvim_create_user_command('OpInsert', function()
-  require('op').op_insert_reference()
+  require('op').op_insert()
 end, { desc = 'Insert a 1Password item reference at the current cursor position' })
 
 vim.api.nvim_create_user_command('OpCreate', function()
@@ -41,3 +41,11 @@ end, { desc = 'Check what 1Password account you are currently signed in with' })
 vim.api.nvim_create_user_command('OpNote', function(args)
   require('op').op_note(args and args.fargs and (args.fargs[1] == 'new' or args.fargs[1] == 'create'))
 end, { desc = 'Find and open a 1Password Secure Note', nargs = '?' })
+
+vim.api.nvim_create_user_command('OpSidebar', function(input)
+  local should_refresh = false
+  if input and input.fargs and input.fargs[1] == 'refresh' then
+    should_refresh = true
+  end
+  require('op').op_sidebar(should_refresh)
+end, { desc = 'Toggle the 1Password sidebar', nargs = '?' })

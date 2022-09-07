@@ -18,14 +18,26 @@ directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric
 
 <!-- panvimdoc-ignore-start -->
 
-![op.nvim demo gif](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-v2.gif) \
-<sup>
-The UI is handled by `vim.ui.input()` and `vim.ui.select()`;
-I recommend pairing this with [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
-and [dressing.nvim](https://github.com/stevearc/dressing.nvim) for nice `vim.ui.*` handlers.
-</sup>
+<details>
+<summary>Screenshots and Gifs (click to expand)</summary>
+
+**Secure Notes Editor**
+
+![Secure Notes Editor](https://user-images.githubusercontent.com/8648891/188518923-1165ed52-4915-4443-9a8c-6285bf601055.gif)
+
+**1Password Sidebar**
+
+![1Password Sidebar](https://user-images.githubusercontent.com/8648891/188519356-ba166555-a587-4628-9756-520ca8fd8864.gif)
+
+**Item Creation**
+
+![Item creation](https://user-images.githubusercontent.com/8648891/188519718-8fbdde4b-14cc-4d2c-b534-83b7fa1829c9.gif)
+
+</details>
 
 <!-- panvimdoc-ignore-end -->
+
+[More screenshots and demo gifs in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs)!
 
 ## Prerequisites
 
@@ -89,6 +101,46 @@ require('op').setup({
     end
     return nil
   end,
+  -- settings for op.nvim sidebar
+  sidebar = {
+    -- sections to include in the sidebar
+    sections = {
+      favorites = true,
+      secure_notes = true,
+    },
+    -- sidebar width
+    width = 40,
+    -- put the sidebar on the right or left side
+    side = 'right',
+    -- keymappings for the sidebar buffer.
+    -- can be a string mapping to a function from
+    -- the module `op.sidebar.actions`,
+    -- an editor command string, or a function.
+    -- if you supply a function, a table with the following
+    -- fields will be passed as an argument:
+    -- {
+    --   title: string,
+    --   icon: string,
+    --   type: 'header' | 'item'
+    --   -- data will be nil if type == 'header'
+    --   data: nil | {
+    --       uuid: string,
+    --       vault_uuid: string,
+    --       category: string,
+    --       url: string
+    --     }
+    -- }
+    mappings = {
+      -- if it's a Secure Note, open in op.nvim's Secure Notes editor;
+      -- if it's an item with a URL, open & fill the item in default browser;
+      -- otherwise, open in 1Password 8 desktop app
+      ['<CR>'] = 'default_open',
+      -- open in 1Password 8 desktop app
+      ['go'] = 'open_in_desktop_app',
+      -- edit in 1Password 8 desktop app
+      ['ge'] = 'edit_in_desktop_app',
+    },
+  },
   -- Custom formatter function for statusline component
   statusline_fmt = function(account_name)
     if not account_name or #account_name == 0 then
@@ -142,6 +194,9 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpOpen` - Select an item to open & fill in your default browser
 - `:OpInsert` - Insert an item reference at current cursor position.
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
+- `:OpSidebar` \* - Toggle the 1Password sidebar open/closed. Accepts `refresh` as an argument to reload items.
+
+All commands are also available as a Lua API, see [API](#api).
 
 ## Features
 
@@ -176,6 +231,27 @@ respectively, which then allows `op.nvim` to completely handle "writing" and "re
 Note that in order to write the contents back to the correct item, `op.nvim` associates buffer IDs with `{ uuid, vault_uuid }` pairs.
 **`op.nvim` does not store the note title or anything other than the UUID and vault UUID in the edit session**.
 
+### Sidebar
+
+`op.nvim` can show a sidebar listing your favorites, Secure Notes, or both. Keymappings can be added to open, view, etc. the items
+in the sidebar. See [screenshot in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs#sidebar).
+
+#### Highlighting Groups
+
+For colorscheme authors, you can use the following highlighting group names:
+
+- `OpSidebarHeader` - the section header text
+- `OpSidebarItem` - the text for items under a section header
+- `OpSidebarFavoriteIcon` - the star icon used for the 'Favorites' section header
+- `OpSidebarIconDefault` - all other icons in the sidebar (e.g. item category icons)
+
+#### Security
+
+In order to implement key mappings on the sidebar, the item's title, ID, vault ID, category, and primary URL are stored in memory
+to render the sidebar. **No other data is stored, and this data is stored internally to the plugin and never exported**. Other Lua
+code should not be able to access this data. However, this data is passed to functions which are setup as sidebar
+keymappings (see `sidebar.mappings` section under [Configuration](#configuration)).
+
 ### Statusline
 
 `op.nvim` provides a statusline component as a function that returns a string.
@@ -195,7 +271,20 @@ See screenshots below.
 
 ## API
 
-Part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
+All commands are also available as a Lua API as described below:
+
+- `require('op').op_signin(account_identifier: string | nil)`
+- `require('op).signout()`
+- `require('op').op_whoami()`
+- `require('op').op_create()`
+- `require('op').op_view()`
+- `require('op').op_edit()`
+- `require('op').op_open()`
+- `require('op').op_insert()`
+- `require('op').op_note(create_new: boolean)`
+- `require('op').op_sidebar(should_refresh: boolean)`
+
+Additionally, part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
 is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.
 The only exception is that `op events-api` is reformatted as `op.eventsApi`, for obvious reasons. Each command is accessed
 as a function that takes the command flags and arguments as a list. The functions all return three values, which are
@@ -209,7 +298,6 @@ local stdout, stderr, exit_code = op.account.get({ '--format', 'json' })
 local stdout, stderr, exit_code = op.item.list({ '--format', 'json' })
 local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
 local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
-
 -- all API functions can be called asynchronously by setting `args.async = true`
 -- and passing a callback as a second parameter
 op.account.get({ async = true, '--format', 'json' }, function(stdout, stderr, exit_code)

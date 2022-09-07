@@ -1,5 +1,6 @@
 local M = {}
 
+---@class OpNvimConfig
 local config = {
   op_cli_path = 'op',
   biometric_unlock = true,
@@ -13,6 +14,19 @@ local config = {
     end
     return nil
   end,
+  sidebar = {
+    sections = {
+      favorites = true,
+      secure_notes = true,
+    },
+    width = 30,
+    side = 'right',
+    mappings = {
+      ['<CR>'] = 'default_open',
+      ['go'] = 'open_in_desktop_app',
+      ['ge'] = 'edit_in_desktop_app',
+    },
+  },
   statusline_fmt = function(account_name)
     if not account_name or #account_name == 0 then
       return ' 1Password: No active session'
@@ -42,9 +56,9 @@ end
 
 function M.setup(user_config)
   user_config = user_config or {}
-  config = vim.tbl_extend('force', config, user_config)
+  config = vim.tbl_deep_extend('force', config, user_config)
 
-  if vim.g.op_nvim_remote_loaded then
+  if require('op.state').remote_plugin_loaded then
     handle_setup()
   else
     vim.api.nvim_create_autocmd('User', {
@@ -55,10 +69,8 @@ function M.setup(user_config)
   end
 end
 
-function M.get_global_args()
-  return vim.deepcopy(config.global_args or {})
-end
-
+---Get config table
+---@return OpNvimConfig
 function M.get_config_immutable()
   return vim.deepcopy(config)
 end

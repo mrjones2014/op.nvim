@@ -11,6 +11,8 @@ local msg = require('op.msg')
 local session = require('op.securenotes.session')
 local config = require('op.config')
 local utils = require('op.utils')
+local bufs = require('op.buffers')
+local categories = require('op.categories')
 
 local function with_note(uuid, vault_uuid, callback)
   op.item.get({ async = true, uuid, '--vault', vault_uuid, '--format', 'json' }, function(stdout, stderr)
@@ -23,19 +25,13 @@ local function with_note(uuid, vault_uuid, callback)
   end)
 end
 
-local function buf_set_options(buf, opts)
-  for key, opt in pairs(opts) do
-    if key == 'title' or key == 'name' then
-      local prefix = vim.tbl_get(config.get_config_immutable(), 'secure_notes', 'buf_name_prefix')
-      local name = vim.trim(opt)
-      if prefix and #prefix > 0 then
-        name = string.format('%s %s.md', vim.trim(prefix), name)
-      end
-      vim.api.nvim_buf_set_name(buf, name)
-    else
-      vim.api.nvim_buf_set_option(buf, key, opt)
-    end
+local function format_title(title)
+  local prefix = vim.tbl_get(config.get_config_immutable(), 'secure_notes', 'buf_name_prefix')
+  if prefix then
+    return string.format('%s %s.md', vim.trim(prefix), vim.trim(title))
   end
+
+  return string.format('%s.md', vim.trim(title))
 end
 
 ---Return note contents as an array of lines
@@ -57,7 +53,24 @@ local function note_contents(note)
 end
 
 local function setup_secure_note_buf(win_id, note)
-  local buf = vim.api.nvim_create_buf(true, true)
+  local title = format_title(note.title)
+  local existing_buf = vim.tbl_filter(function(buf)
+    local buf_name = vim.api.nvim_buf_get_name(buf):sub(#title * -1)
+    return buf_name == title
+  end, vim.api.nvim_list_bufs())[1]
+  if existing_buf and session.get_for_buf_id(existing_buf) then
+    vim.api.nvim_win_set_buf(0, existing_buf)
+    return
+  end
+
+  local buf = bufs.create({
+    filetype = 'markdown',
+    buftype = 'acwrite',
+    modified = false,
+    title = title,
+    lines = note_contents(note),
+  })
+
   if buf == 0 then
     msg.error('Failed to create buffer for Secure Notes.')
     return nil
@@ -65,48 +78,46 @@ local function setup_secure_note_buf(win_id, note)
 
   session.create(buf, note)
 
-  local contents = note_contents(note)
-  vim.api.nvim_buf_set_lines(buf, 0, #contents, false, contents)
-  buf_set_options(buf, {
-    filetype = 'markdown',
-    buftype = 'acwrite',
-    title = note.title,
-  })
+  bufs.autocmds({
+    {
+      -- set modified on TextChanged, :w sets nomodified
+      { 'TextChanged', 'TextChangedI' },
+      buffer = buf,
+      callback = function()
+        -- wait till after text is set the first time
+        if vim.b.op_nvim_secure_note_initialized then
+          vim.api.nvim_buf_set_option(buf, 'modified', true)
+          return
+        end
 
-  -- set modified on TextChanged, :OpCommit sets nomodified
-  vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
-    buffer = buf,
-    callback = function()
-      vim.api.nvim_buf_set_option(buf, 'modified', true)
-    end,
-  })
-
-  -- Handle autocmd BufWriteCmd so that :w can be used to update the Secure Note in 1Password
-  vim.api.nvim_create_autocmd('BufWriteCmd', {
-    buffer = buf,
-    callback = M.save_secure_note,
-  })
-
-  -- Handle autocmd BufReadCmd so that :e can be used to load changes from 1Password into the buffer
-  vim.api.nvim_create_autocmd('BufReadCmd', {
-    buffer = buf,
-    callback = M.load_note_changes,
-  })
-
-  -- kill session on buffer delete
-  vim.api.nvim_create_autocmd('BufDelete', {
-    buffer = buf,
-    callback = function()
-      session.close_session_for_buf_id(buf)
-    end,
+        vim.api.nvim_buf_set_option(buf, 'modified', false)
+        vim.b.op_nvim_secure_note_initialized = true
+      end,
+    },
+    {
+      -- Handle autocmd BufWriteCmd so that :w can be used to update the Secure Note in 1Password
+      'BufWriteCmd',
+      buffer = buf,
+      callback = M.save_secure_note,
+    },
+    {
+      -- Handle autocmd BufReadCmd so that :e can be used to load changes from 1Password into the buffer
+      'BufReadCmd',
+      buffer = buf,
+      callback = M.load_note_changes,
+    },
+    {
+      -- kill session on buffer delete
+      { 'BufDelete', 'BufWipeout' },
+      buffer = buf,
+      callback = function()
+        session.close_session_for_buf_id(buf)
+      end,
+    },
   })
 
   -- finally, open the buffer
   vim.api.nvim_win_set_buf(win_id, buf)
-  -- set buffer nomodified on load
-  vim.defer_fn(function()
-    vim.api.nvim_buf_set_option(buf, 'modified', false)
-  end, 5)
 end
 
 function M.load_note_changes()
@@ -131,10 +142,8 @@ function M.load_note_changes()
       vim.defer_fn(function()
         vim.api.nvim_buf_set_option(buf_id, 'modified', false)
         -- reset filetype to restore highlighting
-        -- luacheck thinks this is readonly for some reason
-        -- luacheck:ignore
         vim.bo.filetype = 'markdown'
-      end, 5)
+      end, 1)
     end
   end
 
@@ -197,20 +206,27 @@ function M.new_secure_note()
           return
         end
 
-        op.item.create(
-          { async = true, '--format', 'json', '--category', 'Secure Note', '--vault', vault.id, '--title', title },
-          function(stdout, stderr)
-            if #stderr > 0 then
-              msg.error(stderr[1])
-            elseif #stdout > 0 then
-              local note = vim.json.decode(table.concat(stdout, ''))
-              msg.success(string.format("Created Secure Note '%s'", title))
-              vim.schedule(function()
-                setup_secure_note_buf(win_id, note)
-              end)
-            end
+        op.item.create({
+          async = true,
+          '--format',
+          'json',
+          '--category',
+          categories.SECURE_NOTE.text,
+          '--vault',
+          vault.id,
+          '--title',
+          title,
+        }, function(stdout, stderr)
+          if #stderr > 0 then
+            msg.error(stderr[1])
+          elseif #stdout > 0 then
+            local note = vim.json.decode(table.concat(stdout, ''))
+            msg.success(string.format("Created Secure Note '%s'", title))
+            vim.schedule(function()
+              setup_secure_note_buf(win_id, note)
+            end)
           end
-        )
+        end)
       end)
     end)
   end)
@@ -226,7 +242,8 @@ function M.load_secure_note(uuid, vault_uuid)
 end
 
 function M.open_secure_note()
-  local stdout, stderr = op.item.list({ '--categories="Secure Note"', '--format', 'json' })
+  local stdout, stderr =
+    op.item.list({ string.format('--categories="%s"', categories.SECURE_NOTE.text), '--format', 'json' })
   if #stderr > 0 then
     msg.error(stderr[1])
   elseif #stdout > 0 then
