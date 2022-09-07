@@ -146,6 +146,11 @@ end
 
 function M.open()
   local parent_win = vim.fn.win_getid(vim.fn.winnr('#'))
+  -- this can happen if you immediately open the sidebar
+  -- after opening neovim since there is no "previous" window
+  if parent_win == 0 then
+    parent_win = vim.api.nvim_get_current_win()
+  end
 
   if not initialized then
     M.load_sidebar_items()
