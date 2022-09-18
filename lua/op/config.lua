@@ -44,6 +44,7 @@ local config = {
   secret_detection_diagnostics = {
     disabled = false,
     severity = vim.diagnostic.severity.WARN,
+    max_file_lines = 10000,
     disabled_filetypes = {
       'nofile',
       'TelescopePrompt',

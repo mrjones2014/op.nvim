@@ -171,6 +171,23 @@ require('op').setup({
     -- editing 1Password Secure Notes
     buf_name_prefix = '1P:',
   }
+  -- configuration for automatic secret detection
+  secret_detection_diagnostics = {
+    -- disable the feature if set to true
+    disabled = false,
+    -- severity of produced diagnostics
+    severity = vim.diagnostic.severity.WARN,
+    -- disable on files longer than this
+    max_file_lines = 10000,
+    -- disable on these filetypes
+    disabled_filetypes = {
+      'nofile',
+      'TelescopePrompt',
+      'NvimTree',
+      'Trouble',
+      '1PasswordSidebar',
+    },
+  }
 })
 ```
 

@@ -15,6 +15,10 @@ function M.create_request(on_done)
   return request_id
 end
 
+function M.invalidate_request(request_id)
+  requests[request_id] = nil
+end
+
 function M.callback(request_id, json, err)
   if err ~= nil and err ~= vim.NIL then
     msg.error(tostring(err))
