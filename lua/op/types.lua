@@ -1,6 +1,22 @@
 --- types This module just provides type annotations for the Lua language server
 --- to provide better help in completions and signature help. Provides no functionality.
 
+-- Diagnostic request and response types
+
+---@class OpLineDiagnostic
+---@field line number
+---@field col_start number
+---@field col_end number
+---@field secret_type string
+local OpLineDiagnostic
+
+---@class OpLineDiagnosticRequest
+---@field linenr number
+---@field text string
+local OpLineDiagnosticRequest
+
+-- CLI API types
+
 ---`args` is a list-like table of CLI arguments, with one optional configuration field: `async: boolean`.
 ---`async` defaults to false, you can set `{ async = true, ... }` to run the CLI asynchronously.
 ---@alias ApiFunc fun(args:table|nil, on_done:fun(stdout:table, stderr:table, exit_code:number)|nil)

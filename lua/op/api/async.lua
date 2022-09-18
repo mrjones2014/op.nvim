@@ -4,6 +4,9 @@ local M = {}
 
 local requests = {}
 
+-- TODO remove this
+M.requests = requests
+
 function M.create_request(on_done)
   local success, request_id = pcall(require('op.utils').uuid_short)
   if not success then
@@ -27,6 +30,8 @@ function M.callback(request_id, json, err)
       requests[request_id] = nil
       fn(json)
     end
+  else
+    vim.notify(string.format('[op.nvim async callback]: expected json string, got %s', type(json)))
   end
 end
 

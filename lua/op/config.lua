@@ -41,6 +41,17 @@ local config = {
   secure_notes = {
     buf_name_prefix = '1P:',
   },
+  secret_detection_diagnostics = {
+    disabled = false,
+    severity = vim.diagnostic.severity.WARN,
+    disabled_filetypes = {
+      'nofile',
+      'TelescopePrompt',
+      'NvimTree',
+      'Trouble',
+      '1PasswordSidebar',
+    },
+  },
 }
 
 local function handle_setup()

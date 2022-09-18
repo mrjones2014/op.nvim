@@ -18,7 +18,7 @@ type FieldPattern struct {
 
 // ref: https://github.com/vietjovi/secret-detection/
 // ref: https://github.com/Skyscanner/whispers
-var fieldPatterns = []FieldPattern{
+var FIELD_PATTERNS = []FieldPattern{
 	/// Generic patterns
 	{
 		FieldTitle: "username",
@@ -221,7 +221,7 @@ var fieldPatterns = []FieldPattern{
 }
 
 func getFieldDesignation(value string) *FieldPattern {
-	for _, fieldPattern := range fieldPatterns {
+	for _, fieldPattern := range FIELD_PATTERNS {
 		if fieldPattern.Pattern.MatchString(value) {
 			return &fieldPattern
 		}

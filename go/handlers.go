@@ -31,4 +31,8 @@ var Handlers = []HandlerDefinition{
 		Options: &plugin.FunctionOptions{Name: "OpEnableStatusline"},
 		Handler: OpEnableStatusline,
 	},
+	{
+		Options: &plugin.FunctionOptions{Name: "OpAnalyzeBuffer"},
+		Handler: OpAnalyzeBufferAsync,
+	},
 }

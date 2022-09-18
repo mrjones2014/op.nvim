@@ -274,7 +274,7 @@ See screenshots below.
 All commands are also available as a Lua API as described below:
 
 - `require('op').op_signin(account_identifier: string | nil)`
-- `require('op).signout()`
+- `require('op').signout()`
 - `require('op').op_whoami()`
 - `require('op').op_create()`
 - `require('op').op_view()`

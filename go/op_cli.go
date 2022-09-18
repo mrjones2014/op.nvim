@@ -92,16 +92,10 @@ func OpCmdAsync(args []string) error {
 	}
 
 	go func(args []string) {
-		request_id := args[0]
-		op_cli_args := args[1:]
-		json, err := runCli(op_cli_args)
-		if err != nil {
-			lua_code := fmt.Sprintf("require('op.api.async').callback([[%s]], nil, [[%s]])", request_id, err)
-			PluginInstance.Nvim.ExecLua(lua_code, nil)
-		} else {
-			lua_code := fmt.Sprintf("require('op.api.async').callback([[%s]], [[%s]], nil)", request_id, *json)
-			PluginInstance.Nvim.ExecLua(lua_code, nil)
-		}
+		requestId := args[0]
+		opCliArgs := args[1:]
+		json, err := runCli(opCliArgs)
+		AsyncCallback(requestId, json, err)
 	}(args)
 
 	return nil
