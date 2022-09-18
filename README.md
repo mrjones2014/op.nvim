@@ -226,6 +226,7 @@ All commands are also available as a Lua API, see [API](#api).
 - Switch between multiple 1Password accounts (only works with biometric unlock enabled)
 - Select an item to open & fill in your default browser
 - Secure Notes Editor (See [Secure Notes Editor](#secure-notes-editor))
+- Automatically detect hard-coded secrets in buffers and produce diagnostics
 - Statusline component that updates asynchronously (See [Statusline](#statusline))
 - Most commands are partially or fully asynchronous
 
