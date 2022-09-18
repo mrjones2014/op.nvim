@@ -69,6 +69,7 @@ function M.analyze_buffer(buf)
         end_col = result.col_end,
         message = string.format('Hard-coded %s detected', result.secret_type or 'secret'),
         severity = cfg.severity,
+        source = 'op.nvim',
       }
     end, results)
     vim.diagnostic.set(M.diagnostics_namespace, buf, diagnostics)
