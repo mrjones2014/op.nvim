@@ -1,18 +1,25 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
+
+// replace ' with \' and \ with \\
+func sanitize(s string) string {
+	return strings.ReplaceAll(
+		strings.ReplaceAll(s, "'", "\\'"),
+		"\\",
+		"\\\\",
+	)
+}
 
 func AsyncCallback(requestId string, json *string, err error) {
-	PluginInstance.Nvim.ExecLua("print('got here')", nil)
 	if err != nil {
-		PluginInstance.Nvim.ExecLua(fmt.Sprintf("print([[%s]])", err.Error()), nil)
-		luaCode := fmt.Sprintf("require('op.api.async').callback([[%s]], nil, [[%s]])", requestId, err)
+		luaCode := fmt.Sprintf("require('op.api.async').callback('%s', nil, '%s')", sanitize(requestId), sanitize(err.Error()))
 		PluginInstance.Nvim.ExecLua(luaCode, nil)
 	} else {
-		PluginInstance.Nvim.ExecLua("print('got here too')", nil)
-		// it's failing on something to do with *json
-		PluginInstance.Nvim.ExecLua(fmt.Sprintf("print([[%s]])", *json), nil)
-		luaCode := fmt.Sprintf("require('op.api.async').callback([[%s]], [[%s]], nil)", requestId, *json)
+		luaCode := fmt.Sprintf("require('op.api.async').callback('%s', '%s', nil)", sanitize(requestId), sanitize(*json))
 		PluginInstance.Nvim.ExecLua(luaCode, nil)
 	}
 }

@@ -59,6 +59,22 @@ local function handle_setup()
     require('op').op_signin()
   end
 
+  local diagnostics_augroup = 'OpSecretDiagnostics'
+  if not config.secret_detection_diagnostics.disabled then
+    vim.api.nvim_create_autocmd({
+      'BufReadPost',
+      'TextChanged',
+    }, {
+      group = vim.api.nvim_create_augroup(diagnostics_augroup, { clear = true }),
+      callback = function()
+        require('op.diagnostics').analyze_buffer()
+      end,
+    })
+  else
+    vim.api.nvim_create_augroup(diagnostics_augroup, { clear = true })
+    pcall(require('op.diagnostics').reset)
+  end
+
   -- only update in remote plugin if not default
   if config.op_cli_path ~= 'op' then
     vim.fn.OpSetup(config.op_cli_path)

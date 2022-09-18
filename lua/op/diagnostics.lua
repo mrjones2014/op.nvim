@@ -28,7 +28,6 @@ function M.analyze_buffer(buf)
   end
 
   local request_id = async.create_request(function(json)
-    vim.notify(json)
     if #(json or '') == 0 then
       -- removes all diagnostics in current buffer for our namespace
       vim.diagnostic.reset(M.diagnostics_namespace, buf)
@@ -49,7 +48,7 @@ function M.analyze_buffer(buf)
       result = result or {}
       return {
         bufnr = buf,
-        lnum = result.line,
+        lnum = result.line - 1,
         col = result.col_start,
         end_col = result.col_end,
         message = string.format('Hard-coded %s detected', result.secret_type or 'secret'),
@@ -66,6 +65,10 @@ function M.analyze_buffer(buf)
   else
     vim.diagnostic.reset(M.diagnostics_namespace, buf)
   end
+end
+
+function M.reset()
+  vim.diagnostic.reset(M.diagnostics_namespace, buf)
 end
 
 return M

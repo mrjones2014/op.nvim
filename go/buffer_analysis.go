@@ -18,6 +18,22 @@ type LineDiagnosticRequest struct {
 	Text   string `json:"text"`
 }
 
+// these types create too many false positives
+var ignoredSecretTypes = []string{
+	"username",
+	"url",
+}
+
+func isIgnoredPattern(pattern FieldPattern) bool {
+	for _, patternType := range ignoredSecretTypes {
+		if pattern.FieldTitle == patternType {
+			return true
+		}
+	}
+
+	return false
+}
+
 func formatSecretType(pattern FieldPattern) string {
 	if &pattern.ItemTitle != nil && len(pattern.ItemTitle) > 0 {
 		return fmt.Sprintf("%s %s", pattern.ItemTitle, pattern.FieldTitle)
@@ -36,6 +52,10 @@ func analyzeBuffer(lineRequests []LineDiagnosticRequest) []LineDiagnostic {
 		}
 
 		for _, pattern := range FIELD_PATTERNS {
+			if isIgnoredPattern(pattern) {
+				continue
+			}
+
 			matches := pattern.Pattern.FindAllStringIndex(line, -1)
 			secretType := formatSecretType(pattern)
 			for _, match := range matches {

@@ -4,9 +4,6 @@ local M = {}
 
 local requests = {}
 
--- TODO remove this
-M.requests = requests
-
 function M.create_request(on_done)
   local success, request_id = pcall(require('op.utils').uuid_short)
   if not success then
