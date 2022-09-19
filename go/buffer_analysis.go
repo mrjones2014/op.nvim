@@ -80,8 +80,8 @@ func analyzeBufferJson(lineRequests []LineDiagnosticRequest) (*string, error) {
 		return nil, err
 	}
 
-	asString := string(result)
-	return &asString, nil
+	json := string(result)
+	return &json, nil
 }
 
 func OpAnalyzeBufferAsync(args []string) error {
@@ -95,10 +95,7 @@ func OpAnalyzeBufferAsync(args []string) error {
 		return jsonParseErr
 	}
 
-	go func(requestId string, lineRequests []LineDiagnosticRequest) {
-		result, err := analyzeBufferJson(lineRequests)
-		AsyncCallback(requestId, result, err)
-	}(args[0], lineRequests)
+	DoAsync(args[0], lineRequests, analyzeBufferJson)
 
 	return nil
 }

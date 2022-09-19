@@ -36,7 +36,9 @@ func OpSetup(args []string) (*string, error) {
 	return &opCliPath, nil
 }
 
-func runCli(args []string) (*string, error) {
+// Execute a subcommand of the 1Password CLI.
+// Returns the output and exit code serialized to a JSON string.
+func OpCmd(args []string) (*string, error) {
 	if !opCliPathValid {
 		if err := exec.Command(opCliPath, "--version").Run(); err != nil {
 			output := CliOutput{
@@ -80,23 +82,12 @@ func runCli(args []string) (*string, error) {
 	return &json, nil
 }
 
-// Execute a subcommand of the 1Password CLI.
-// Returns the output and exit code serialized to a JSON string.
-func OpCmd(args []string) (*string, error) {
-	return runCli(args)
-}
-
 func OpCmdAsync(args []string) error {
 	if len(args) < 2 {
 		return errors.New("Need at least 2 arguments (request ID, then `op` cmd).")
 	}
 
-	go func(args []string) {
-		requestId := args[0]
-		opCliArgs := args[1:]
-		json, err := runCli(opCliArgs)
-		AsyncCallback(requestId, json, err)
-	}(args)
+	DoAsync(args[0], args[1:], OpCmd)
 
 	return nil
 }

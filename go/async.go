@@ -2,24 +2,23 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
-// replace ' with \' and \ with \\
-func sanitize(s string) string {
-	return strings.ReplaceAll(
-		strings.ReplaceAll(s, "'", "\\'"),
-		"\\",
-		"\\\\",
-	)
-}
-
-func AsyncCallback(requestId string, json *string, err error) {
+func asyncCallback(requestId string, json *string, err error) {
 	if err != nil {
-		luaCode := fmt.Sprintf("require('op.api.async').callback('%s', nil, '%s')", sanitize(requestId), sanitize(err.Error()))
+		luaCode := fmt.Sprintf("require('op.api.async').callback(%q, nil, %q)", requestId, err.Error())
 		PluginInstance.Nvim.ExecLua(luaCode, nil)
 	} else {
-		luaCode := fmt.Sprintf("require('op.api.async').callback('%s', '%s', nil)", sanitize(requestId), sanitize(*json))
+		luaCode := fmt.Sprintf("require('op.api.async').callback(%q, %q, nil)", requestId, *json)
 		PluginInstance.Nvim.ExecLua(luaCode, nil)
 	}
+}
+
+func run[T any](requestId string, params T, handler func(params T) (*string, error)) {
+	json, err := handler(params)
+	asyncCallback(requestId, json, err)
+}
+
+func DoAsync[T any](requestId string, params T, handler func(params T) (*string, error)) {
+	go run(requestId, params, handler)
 }
