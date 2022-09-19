@@ -250,7 +250,7 @@ function M.op_sidebar(should_refresh)
 end
 
 function M.op_analyze_buffer()
-  diagnostics.analyze_buffer()
+  diagnostics.analyze_buffer(0, true)
 end
 
 return M

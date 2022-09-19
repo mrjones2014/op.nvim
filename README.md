@@ -33,6 +33,8 @@ directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric
 
 ![Item creation](https://user-images.githubusercontent.com/8648891/188519718-8fbdde4b-14cc-4d2c-b534-83b7fa1829c9.gif)
 
+![Secret Detection diagnostics](https://user-images.githubusercontent.com/8648891/191072734-d328fc20-9fda-45ac-bffa-a2c301ec6fbe.png)
+
 </details>
 
 <!-- panvimdoc-ignore-end -->
@@ -172,6 +174,7 @@ require('op').setup({
     buf_name_prefix = '1P:',
   }
   -- configuration for automatic secret detection
+  -- it can also be triggered manually with `:OpAnalyzeBuffer`
   secret_detection_diagnostics = {
     -- disable the feature if set to true
     disabled = false,
@@ -212,6 +215,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpInsert` - Insert an item reference at current cursor position.
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 - `:OpSidebar` \* - Toggle the 1Password sidebar open/closed. Accepts `refresh` as an argument to reload items.
+- `:OpAnalyzeBuffer` \* - Run secret detection diagnostics on current buffer manually
 
 All commands are also available as a Lua API, see [API](#api).
 
@@ -301,6 +305,7 @@ All commands are also available as a Lua API as described below:
 - `require('op').op_insert()`
 - `require('op').op_note(create_new: boolean)`
 - `require('op').op_sidebar(should_refresh: boolean)`
+- `require('op').op_analyze_buffer()`
 
 Additionally, part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
 is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.

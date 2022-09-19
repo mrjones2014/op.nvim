@@ -12,10 +12,10 @@ local request_bufs = {}
 
 M.diagnostics_namespace = vim.api.nvim_create_namespace('OpBufferAnalysis')
 
-function M.analyze_buffer(buf)
+function M.analyze_buffer(buf, manual)
   buf = buf or 0 -- default to current buffer
   local cfg = config.get_config_immutable().secret_detection_diagnostics
-  if cfg.disabled or vim.tbl_contains(cfg.disabled_filetypes, vim.api.nvim_buf_get_option(buf, 'filetype')) then
+  if (cfg.disabled and not manual) or vim.tbl_contains(cfg.disabled_filetypes, vim.api.nvim_buf_get_option(buf, 'filetype')) then
     return
   end
 
