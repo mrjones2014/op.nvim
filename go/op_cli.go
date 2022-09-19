@@ -21,6 +21,15 @@ type OpAccount struct {
 var opCliPath string = "op"
 var opCliPathValid = false
 
+func opCmdAsync(requestId string, args []string) {
+	json, err := OpCmd(args)
+	if err != nil {
+		AsyncErr(requestId, err)
+	} else {
+		AsyncSuccess(requestId, *json)
+	}
+}
+
 // Set the path to the 1Password CLI.
 // Returns the configured path.
 func OpSetup(args []string) (*string, error) {
@@ -87,7 +96,7 @@ func OpCmdAsync(args []string) error {
 		return errors.New("Need at least 2 arguments (request ID, then `op` cmd).")
 	}
 
-	DoAsync(args[0], args[1:], OpCmd)
+	go opCmdAsync(args[0], args[1:])
 
 	return nil
 }

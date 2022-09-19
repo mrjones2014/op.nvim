@@ -72,16 +72,16 @@ func analyzeBuffer(lineRequests []LineDiagnosticRequest) []LineDiagnostic {
 	return results
 }
 
-func analyzeBufferJson(lineRequests []LineDiagnosticRequest) (*string, error) {
+func analyzeBufferJson(requestId string, lineRequests []LineDiagnosticRequest) {
 	results := analyzeBuffer(lineRequests)
 	result, err := json.Marshal(results)
 
 	if err != nil {
-		return nil, err
+		AsyncErr(requestId, err)
+	} else {
+		json := string(result)
+		AsyncSuccess(requestId, json)
 	}
-
-	json := string(result)
-	return &json, nil
 }
 
 func OpAnalyzeBufferAsync(args []string) error {
@@ -95,7 +95,7 @@ func OpAnalyzeBufferAsync(args []string) error {
 		return jsonParseErr
 	}
 
-	DoAsync(args[0], lineRequests, analyzeBufferJson)
+	analyzeBufferJson(args[0], lineRequests)
 
 	return nil
 }
