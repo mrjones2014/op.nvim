@@ -42,31 +42,52 @@ func formatSecretType(pattern FieldPattern) string {
 	return pattern.FieldTitle
 }
 
+func lineMatches(pattern FieldPattern, line string) [][]int {
+	if isIgnoredPattern(pattern) {
+		return nil
+	}
+
+	return pattern.Pattern.FindAllStringIndex(line, -1)
+}
+
+func validLineRequests(lineRequests []LineDiagnosticRequest) []LineDiagnosticRequest {
+	validRequests := make([]LineDiagnosticRequest, len(lineRequests))
+	for _, req := range lineRequests {
+		if &req.Text != nil && len(req.Text) > 0 {
+			validRequests = append(validRequests, req)
+		}
+	}
+
+	return validRequests
+}
+
+func generateDiagnostics(req LineDiagnosticRequest) []LineDiagnostic {
+	diagnostics := []LineDiagnostic{}
+	linenr := req.LineNr
+	line := req.Text
+	if &line == nil || len(line) == 0 {
+		return diagnostics
+	}
+
+	for _, pattern := range FIELD_PATTERNS {
+		secretType := formatSecretType(pattern)
+		for _, match := range lineMatches(pattern, line) {
+			diagnostics = append(diagnostics, LineDiagnostic{
+				Line:       linenr,
+				ColStart:   match[0],
+				ColEnd:     match[1],
+				SecretType: secretType,
+			})
+		}
+	}
+
+	return diagnostics
+}
+
 func analyzeBuffer(lineRequests []LineDiagnosticRequest) []LineDiagnostic {
 	results := []LineDiagnostic{}
 	for _, req := range lineRequests {
-		linenr := req.LineNr
-		line := req.Text
-		if &line == nil || len(line) == 0 {
-			continue
-		}
-
-		for _, pattern := range FIELD_PATTERNS {
-			if isIgnoredPattern(pattern) {
-				continue
-			}
-
-			matches := pattern.Pattern.FindAllStringIndex(line, -1)
-			secretType := formatSecretType(pattern)
-			for _, match := range matches {
-				results = append(results, LineDiagnostic{
-					Line:       linenr,
-					ColStart:   match[0],
-					ColEnd:     match[1],
-					SecretType: secretType,
-				})
-			}
-		}
+		results = append(results, generateDiagnostics(req)...)
 	}
 
 	return results
@@ -77,10 +98,10 @@ func analyzeBufferJson(requestId string, lineRequests []LineDiagnosticRequest) {
 	result, err := json.Marshal(results)
 
 	if err != nil {
-		AsyncErr(requestId, err)
+		Async.Err(requestId, err)
 	} else {
 		json := string(result)
-		AsyncSuccess(requestId, json)
+		Async.Success(requestId, json)
 	}
 }
 

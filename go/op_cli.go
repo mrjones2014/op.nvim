@@ -24,9 +24,9 @@ var opCliPathValid = false
 func opCmdAsync(requestId string, args []string) {
 	json, err := OpCmd(args)
 	if err != nil {
-		AsyncErr(requestId, err)
+		Async.Err(requestId, err)
 	} else {
-		AsyncSuccess(requestId, *json)
+		Async.Success(requestId, *json)
 	}
 }
 
