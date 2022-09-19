@@ -31,6 +31,7 @@ update-remote-plugin-manifest: all install
 
 .PHONY: install
 install:
+	rm -f ./bin/op-nvim
 	mkdir -p bin
 	./install.bash
 	chmod +x ./bin/op-nvim
