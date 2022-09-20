@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 type LineDiagnostic struct {
@@ -108,6 +112,75 @@ func analyzeBufferJson(requestId string, lineRequests []LineDiagnosticRequest) {
 	}
 }
 
+func collectWorkspaceFiles(globs []string) ([]string, error) {
+	files := []string{}
+	for _, glob := range globs {
+		globFiles, err := filepath.Glob(glob)
+		if err != nil {
+			return nil, err
+		}
+
+		files = append(files, globFiles...)
+	}
+
+	return files, nil
+}
+
+func getDiagnosticsForFile(filepath string, collectedDiagnostics chan []LineDiagnostic) {
+	diagnosticRequests := []LineDiagnosticRequest{}
+	file, openErr := os.Open(filepath)
+	defer file.Close()
+	if openErr != nil {
+		// fail gracefully
+		log.Fatal(openErr)
+		return
+	}
+	scanner := bufio.NewScanner(file)
+	linenr := 0
+	for scanner.Scan() {
+		req := LineDiagnosticRequest{
+			LineNr: linenr,
+			Text:   scanner.Text(),
+		}
+		diagnosticRequests = append(diagnosticRequests, req)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	diagnostics := analyzeBuffer(diagnosticRequests)
+	collectedDiagnostics <- diagnostics
+}
+
+func genDiagnosticRequestsForWorkspace(files []string) []LineDiagnostic {
+	diagnosticsChannel := make(chan []LineDiagnostic)
+	for _, file := range files {
+		go getDiagnosticsForFile(file, diagnosticsChannel)
+	}
+
+	diagnostics := []LineDiagnostic{}
+	for diagnosticList := range diagnosticsChannel {
+		diagnostics = append(diagnostics, diagnosticList...)
+	}
+
+	return diagnostics
+}
+
+func genDiagnosticRequestsForWorkspaceJson(requestId string, files []string) {
+	Async.execLua("print('generating diagnostics')")
+	// TODO I don't think I'm using channels right
+	diagnostics := genDiagnosticRequestsForWorkspace(files)
+	Async.execLua("print('got diagnostics')")
+	json, err := json.Marshal(diagnostics)
+	if err != nil {
+		Async.Err(requestId, err)
+	} else {
+		jsonStr := string(json)
+		Async.Success(requestId, jsonStr)
+	}
+}
+
 func OpAnalyzeBufferAsync(args []string) error {
 	if len(args) != 2 {
 		return errors.New("Need exactly 2 arguments (request ID, then buffer line requests)")
@@ -119,7 +192,24 @@ func OpAnalyzeBufferAsync(args []string) error {
 		return jsonParseErr
 	}
 
-	analyzeBufferJson(args[0], lineRequests)
+	go analyzeBufferJson(args[0], lineRequests)
+
+	return nil
+}
+
+func OpAnalyzeWorkspaceAsync(args []string) error {
+	if len(args) < 2 {
+		return errors.New("Need at least 2 arguments (request ID, then globbing patterns)")
+	}
+
+	requestId := args[0]
+	globs := args[1:]
+	files, globErr := collectWorkspaceFiles(globs)
+	if globErr != nil {
+		return globErr
+	}
+
+	go genDiagnosticRequestsForWorkspaceJson(requestId, files)
 
 	return nil
 }

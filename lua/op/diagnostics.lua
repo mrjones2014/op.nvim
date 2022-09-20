@@ -103,6 +103,19 @@ function M.analyze_buffer(buf, manual)
   end
 end
 
+function M.analyze_workspace()
+  local patterns = { '{!.git}**/*' } -- TODO replace with config
+  local request_id = async.create_request(function(json)
+    if not json or #json == 0 then
+      return
+    end
+
+    local workspace_diagnostics = vim.json.decode(json)
+    print(vim.inspect(workspace_diagnostics))
+  end)
+  vim.fn.OpAnalyzeWorkspace(request_id, unpack(patterns))
+end
+
 function M.reset()
   vim.diagnostic.reset(M.diagnostics_namespace)
 end

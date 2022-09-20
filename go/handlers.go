@@ -35,4 +35,8 @@ var Handlers = []HandlerDefinition{
 		Options: &plugin.FunctionOptions{Name: "OpAnalyzeBuffer"},
 		Handler: OpAnalyzeBufferAsync,
 	},
+	{
+		Options: &plugin.FunctionOptions{Name: "OpAnalyzeWorkspace"},
+		Handler: OpAnalyzeWorkspaceAsync,
+	},
 }
