@@ -61,6 +61,8 @@ Emails are ignored because they create too many false positives: test@example.co
 Regular URLs are also ignored because they aren't necessarily sensitive: https://github.com
 
 A fake Slack webhook URL is https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+
+Two secrets on the same line: 4222222222222 ghr_aU73Wj7Jow3qAuQfuOaU73Wj7Jow3qAuQfuOaU73Wj7Jow3qAuQfuOaU73Wj7Jow3qAuQfuOa7wQ
 	`)
 
 	results := analyzeBuffer(requests)
@@ -85,6 +87,20 @@ A fake Slack webhook URL is https://hooks.slack.com/services/T00000000/B00000000
 			ColStart:   28,
 			ColEnd:     105,
 			SecretType: "Slack webhook",
+		},
+		{
+			BufNr:      0,
+			Line:       15,
+			ColStart:   30,
+			ColEnd:     43,
+			SecretType: "credit card",
+		},
+		{
+			BufNr:      0,
+			Line:       15,
+			ColStart:   44,
+			ColEnd:     124,
+			SecretType: "GitHub token",
 		},
 	}
 
