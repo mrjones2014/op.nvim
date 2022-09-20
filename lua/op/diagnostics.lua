@@ -15,7 +15,10 @@ M.diagnostics_namespace = vim.api.nvim_create_namespace('OpBufferAnalysis')
 function M.analyze_buffer(buf, manual)
   buf = buf or 0 -- default to current buffer
   local cfg = config.get_config_immutable().secret_detection_diagnostics
-  if (cfg.disabled and not manual) or vim.tbl_contains(cfg.disabled_filetypes, vim.api.nvim_buf_get_option(buf, 'filetype')) then
+  if
+    (cfg.disabled and not manual)
+    or vim.tbl_contains(cfg.disabled_filetypes, vim.api.nvim_buf_get_option(buf, 'filetype'))
+  then
     return
   end
 
@@ -28,7 +31,7 @@ function M.analyze_buffer(buf, manual)
   for linenr, line in ipairs(lines) do
     if #(vim.trim(line)) > 0 then
       table.insert(line_requests, {
-        linenr = linenr,
+        linenr = linenr - 1, -- lists in Lua are 1-based index
         text = line,
       })
     end
@@ -64,7 +67,7 @@ function M.analyze_buffer(buf, manual)
       result = result or {}
       return {
         bufnr = buf,
-        lnum = result.line - 1,
+        lnum = result.line,
         col = result.col_start,
         end_col = result.col_end,
         message = string.format('Hard-coded %s detected', result.secret_type or 'secret'),
