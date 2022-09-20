@@ -253,4 +253,8 @@ function M.op_analyze_buffer()
   diagnostics.analyze_buffer(0, true)
 end
 
+function M.op_analyze_workspace()
+  diagnostics.analyze_workspace()
+end
+
 return M

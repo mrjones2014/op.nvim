@@ -53,3 +53,7 @@ end, { desc = 'Toggle the 1Password sidebar', nargs = '?' })
 vim.api.nvim_create_user_command('OpAnalyzeBuffer', function()
   require('op').op_analyze_buffer()
 end, { desc = 'Run 1Password secret detection diagnostics on current buffer' })
+
+vim.api.nvim_create_user_command('OpAnalyzeWorkspace', function()
+  require('op').op_analyze_workspace()
+end, { desc = 'Run 1Password secret detection diagnostics on whole workspace' })

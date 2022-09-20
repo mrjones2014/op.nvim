@@ -190,6 +190,29 @@ require('op').setup({
       'Trouble',
       '1PasswordSidebar',
     },
+    -- settings for running diagnostics on whole workspace
+    workspace_diagnostics = {
+      -- see https://github.com/bmatcuk/doublestar#patterns
+      -- for information on patterns
+      ignore_patterns = {
+        '.git/**',
+        'node_modules/**',
+        'build/**',
+        'dist/**',
+        'bin/**',
+        'out/**',
+      },
+      -- function to run when diagnostics
+      -- are finished being produced
+      on_done = function()
+        local trouble_installed, trouble = pcall(require, 'trouble')
+        if trouble_installed then
+          trouble.open('workspace_diagnostics')
+        else
+          vim.diagnostic.setqflist({ open = true })
+        end
+      end,
+    },
   }
 })
 ```
@@ -216,6 +239,7 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 - `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
 - `:OpSidebar` \* - Toggle the 1Password sidebar open/closed. Accepts `refresh` as an argument to reload items.
 - `:OpAnalyzeBuffer` \* - Run secret detection diagnostics on current buffer manually
+- `:OpAnalyzeWorkspace` \* - Run secret detection diagnostics on the whole workspace (current working directory)
 
 All commands are also available as a Lua API, see [API](#api).
 
@@ -306,6 +330,7 @@ All commands are also available as a Lua API as described below:
 - `require('op').op_note(create_new: boolean)`
 - `require('op').op_sidebar(should_refresh: boolean)`
 - `require('op').op_analyze_buffer()`
+- `require('op').op_analyze_workspace()`
 
 Additionally, part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
 is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.

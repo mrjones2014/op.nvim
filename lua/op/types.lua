@@ -8,6 +8,8 @@
 ---@field col_start number
 ---@field col_end number
 ---@field secret_type string
+---@field buf number|nil
+---@field file string|nil
 local OpLineDiagnostic
 
 ---@class OpLineDiagnosticRequest

@@ -5,23 +5,32 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 type LineDiagnostic struct {
-	BufNr      int    `json:"bufnr"`
-	Line       int    `json:"line"`
-	ColStart   int    `json:"col_start"`
-	ColEnd     int    `json:"col_end"`
-	SecretType string `json:"secret_type"`
+	// number or null if workspace diagnostics
+	BufNr *int `json:"bufnr"`
+	// string or null if current buffer diagnostics
+	File       *string `json:"file"`
+	Line       int     `json:"line"`
+	ColStart   int     `json:"col_start"`
+	ColEnd     int     `json:"col_end"`
+	SecretType string  `json:"secret_type"`
 }
 
 type LineDiagnosticRequest struct {
-	BufNr  int    `json:"bufnr"`
-	LineNr int    `json:"linenr"`
-	Text   string `json:"text"`
+	// number or null if workspace diagnostics
+	BufNr *int `json:"bufnr"`
+	// string or null if current buffer diagnostics
+	File   *string `json:"file"`
+	LineNr int     `json:"linenr"`
+	Text   string  `json:"text"`
 }
 
 // these types create too many false positives
@@ -80,6 +89,7 @@ func generateDiagnostics(req LineDiagnosticRequest) []LineDiagnostic {
 		for _, match := range lineMatches(pattern, line) {
 			diagnostics = append(diagnostics, LineDiagnostic{
 				BufNr:      req.BufNr,
+				File:       req.File,
 				Line:       linenr,
 				ColStart:   match[0],
 				ColEnd:     match[1],
@@ -127,6 +137,7 @@ func collectWorkspaceFiles(globs []string) ([]string, error) {
 }
 
 func getDiagnosticsForFile(filepath string, diagnostics *[]LineDiagnostic, wg *sync.WaitGroup) {
+	wg.Add(1)
 	diagnosticRequests := []LineDiagnosticRequest{}
 	file, openErr := os.Open(filepath)
 	if openErr != nil {
@@ -139,10 +150,13 @@ func getDiagnosticsForFile(filepath string, diagnostics *[]LineDiagnostic, wg *s
 	linenr := 0
 	for scanner.Scan() {
 		req := LineDiagnosticRequest{
+			File:   &filepath,
+			BufNr:  nil,
 			LineNr: linenr,
 			Text:   scanner.Text(),
 		}
 		diagnosticRequests = append(diagnosticRequests, req)
+		linenr += 1
 	}
 
 	file.Close()
@@ -150,20 +164,36 @@ func getDiagnosticsForFile(filepath string, diagnostics *[]LineDiagnostic, wg *s
 	wg.Done()
 }
 
-func genDiagnosticRequestsForWorkspace(files []string) []LineDiagnostic {
+func isIgnoredPath(path string, ignorePatterns []string) bool {
+	for _, pattern := range ignorePatterns {
+		match, _ := doublestar.PathMatch(pattern, path)
+		if match {
+			return true
+		}
+	}
+
+	return false
+}
+
+func genDiagnosticsForWorkspace(ignorePatterns []string) []LineDiagnostic {
 	diagnostics := []LineDiagnostic{}
 	wg := sync.WaitGroup{}
-	for _, file := range files {
-		wg.Add(1)
-		go getDiagnosticsForFile(file, &diagnostics, &wg)
-	}
+
+	filepath.WalkDir(".", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() || isIgnoredPath(path, ignorePatterns) {
+			return nil
+		}
+
+		go getDiagnosticsForFile(path, &diagnostics, &wg)
+		return nil
+	})
 
 	wg.Wait()
 	return diagnostics
 }
 
-func genDiagnosticRequestsForWorkspaceJson(requestId string, files []string) {
-	diagnostics := genDiagnosticRequestsForWorkspace(files)
+func genDiagnosticRequestsForWorkspaceJson(requestId string, ignorePatterns []string) {
+	diagnostics := genDiagnosticsForWorkspace(ignorePatterns)
 	json, err := json.Marshal(diagnostics)
 	if err != nil {
 		Async.Err(requestId, err)
@@ -195,13 +225,9 @@ func OpAnalyzeWorkspaceAsync(args []string) error {
 	}
 
 	requestId := args[0]
-	globs := args[1:]
-	files, globErr := collectWorkspaceFiles(globs)
-	if globErr != nil {
-		return globErr
-	}
+	ignorePatterns := args[1:]
 
-	go genDiagnosticRequestsForWorkspaceJson(requestId, files)
+	go genDiagnosticRequestsForWorkspaceJson(requestId, ignorePatterns)
 
 	return nil
 }
