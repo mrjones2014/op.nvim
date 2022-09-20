@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 type LineDiagnostic struct {
@@ -125,12 +126,13 @@ func collectWorkspaceFiles(globs []string) ([]string, error) {
 	return files, nil
 }
 
-func getDiagnosticsForFile(filepath string, collectedDiagnostics chan []LineDiagnostic) {
+func getDiagnosticsForFile(filepath string, diagnostics *[]LineDiagnostic, wg *sync.WaitGroup) {
 	diagnosticRequests := []LineDiagnosticRequest{}
 	file, openErr := os.Open(filepath)
 	if openErr != nil {
 		// fail gracefully
 		file.Close()
+		wg.Done()
 		return
 	}
 	scanner := bufio.NewScanner(file)
@@ -144,28 +146,23 @@ func getDiagnosticsForFile(filepath string, collectedDiagnostics chan []LineDiag
 	}
 
 	file.Close()
-	diagnostics := analyzeBuffer(diagnosticRequests)
-	collectedDiagnostics <- diagnostics
+	*diagnostics = append(*diagnostics, analyzeBuffer(diagnosticRequests)...)
+	wg.Done()
 }
 
 func genDiagnosticRequestsForWorkspace(files []string) []LineDiagnostic {
-	diagnosticsChannel := make(chan []LineDiagnostic)
-	for _, file := range files {
-		go getDiagnosticsForFile(file, diagnosticsChannel)
-	}
-
 	diagnostics := []LineDiagnostic{}
-	for diagnosticList := range diagnosticsChannel {
-		if diagnosticList != nil {
-			diagnostics = append(diagnostics, diagnosticList...)
-		}
+	wg := sync.WaitGroup{}
+	for _, file := range files {
+		wg.Add(1)
+		go getDiagnosticsForFile(file, &diagnostics, &wg)
 	}
 
+	wg.Wait()
 	return diagnostics
 }
 
 func genDiagnosticRequestsForWorkspaceJson(requestId string, files []string) {
-	// TODO I don't think I'm using channels right, it's crashing here
 	diagnostics := genDiagnosticRequestsForWorkspace(files)
 	json, err := json.Marshal(diagnostics)
 	if err != nil {
