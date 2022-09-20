@@ -30,7 +30,7 @@ func (a AsyncManager) UpdateStatusline(accountName *string) {
 	if accountName == nil {
 		a.execLua("require('op.statusline').update(nil)")
 	} else {
-		a.execLua(fmt.Sprintf("require('op.statusline').update(\"%s\")", accountName))
+		a.execLua(fmt.Sprintf("require('op.statusline').update(\"%s\")", *accountName))
 	}
 }
 
