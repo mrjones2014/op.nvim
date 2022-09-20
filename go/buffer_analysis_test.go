@@ -6,10 +6,6 @@ import (
 	"testing"
 )
 
-func (a AsyncManager) MockExecutor(exe Executor) {
-	a.execLua = exe
-}
-
 func TestFormatSecretType_WithItemTitle(t *testing.T) {
 	pattern := FieldPattern{
 		ItemTitle:  "Item Title",

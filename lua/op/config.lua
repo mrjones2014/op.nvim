@@ -52,24 +52,6 @@ local config = {
       'Trouble',
       '1PasswordSidebar',
     },
-    workspace_diagnostics = {
-      ignore_patterns = {
-        '.git/**',
-        'node_modules/**',
-        'build/**',
-        'dist/**',
-        'bin/**',
-        'out/**',
-      },
-      on_done = function()
-        local trouble_installed, trouble = pcall(require, 'trouble')
-        if trouble_installed then
-          trouble.open('workspace_diagnostics')
-        else
-          vim.diagnostic.setqflist({ open = true })
-        end
-      end,
-    },
   },
 }
 

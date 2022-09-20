@@ -27,28 +27,12 @@ end
 
 local function convert_diagnostics(line_diagnostics, buf)
   local cfg = config.get_config_immutable().secret_detection_diagnostics
-  local file_bufs = {}
-  local original_buf = vim.api.nvim_get_current_buf()
-  if not buf then
-    -- open unlisted buffers for all files
-    vim.tbl_map(function(line_diagnostic)
-      if file_bufs[line_diagnostic.file] then
-        return
-      end
-
-      file_bufs[line_diagnostic.file] = vim.api.nvim_create_buf(true, false)
-      vim.api.nvim_buf_set_name(file_bufs[line_diagnostic.file], line_diagnostic.file)
-      vim.api.nvim_set_current_buf(file_bufs[line_diagnostic.file])
-      vim.cmd('e')
-    end, line_diagnostics)
-    vim.api.nvim_set_current_buf(original_buf)
-  end
   return vim.tbl_map(function(result)
     -- specify type for LSP help
     ---@type OpLineDiagnostic
     result = result or {}
     return {
-      bufnr = buf or file_bufs[result.file],
+      bufnr = buf,
       lnum = result.line,
       col = result.col_start,
       end_col = result.col_end,
@@ -121,23 +105,6 @@ function M.analyze_buffer(buf, manual)
   else
     vim.diagnostic.reset(M.diagnostics_namespace, buf)
   end
-end
-
-function M.analyze_workspace()
-  local cfg = config.get_config_immutable().secret_detection_diagnostics.workspace_diagnostics
-  local ignore_patterns = cfg.ignore_patterns
-  local request_id = async.create_request(function(json)
-    if not json or #json == 0 then
-      return
-    end
-
-    local workspace_diagnostics = vim.json.decode(json)
-    set_buf_diagnostics(convert_diagnostics(workspace_diagnostics))
-    vim.defer_fn(function()
-      cfg.on_done()
-    end, 1)
-  end)
-  vim.fn.OpAnalyzeWorkspace(request_id, unpack(ignore_patterns))
 end
 
 function M.reset()
