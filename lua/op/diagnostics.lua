@@ -10,6 +10,21 @@ local M = {}
 -- map buf_id to request_id
 local request_bufs = {}
 
+local function set_buf_diagnostics(diagnostics)
+  local buf_diagnostics = {}
+
+  -- map diagnostics to the correct buffers
+  for _, diagnostic in ipairs(diagnostics) do
+    buf_diagnostics[diagnostic.bufnr] = buf_diagnostics[diagnostic.bufnr] or {}
+    table.insert(buf_diagnostics[diagnostic.bufnr], diagnostic)
+  end
+
+  -- set diagnostics on buffers
+  for bufnr, diagnostics_for_buf in pairs(buf_diagnostics) do
+    pcall(vim.diagnostic.set, M.diagnostics_namespace, bufnr, diagnostics_for_buf)
+  end
+end
+
 M.diagnostics_namespace = vim.api.nvim_create_namespace('OpBufferAnalysis')
 
 function M.analyze_buffer(buf, manual)
@@ -31,6 +46,7 @@ function M.analyze_buffer(buf, manual)
   for linenr, line in ipairs(lines) do
     if #(vim.trim(line)) > 0 then
       table.insert(line_requests, {
+        bufnr = buf,
         linenr = linenr - 1, -- lists in Lua are 1-based index
         text = line,
       })
@@ -75,7 +91,7 @@ function M.analyze_buffer(buf, manual)
         source = 'op.nvim',
       }
     end, results)
-    vim.diagnostic.set(M.diagnostics_namespace, buf, diagnostics)
+    set_buf_diagnostics(diagnostics)
   end)
   request_bufs[buf] = request_id
 

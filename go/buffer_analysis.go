@@ -7,6 +7,7 @@ import (
 )
 
 type LineDiagnostic struct {
+	BufNr      int    `json:"bufnr"`
 	Line       int    `json:"line"`
 	ColStart   int    `json:"col_start"`
 	ColEnd     int    `json:"col_end"`
@@ -14,6 +15,7 @@ type LineDiagnostic struct {
 }
 
 type LineDiagnosticRequest struct {
+	BufNr  int    `json:"bufnr"`
 	LineNr int    `json:"linenr"`
 	Text   string `json:"text"`
 }
@@ -73,6 +75,7 @@ func generateDiagnostics(req LineDiagnosticRequest) []LineDiagnostic {
 		secretType := formatSecretType(pattern)
 		for _, match := range lineMatches(pattern, line) {
 			diagnostics = append(diagnostics, LineDiagnostic{
+				BufNr:      req.BufNr,
 				Line:       linenr,
 				ColStart:   match[0],
 				ColEnd:     match[1],

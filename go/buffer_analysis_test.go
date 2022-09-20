@@ -38,6 +38,7 @@ func lineDiagnosticRequestsFromStr(text string) []LineDiagnosticRequest {
 	requests := make([]LineDiagnosticRequest, len(lines))
 	for linenr, line := range lines {
 		requests = append(requests, LineDiagnosticRequest{
+			BufNr:  0,
 			LineNr: linenr,
 			Text:   line,
 		})
@@ -65,18 +66,21 @@ A fake Slack webhook URL is https://hooks.slack.com/services/T00000000/B00000000
 	results := analyzeBuffer(requests)
 	expected := []LineDiagnostic{
 		{
+			BufNr:      0,
 			Line:       5,
 			ColStart:   23,
 			ColEnd:     103,
 			SecretType: "GitHub token",
 		},
 		{
+			BufNr:      0,
 			Line:       7,
 			ColStart:   29,
 			ColEnd:     42,
 			SecretType: "credit card",
 		},
 		{
+			BufNr:      0,
 			Line:       13,
 			ColStart:   28,
 			ColEnd:     105,
