@@ -104,7 +104,7 @@ function M.analyze_buffer(buf, manual)
 end
 
 function M.analyze_workspace()
-  local patterns = { '{!.git}**/*' } -- TODO replace with config
+  local patterns = { './go/*' } -- TODO replace with config
   local request_id = async.create_request(function(json)
     if not json or #json == 0 then
       return

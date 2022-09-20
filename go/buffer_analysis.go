@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -129,10 +128,9 @@ func collectWorkspaceFiles(globs []string) ([]string, error) {
 func getDiagnosticsForFile(filepath string, collectedDiagnostics chan []LineDiagnostic) {
 	diagnosticRequests := []LineDiagnosticRequest{}
 	file, openErr := os.Open(filepath)
-	defer file.Close()
 	if openErr != nil {
 		// fail gracefully
-		log.Fatal(openErr)
+		file.Close()
 		return
 	}
 	scanner := bufio.NewScanner(file)
@@ -145,10 +143,7 @@ func getDiagnosticsForFile(filepath string, collectedDiagnostics chan []LineDiag
 		diagnosticRequests = append(diagnosticRequests, req)
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
+	file.Close()
 	diagnostics := analyzeBuffer(diagnosticRequests)
 	collectedDiagnostics <- diagnostics
 }
@@ -161,17 +156,17 @@ func genDiagnosticRequestsForWorkspace(files []string) []LineDiagnostic {
 
 	diagnostics := []LineDiagnostic{}
 	for diagnosticList := range diagnosticsChannel {
-		diagnostics = append(diagnostics, diagnosticList...)
+		if diagnosticList != nil {
+			diagnostics = append(diagnostics, diagnosticList...)
+		}
 	}
 
 	return diagnostics
 }
 
 func genDiagnosticRequestsForWorkspaceJson(requestId string, files []string) {
-	Async.execLua("print('generating diagnostics')")
-	// TODO I don't think I'm using channels right
+	// TODO I don't think I'm using channels right, it's crashing here
 	diagnostics := genDiagnosticRequestsForWorkspace(files)
-	Async.execLua("print('got diagnostics')")
 	json, err := json.Marshal(diagnostics)
 	if err != nil {
 		Async.Err(requestId, err)
