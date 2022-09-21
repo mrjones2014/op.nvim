@@ -33,6 +33,8 @@ directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric
 
 ![Item creation](https://user-images.githubusercontent.com/8648891/188519718-8fbdde4b-14cc-4d2c-b534-83b7fa1829c9.gif)
 
+**Secret Detection Diagnostics**
+
 ![Secret Detection diagnostics](https://user-images.githubusercontent.com/8648891/191072734-d328fc20-9fda-45ac-bffa-a2c301ec6fbe.png)
 
 </details>
