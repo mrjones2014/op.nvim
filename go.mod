@@ -1,4 +1,4 @@
-module mjones.network/main
+module github.com/mrjones2014/op.nvim/go
 
 go 1.18
 
