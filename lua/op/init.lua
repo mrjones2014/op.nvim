@@ -14,6 +14,7 @@ local securenotes = require('op.securenotes')
 local categories = require('op.categories')
 local sidebar = require('op.sidebar')
 local state = require('op.state')
+local diagnostics = require('op.diagnostics')
 
 function M.setup(user_config)
   cfg.setup(user_config)
@@ -246,6 +247,10 @@ function M.op_sidebar(should_refresh)
   end
 
   sidebar.toggle()
+end
+
+function M.op_analyze_buffer()
+  diagnostics.analyze_buffer(0, true)
 end
 
 return M

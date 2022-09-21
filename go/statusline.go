@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os/exec"
 )
 
@@ -53,12 +52,12 @@ func UpdateStatusline(opCliPath string, lastCmd []string, lastCmdOutput string, 
 	}
 
 	if lastCmd[0] == "signout" {
-		PluginInstance.Nvim.ExecLua("require('op.statusline').update(nil)", nil)
+		Async.UpdateStatusline(nil)
 		return
 	}
 
 	if accountName := getAccountName(); accountName != nil {
-		PluginInstance.Nvim.ExecLua(fmt.Sprintf("require('op.statusline').update(\"%s\")", *accountName), nil)
+		Async.UpdateStatusline(accountName)
 		opAccountNameUpdatedAtLeastOnce = true
 		return
 	}

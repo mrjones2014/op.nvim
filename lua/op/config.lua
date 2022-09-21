@@ -41,11 +41,39 @@ local config = {
   secure_notes = {
     buf_name_prefix = '1P:',
   },
+  secret_detection_diagnostics = {
+    disabled = false,
+    severity = vim.diagnostic.severity.WARN,
+    max_file_lines = 10000,
+    disabled_filetypes = {
+      'nofile',
+      'TelescopePrompt',
+      'NvimTree',
+      'Trouble',
+      '1PasswordSidebar',
+    },
+  },
 }
 
 local function handle_setup()
   if config.signin_on_start == true then
     require('op').op_signin()
+  end
+
+  local diagnostics_augroup = 'OpSecretDiagnostics'
+  if not config.secret_detection_diagnostics.disabled then
+    vim.api.nvim_create_autocmd({
+      'BufReadPost',
+      'TextChanged',
+    }, {
+      group = vim.api.nvim_create_augroup(diagnostics_augroup, { clear = true }),
+      callback = function()
+        require('op.diagnostics').analyze_buffer()
+      end,
+    })
+  else
+    vim.api.nvim_create_augroup(diagnostics_augroup, { clear = true })
+    pcall(require('op.diagnostics').reset)
   end
 
   -- only update in remote plugin if not default

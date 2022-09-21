@@ -23,7 +23,7 @@ clean:
 
 .PHONY: test
 test:
-	@cd go && go test && cd ..
+	@cd go && go test -v && cd ..
 
 .PHONY: update-remote-plugin-manifest
 update-remote-plugin-manifest: all install
@@ -31,6 +31,7 @@ update-remote-plugin-manifest: all install
 
 .PHONY: install
 install:
+	rm -f ./bin/op-nvim
 	mkdir -p bin
 	./install.bash
 	chmod +x ./bin/op-nvim
