@@ -97,6 +97,12 @@ local function build_sidebar_items(items)
   return lines
 end
 
+local function move_to_edge(side)
+  local dir = side == 'right' and 'l' or 'h'
+  -- if someone has more than 999 windows then just LOL
+  vim.cmd(string.format('wincmd 999 %s', dir))
+end
+
 function M.load_sidebar_items()
   local cfg = config.get_config_immutable()
 
@@ -214,6 +220,7 @@ function M.open()
 
   local sidebar_side = cfg.sidebar.side
   local split_cmd = sidebar_side == 'right' and 'belowright' or 'aboveleft'
+  move_to_edge(sidebar_side)
   vim.cmd(string.format('%s %svsplit', split_cmd, tostring(cfg.sidebar.width or 40)))
   local win_id = vim.api.nvim_get_current_win()
   update_view({ buf = buf_id, win = win_id, parent_win = parent_win })
