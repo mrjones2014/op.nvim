@@ -63,16 +63,24 @@ ongoing maintenance from the PR author.
 
 ## Install
 
+This project uses git tags to adhere to [Semantic Versioning](https://semver.org/).
+
 `packer.nvim`
 
 ```lua
+-- if you want to update without pinning to a version
 use({ 'mrjones2014/op.nvim', run = 'make install' })
+-- if you'd like to use a specific version
+use({ 'mrjones2014/op.nvim', run = 'make install', tag = 'v1.0.0' })
 ```
 
 `vim-plug`
 
 ```VimL
+" if you want to update without pinning to a version
 Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
+" if you'd like to use a specific version
+Plug 'mrjones2014/op.nvim', { 'do': 'make install', 'tag': 'v1.0.0' }
 ```
 
 No other setup is required if using biometric unlock for the 1Password CLI,
