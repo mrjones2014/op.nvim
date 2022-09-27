@@ -48,17 +48,26 @@ Windows support, with a commitment to ongoing maintenance from the PR author.
 
 INSTALL                                                           *op-install*
 
+This project uses git tags to adhere to Semantic Versioning
+<https://semver.org/>.
+
 `packer.nvim`
 
 >
+    -- if you want to update without pinning to a version
     use({ 'mrjones2014/op.nvim', run = 'make install' })
+    -- if you'd like to use a specific version
+    use({ 'mrjones2014/op.nvim', run = 'make install', tag = 'v1.0.0' })
 <
 
 
 `vim-plug`
 
 >
+    " if you want to update without pinning to a version
     Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
+    " if you'd like to use a specific version
+    Plug 'mrjones2014/op.nvim', { 'do': 'make install', 'tag': 'v1.0.0' }
 <
 
 
