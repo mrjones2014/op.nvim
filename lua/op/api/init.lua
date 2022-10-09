@@ -167,6 +167,46 @@ local function build_api(command_map, parent_key)
   return api
 end
 
+local API = require('op-sdk').init(function(args, on_done)
+  args = args or {}
+  if args[1] == 'op' then
+    table.remove(args, 1)
+  end
+  local full_cmd_args = args
+  -- vim.list_extend(
+  --   vim.deepcopy(full_cmd),
+  --   vim.list_extend(vim.deepcopy(config.get_config_immutable().global_args or {}), args)
+  -- )
+
+  local function callback(data, on_done_cb)
+    local parsed_data = vim.json.decode(data)
+
+    local output_list = non_empty_values(vim.split(parsed_data.output, '\n'))
+    -- output in stdout position
+    local values = { output_list, {}, parsed_data.return_code }
+    if parsed_data.return_code ~= 0 then
+      -- if nonzero exit, output in stderr position
+      values = { {}, output_list, parsed_data.return_code }
+    end
+
+    if type(on_done_cb) == 'function' then
+      on_done_cb(unpack(values))
+    end
+
+    return unpack(values)
+  end
+
+  if args.async == true then
+    local request_id = require('op.api.async').create_request(function(data)
+      callback(data, on_done)
+    end)
+    vim.fn.OpCmdAsync(request_id, unpack(full_cmd_args))
+  else
+    local data = vim.fn.OpCmd(unpack(full_cmd_args))
+    return callback(data)
+  end
+end)
+
 ---@type Api
-local API = build_api(OP_COMMANDS)
+-- local API = build_api(OP_COMMANDS)
 return API

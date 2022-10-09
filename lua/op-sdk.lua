@@ -130,9 +130,9 @@ local function build_api(cli_path, command_map, backend, prev_args)
         return type(val) == 'string'
       end, args)
 
-      api[cmd_obj] = function(cmd_args)
+      api[cmd_obj] = function(cmd_args, ...)
         local all_args = join_lists({ cli_path }, join_lists(args, cmd_args or {}))
-        return backend(all_args)
+        return backend(all_args, ...)
       end
     elseif type(cmd_obj) == 'table' then
       prev_args = prev_args or {}
