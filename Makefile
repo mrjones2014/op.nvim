@@ -38,3 +38,7 @@ install:
 
 .PHONY: build-and-install
 build-and-install: all install update-remote-plugin-manifest
+
+.PHONY: update-op-sdk
+update-op-sdk:
+	./update-op-sdk.bash
