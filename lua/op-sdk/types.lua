@@ -4,7 +4,7 @@
 -- CLI API types
 
 ---SDK backend. Takes full command as a list-like table of arguments, and handles execution.
----@alias Backend fun(args:string[]): any
+---@alias Backend fun(args:string[], ...): any
 
 ---@class AccountCli
 ---@field add Backend

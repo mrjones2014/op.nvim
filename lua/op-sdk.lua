@@ -174,13 +174,17 @@ end
 
 local M = {}
 
+---@class CliBuilderOptions
+---@field backend Backend|nil backend to use, defaults to a default backend using io.popen, creates functions that return `stdout:string[], stderr:string[], exit_code:integer`
+---@field cli_path string|nil path to the CLI binary if not in `$PATH`, defaults to `op`
+
 ---Initialize the SDK with the specified backend, or default backend if `backend` is `nil`
----@param backend|nil Backend backend to use, defaults to a default backend using io.popen, creates functions that return `stdout:string[], stderr:string[], exit_code:integer`
----@param cli_path string|nil the path to the 1Password CLI if not on `$PATH`
+---@param options CliBuilderOptions
 ---@return Cli the CLI bindings as a table
-function M.init(backend, cli_path)
-  backend = backend or require('op-sdk.backend.default')
-  cli_path = cli_path or 'op'
+function M.new(options)
+  options = options or {}
+  local backend = options.backend or require('op-sdk.backend.default')
+  local cli_path = options.cli_path or 'op'
   return build_api(cli_path, OP_COMMANDS, backend, nil)
 end
 

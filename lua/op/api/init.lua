@@ -55,7 +55,9 @@ local function handle_cmd(args, on_done)
   end
 end
 
-local API = require('op-sdk').init(handle_cmd)
+local API = require('op-sdk').new({
+  backend = handle_cmd,
+})
 
 ---@type Api
 return API

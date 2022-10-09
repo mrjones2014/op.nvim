@@ -67,8 +67,12 @@ return function(args)
     return
   end
   local output = proc:read('*a')
+  proc:close()
   local lines = split_to_lines(output)
   local exit_code = try_parseint(lines[#lines]) or 127
+  if lines[1] and string.sub(lines[1], 1, 7) == '[ERROR]' then
+    exit_code = 127
+  end
   table.remove(lines, #lines)
 
   -- non-zero, output in stderr position
