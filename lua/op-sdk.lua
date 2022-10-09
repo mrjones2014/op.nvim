@@ -109,6 +109,34 @@ local function join_lists(list, list2)
   return result
 end
 
+local function deepcopy(obj, seen)
+  -- Handle non-tables and previously-seen tables.
+  if type(obj) ~= 'table' then
+    return obj
+  end
+  if seen and seen[obj] then
+    return seen[obj]
+  end
+
+  -- New table; mark it as seen and copy recursively.
+  local s = seen or {}
+  local res = {}
+  s[obj] = res
+  for k, v in pairs(obj) do
+    res[deepcopy(k, s)] = deepcopy(v, s)
+  end
+  return setmetatable(res, getmetatable(obj))
+end
+
+local function merge_args(base_args, args)
+  args = args or {}
+  local cmd_args = deepcopy(args)
+  for key, value in ipairs(base_args) do
+    table.insert(cmd_args, key, value)
+  end
+  return cmd_args
+end
+
 ---Build the CLI bindings as a table with the specified backend
 ---@param cli_path string the path to the CLI, defaults to `op`
 ---@param command_map table
@@ -130,8 +158,9 @@ local function build_api(cli_path, command_map, backend, prev_args)
         return type(val) == 'string'
       end, args)
 
+      table.insert(args, 1, cli_path)
       api[cmd_obj] = function(cmd_args, ...)
-        local all_args = join_lists({ cli_path }, join_lists(args, cmd_args or {}))
+        local all_args = merge_args(args, cmd_args)
         return backend(all_args, ...)
       end
     elseif type(cmd_obj) == 'table' then
