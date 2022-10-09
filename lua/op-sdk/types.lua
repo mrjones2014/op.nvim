@@ -101,6 +101,10 @@ local UserCli
 ---@field list Backend
 local VaultCli
 
+---@class EventsApi
+---@field create Backend
+local EventsApi
+
 ---@class Cli
 ---@field inject Backend
 ---@field read Backend
