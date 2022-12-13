@@ -295,9 +295,9 @@ session, or "1Password: Account Name" after you've started a session.
 
 See screenshots below.
 
-![statusline when not signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-statusline-not-signed-in.png)
+![statusline when not signed in](https://user-images.githubusercontent.com/8648891/207424571-a365d556-8c70-428d-b1f2-131073c1a4fb.png)
 
-![statusline when signed in](https://github.com/mrjones2014/demo-gifs/raw/master/op-nvim-statusline-signed-in.png)
+![statusline when signed in](https://user-images.githubusercontent.com/8648891/207424690-88d17f9b-4b2b-422f-99fe-078c63e451b1.png)
 
 <!-- panvimdoc-ignore-end -->
 
@@ -329,7 +329,8 @@ local op = require('op.api')
 local stdout, stderr, exit_code = op.signin()
 local stdout, stderr, exit_code = op.account.get({ '--format', 'json' })
 local stdout, stderr, exit_code = op.item.list({ '--format', 'json' })
-local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
+local stdout, stderr, exit_code =
+  op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
 local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
 -- all API functions can be called asynchronously by setting `args.async = true`
 -- and passing a callback as a second parameter
