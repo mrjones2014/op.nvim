@@ -350,7 +350,8 @@ a list of lines, and the exit code as a number. Some examples are below:
     local stdout, stderr, exit_code = op.signin()
     local stdout, stderr, exit_code = op.account.get({ '--format', 'json' })
     local stdout, stderr, exit_code = op.item.list({ '--format', 'json' })
-    local stdout, stderr, exit_code = op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
+    local stdout, stderr, exit_code =
+      op.eventsApi.create({ 'SigninEvents', '--features', 'signinattempts', '--expires-in', '1h' })
     local stdout, stderr, exit_code = op.connect.server.create({ 'Production', '--vaults', 'Production' })
     -- all API functions can be called asynchronously by setting `args.async = true`
     -- and passing a callback as a second parameter
