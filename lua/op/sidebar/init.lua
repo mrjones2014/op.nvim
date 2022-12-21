@@ -34,7 +34,15 @@ local function update_view(view)
 end
 
 local function is_open()
-  return op_view.buf and op_view.buf ~= 0
+  return op_view.buf
+    and op_view.buf ~= 0
+    and op_view.win
+    and op_view.win ~= 0
+    and vim.api.nvim_win_is_valid(op_view.win)
+end
+
+local function buf_exists()
+  return op_view.buf and op_view.buf ~= 0 and vim.api.nvim_buf_is_valid(op_view.buf)
 end
 
 -- HACK: some window options need to be reset
@@ -167,16 +175,18 @@ function M.open()
     return
   end
 
-  local buf_id = bufs.create({
-    filetype = '1PasswordSidebar',
-    buftype = 'nofile',
-    readonly = true,
-    title = '1Password',
-    lines = vim.tbl_map(function(line)
-      return sidebaritem.render(line)
-    end, sidebar_items),
-    unlisted = true,
-  })
+  local buf_already_created = buf_exists()
+  local buf_id = buf_already_created and op_view.buf
+    or bufs.create({
+      filetype = '1PasswordSidebar',
+      buftype = 'nofile',
+      readonly = true,
+      title = '1Password',
+      lines = vim.tbl_map(function(line)
+        return sidebaritem.render(line)
+      end, sidebar_items),
+      unlisted = true,
+    })
 
   if buf_id == 0 then
     msg.error('Failed to create sidebar buffer.')
@@ -185,38 +195,6 @@ function M.open()
   end
 
   local cfg = config.get_config_immutable()
-
-  for lhs, rhs in pairs(cfg.sidebar.mappings) do
-    local action = actions[rhs]
-    -- if not an action name, then treat as a vim :cmd
-    if not action and type(rhs) == 'string' then
-      action = rhs
-    end
-
-    -- wrap with our handler
-    if type(action) == 'function' then
-      local copied_fn = vim.deepcopy(action)
-      action = function()
-        local line = vim.api.nvim_win_get_cursor(0)[1]
-        local sidebar_item = sidebar_items[line]
-        if not sidebar_item then
-          msg.error(
-            'Failed to get 1Password sidebar item. This probably indicated a bug in op.nvim, '
-              .. 'please open an issue if the problem persists.'
-          )
-          return
-        end
-
-        if sidebar_item.type ~= 'item' then
-          return
-        end
-
-        copied_fn(sidebar_item)
-      end
-    end
-
-    vim.keymap.set('n', lhs, action, { buffer = buf_id })
-  end
 
   local sidebar_side = cfg.sidebar.side
   local split_cmd = sidebar_side == 'right' and 'belowright' or 'aboveleft'
@@ -230,49 +208,83 @@ function M.open()
   vim.api.nvim_win_set_option(win_id, 'winfixwidth', true)
   vim.api.nvim_win_set_option(win_id, 'winfixheight', true)
 
-  bufs.autocmds({
-    {
-      'BufReadCmd',
-      buffer = op_view.buf,
-      callback = M.render,
-    },
-    {
-      'WinEnter',
-      callback = function()
-        -- if it's not our window but it is the sidebar buffer,
-        -- go to next buffer and reset window options
-        if vim.api.nvim_get_current_win() ~= op_view.win and vim.api.nvim_get_current_buf() == op_view.buf then
-          reset_win_options(function()
-            vim.cmd('bnext')
-          end)
-          return
-        end
-      end,
-    },
-    {
-      { 'BufEnter', 'BufWinEnter' },
-      callback = function()
-        -- if not open or not in sidebar window
-        local curwin = vim.api.nvim_get_current_win()
-        if not is_open() or curwin ~= op_view.win then
-          return
-        end
+  if not buf_already_created then
+    for lhs, rhs in pairs(cfg.sidebar.mappings) do
+      local action = actions[rhs]
+      -- if not an action name, then treat as a vim :cmd
+      if not action and type(rhs) == 'string' then
+        action = rhs
+      end
 
-        local curbuf = vim.api.nvim_win_get_buf(curwin)
-        -- if another buffer took over our window
-        if curbuf ~= op_view.buf then
-          -- restore our window and move new buf to parent window
-          vim.api.nvim_win_set_buf(op_view.win, op_view.buf)
-          reset_win_options(function()
-            vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
-          end)
-          vim.defer_fn(function()
-            vim.api.nvim_set_current_win(op_view.parent_win)
-          end, 1)
+      -- wrap with our handler
+      if type(action) == 'function' then
+        local copied_fn = vim.deepcopy(action)
+        action = function()
+          local line = vim.api.nvim_win_get_cursor(0)[1]
+          local sidebar_item = sidebar_items[line]
+          if not sidebar_item then
+            msg.error(
+              'Failed to get 1Password sidebar item. This probably indicated a bug in op.nvim, '
+                .. 'please open an issue if the problem persists.'
+            )
+            return
+          end
+
+          if sidebar_item.type ~= 'item' then
+            return
+          end
+
+          copied_fn(sidebar_item)
         end
-      end,
-    },
-  })
+      end
+
+      vim.keymap.set('n', lhs, action, { buffer = buf_id })
+    end
+
+    bufs.autocmds({
+      {
+        'BufReadCmd',
+        buffer = op_view.buf,
+        callback = M.render,
+      },
+      {
+        'WinEnter',
+        callback = function()
+          -- if it's not our window but it is the sidebar buffer,
+          -- go to next buffer and reset window options
+          if vim.api.nvim_get_current_win() ~= op_view.win and vim.api.nvim_get_current_buf() == op_view.buf then
+            reset_win_options(function()
+              vim.cmd('bnext')
+            end)
+            return
+          end
+        end,
+      },
+      {
+        { 'BufEnter', 'BufWinEnter' },
+        callback = function()
+          -- if not open or not in sidebar window
+          local curwin = vim.api.nvim_get_current_win()
+          if not is_open() or curwin ~= op_view.win then
+            return
+          end
+
+          local curbuf = vim.api.nvim_win_get_buf(curwin)
+          -- if another buffer took over our window
+          if curbuf ~= op_view.buf then
+            -- restore our window and move new buf to parent window
+            vim.api.nvim_win_set_buf(op_view.win, op_view.buf)
+            reset_win_options(function()
+              vim.api.nvim_win_set_buf(op_view.parent_win, curbuf)
+            end)
+            vim.defer_fn(function()
+              vim.api.nvim_set_current_win(op_view.parent_win)
+            end, 1)
+          end
+        end,
+      },
+    })
+  end
 
   M.render()
 end
