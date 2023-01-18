@@ -2,7 +2,7 @@
 
 OSTYPE=$(uname)
 if [[ "$OSTYPE" == *"Linux"* ]]; then
-  cp ./bin/op-nvim-linux ./bin/op-nivm
+  cp ./bin/op-nvim-linux ./bin/op-nvim
 elif [[ "$OSTYPE" == "Darwin"* ]]; then
   cp ./bin/op-nvim-mac-universal ./bin/op-nvim
 else
