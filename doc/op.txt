@@ -254,7 +254,7 @@ title of your Secure Note in 1Password.
 Running `:w` will update the Secure Note in 1Password, and `:e` will sync the
 current Secure Note from 1Password into the buffer.
 
-                                                                 *op-Security*
+                                                           *op-Notes-Security*
 
 Security                               The Secure Notes editor **will never
                                        write your notes to disk**. It uses a
@@ -294,7 +294,7 @@ Highlighting Groups                    For colorscheme authors, you can use the
 - `OpSidebarIconDefault` - all other icons in the sidebar (e.g. item category icons)
 
 
-                                                                 *op-Security*
+                                                         *op-Sidebar-Security*
 
 Security                               In order to implement key mappings on
                                        the sidebar, the item’s title, ID,
