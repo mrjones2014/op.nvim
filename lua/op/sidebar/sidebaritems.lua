@@ -9,7 +9,7 @@ local padding = 1
 
 M.icons = {
   FAVORITES = '',
-  SECURE_NOTES = '',
+  SECURE_NOTES = '󰎞',
 }
 
 M.hl_namespace = nil
