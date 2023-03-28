@@ -1,0 +1,17 @@
+op-api	op.txt	/*op-api*
+op-commands	op.txt	/*op-commands*
+op-configuration	op.txt	/*op-configuration*
+op-features	op.txt	/*op-features*
+op-highlighting-groups	op.txt	/*op-highlighting-groups*
+op-install	op.txt	/*op-install*
+op-notes-editor-security	op.txt	/*op-notes-editor-security*
+op-op.nvim	op.txt	/*op-op.nvim*
+op-prerequisites	op.txt	/*op-prerequisites*
+op-secure-notes-editor	op.txt	/*op-secure-notes-editor*
+op-sidebar	op.txt	/*op-sidebar*
+op-sidebar-security	op.txt	/*op-sidebar-security*
+op-statusline	op.txt	/*op-statusline*
+op-table-of-contents	op.txt	/*op-table-of-contents*
+op-using-token-based-sessions	op.txt	/*op-using-token-based-sessions*
+op-windows-support	op.txt	/*op-windows-support*
+op.txt	op.txt	/*op.txt*
