@@ -1,88 +1,131 @@
-*op.txt*                                                  1Password for Neovim
+*op.txt*                                         Last change: 2022 December 13
 
 ==============================================================================
 Table of Contents                                       *op-table-of-contents*
 
-1. op.nvim                                                        |op-op.nvim|
-  - Prerequisites                                           |op-prerequisites|
-  - Install                                                       |op-install|
-  - Configuration                                           |op-configuration|
-  - Commands                                                     |op-commands|
-  - Features                                                     |op-features|
-  - API                                                               |op-api|
+Prerequisites ............................................. |op-prerequisites|
+Windows Support ......................................... |op-windows-support|
+Install ......................................................... |op-install|
+Configuration ............................................. |op-configuration|
+Using Token-Based Sessions ................... |op-using-token-based-sessions|
+Commands ....................................................... |op-commands|
+Features ....................................................... |op-features|
+Secure Notes Editor ................................. |op-secure-notes-editor|
+Notes Editor Security ............................. |op-notes-editor-security|
+Sidebar ......................................................... |op-sidebar|
+Highlighting Groups ................................. |op-highlighting-groups|
+Sidebar Security ....................................... |op-sidebar-security|
+Statusline ................................................... |op-statusline|
+API ................................................................. |op-api|
 
 ==============================================================================
-1. op.nvim                                                        *op-op.nvim*
+OP.NVIM                                                           *op-op.nvim*
 
 
+Neovim version
+<https://img.shields.io/badge/Neovim-0.6-brightgreen?logo=neovim> 1Password
+CLI V2 <https://img.shields.io/badge/1Password%20CLI-V2-blue?logo=1password>
+![GitHub license](https://img.shields.io/github/license/mrjones2014/op.nvim)
+<https://github.com/mrjones2014/op.nvim/blob/master/LICENSE>
+
+Prerequisites <#prerequisites> • Install <#install> • Configuration
+<#configuration> • Commands <#commands> • Features <#features> • API
+<#api>
 
 1Password for Neovim! Create items using strings from the current buffer as
-fields, and insert item reference URIs
-(e.g. `op://vault-name/item-name/field-name`) directly from Neovim. Edit
-Secure Notes directly in Neovim. Works with biometric unlock!
+fields, and insert item reference URIs (e.g.
+`op://vault-name/item-name/field-name`) directly from Neovim. Edit Secure
+Notes directly in Neovim. Works with biometric unlock!
+
+**Secure Notes Editor**
+
+Secure Notes Editor
+<https://user-images.githubusercontent.com/8648891/188518923-1165ed52-4915-4443-9a8c-6285bf601055.gif>
+
+**1Password Sidebar**
+
+1Password Sidebar
+<https://user-images.githubusercontent.com/8648891/188519356-ba166555-a587-4628-9756-520ca8fd8864.gif>
+
+**Item Creation**
+
+Item creation
+<https://user-images.githubusercontent.com/8648891/188519718-8fbdde4b-14cc-4d2c-b534-83b7fa1829c9.gif>
+
+**Secret Detection Diagnostics**
+
+Secret Detection diagnostics
+<https://user-images.githubusercontent.com/8648891/191072734-d328fc20-9fda-45ac-bffa-a2c301ec6fbe.png>
 
 More screenshots and demo gifs in the Wiki
 <https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs>!
 
+
+------------------------------------------------------------------------------
 PREREQUISITES                                               *op-prerequisites*
+
 
 **Required:**
 
-
 - 1Password CLI v2 <https://developer.1password.com/docs/cli/> installed
-
-
 **Optional, but recommended:**
 
+- 1Password 8 desktop app <https://1password.com/downloads/> (required to use
+  biometric unlock for CLI)
+- Biometric unlock for CLI
+  <https://developer.1password.com/docs/cli/get-started#turn-on-biometric-unlock>
+  enabled (see Using Token-Based Sessions <#using-token-based-sessions> if you
+  do not use biometric unlock for CLI)
+- A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` &mdash; I
+  recommend telescope.nvim <https://github.com/nvim-telescope/telescope.nvim>
+  paired with dressing.nvim <https://github.com/stevearc/dressing.nvim>
 
-- 1Password 8 desktop app <https://1password.com/downloads/> (required to use biometric unlock for CLI)
-- Biometric unlock for CLI <https://developer.1password.com/docs/cli/get-started#turn-on-biometric-unlock> enabled (see |op-using-token-based-sessions| if you do not use biometric unlock for CLI)
-- A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` — I recommend telescope.nvim <https://github.com/nvim-telescope/telescope.nvim> paired with dressing.nvim <https://github.com/stevearc/dressing.nvim>
+                                                                              
+WINDOWS SUPPORT                                           *op-windows-support*
+
+This plugin does not currently support Windows. I don't use Windows so I can't
+test on Windows. However, I would happily accept Pull Requests adding Windows
+support, with a commitment to ongoing maintenance from the PR author.
 
 
-WINDOWS SUPPORT ~
-
-This plugin does not currently support Windows. I don’t use Windows so I
-can’t test on Windows. However, I would happily accept Pull Requests adding
-Windows support, with a commitment to ongoing maintenance from the PR author.
-
+------------------------------------------------------------------------------
 INSTALL                                                           *op-install*
+
 
 This project uses git tags to adhere to Semantic Versioning
 <https://semver.org/>.
 
 `packer.nvim`
 
->
+>lua
     -- if you want to update without pinning to a version
     use({ 'mrjones2014/op.nvim', run = 'make install' })
     -- if you'd like to use a specific version
     use({ 'mrjones2014/op.nvim', run = 'make install', tag = 'v1.0.0' })
 <
-
-
 `vim-plug`
 
->
+>VimL
     " if you want to update without pinning to a version
     Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
     " if you'd like to use a specific version
     Plug 'mrjones2014/op.nvim', { 'do': 'make install', 'tag': 'v1.0.0' }
 <
-
-
 No other setup is required if using biometric unlock for the 1Password CLI,
-however there are a few settings you can change if needed. See
-|op-configuration|.
+however there are a few settings you can change if needed. See Configuration
+<#configuration>.
 
+
+------------------------------------------------------------------------------
 CONFIGURATION                                               *op-configuration*
+
 
 Configuration can be set by calling `require('op').setup(config_table)`.
 
-**The `require('op').setup()` function is idempotent** (i.e. can be called
+**The `require('op').setup()` function is idempotent** (i.e. can be called
 multiple times without side effects).
 
->
+>lua
     require('op').setup({
       -- you can change this to a full path if `op`
       -- is not on your $PATH
@@ -194,134 +237,154 @@ multiple times without side effects).
     })
 <
 
-
-USING TOKEN-BASED SESSIONS ~
+                                                                              
+USING TOKEN-BASED SESSIONS                     *op-using-token-based-sessions*
 
 If you do not use biometric unlock for the 1Password CLI, you can use
 token-based sessions. **You must run `eval $(op signin)` _before_ launching
 Neovim** in order for `op.nvim` to be able to access the session. You also
 **must** configure `op.nvim` with `biometric_unlock = false`.
 
+
+------------------------------------------------------------------------------
 COMMANDS                                                         *op-commands*
 
-* = Asynchronous<br/>† = Partially asynchronous
 
+\* = Asynchronous \ † = Partially asynchronous
 
-- `:OpSignin` * - Choose a 1Password account to sign in with. Accepts account shorthand, signin address, account UUID, or user UUID as an optional argument.
-- `:OpSignout` * - End your current 1Password CLI session.
-- `:OpWhoami` * - Check which 1Password account your current CLI session is using.
-- `:OpCreate` † - Create a new item using strings in the current buffer as fields.
+- `:OpSignin` \* - Choose a 1Password account to sign in with. Accepts account
+  shorthand, signin address, account UUID, or user UUID as an optional
+  argument.
+- `:OpSignout` \* - End your current 1Password CLI session.
+- `:OpWhoami` \* - Check which 1Password account your current CLI session is
+  using.
+- `:OpCreate` † - Create a new item using strings in the current buffer as
+  fields.
 - `:OpView` † - Open an item in the 1Password 8 desktop app.
-- `:OpEdit` † - Open an item to the edit view in the 1Password 8 desktop app.
+- `:OpEdit` † - Open an item to the edit view in the 1Password 8 desktop
+  app.
 - `:OpOpen` - Select an item to open & fill in your default browser
 - `:OpInsert` - Insert an item reference at current cursor position.
-- `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or `create` as an argument to create a new Secure Note.
-- `:OpSidebar` * - Toggle the 1Password sidebar open/closed. Accepts `refresh` as an argument to reload items.
-- `:OpAnalyzeBuffer` * - Run secret detection diagnostics on current buffer manually.
+- `:OpNote` - Find and open a 1Password Secure Note item. Accepts `new` or
+  `create` as an argument to create a new Secure Note.
+- `:OpSidebar` \* - Toggle the 1Password sidebar open/closed. Accepts
+  `refresh` as an argument to reload items.
+- `:OpAnalyzeBuffer` \* - Run secret detection diagnostics on current buffer
+  manually.
+All commands are also available as a Lua API, see API <#api>.
 
 
-All commands are also available as a Lua API, see |op-api|.
-
+------------------------------------------------------------------------------
 FEATURES                                                         *op-features*
 
 
-- Biometric unlock! Unlock 1Password with fingerprint or Apple watch from within Neovim
-- Create items from strings in the current buffer
-    - If the Treesitter query fails or there’s no Treesitter parser for the current filetype, fallback to manual value input (if a Treesitter parser exists, please open an issue or PR so we can get the right query added!)
+- Biometric unlock! Unlock 1Password with fingerprint or Apple watch from
+  within Neovim
+- Create items from strings in the current buffer - If the Treesitter query
+  fails or there's no Treesitter parser for the current filetype, fallback to
+  manual value input (if a Treesitter parser exists, please open an issue or
+  PR so we can get the right query added!)
 - Infer default field and item names based on field value patterns
 - Open an item in the 1Password 8 desktop app
-- Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
-- Switch between multiple 1Password accounts (only works with biometric unlock enabled)
+- Insert an item reference URI (e.g. `op://vault-name/item-name/field-name`)
+- Switch between multiple 1Password accounts (only works with biometric unlock
+  enabled)
 - Select an item to open & fill in your default browser
-- Secure Notes Editor (See |op-secure-notes-editor|)
+- Secure Notes Editor (See Secure Notes Editor <#secure-notes-editor>)
 - Automatically detect hard-coded secrets in buffers and produce diagnostics
-- Statusline component that updates asynchronously (See |op-statusline|)
+- Statusline component that updates asynchronously (See Statusline
+  <#statusline>)
 - Most commands are partially or fully asynchronous
 
-
-SECURE NOTES EDITOR ~
+                                                                              
+SECURE NOTES EDITOR                                   *op-secure-notes-editor*
 
 Edit your 1Password Secure Notes items directly in Neovim! Run `:OpNote` to
-find a Secure Note item, or `:OpNote new`/`:OpNote create` to create a new one,
-and open it in a new buffer. The buffer will have `filetype=markdown` so you
-get Markdown filetype highlighting, and will append `.md` in the buffer name
-— this is just so that nvim-web-devicons
-<https://github.com/kyazdani42/nvim-web-devicons> will assign the Markdown icon
-to the buffer, e.g. if you’re using bufferline.nvim
-<https://github.com/akinsho/bufferline.nvim> or similar. It will not change the
-title of your Secure Note in 1Password.
+find a Secure Note item, or `:OpNote new`/`:OpNote create` to create a new
+one, and open it in a new buffer. The buffer will have `filetype=markdown` so
+you get Markdown filetype highlighting, and will append `.md` in the buffer
+name &mdash; this is just so that nvim-web-devicons
+<https://github.com/kyazdani42/nvim-web-devicons> will assign the Markdown
+icon to the buffer, e.g. if you're using bufferline.nvim
+<https://github.com/akinsho/bufferline.nvim> or similar. It will not change
+the title of your Secure Note in 1Password.
 
 Running `:w` will update the Secure Note in 1Password, and `:e` will sync the
 current Secure Note from 1Password into the buffer.
 
-                                                                 *op-Security*
 
-Security                               The Secure Notes editor **will never
-                                       write your notes to disk**. It uses a
-                                       special `buftype` option,
-                                       `buftype=acwrite`, which allows
-                                       `op.nvim` to intercept the `:w` and `:e`
-                                       commands by setting up an `autocmd
-                                       BufWriteCmd` and `autocmd BufReadCmd`,
-                                       respectively, which then allows
-                                       `op.nvim` to completely handle "writing"
-                                       and "reading" the Secure Note by
-                                       updating it via the 1Password CLI.
+                                                                              
+NOTES EDITOR SECURITY                               *op-notes-editor-security*
 
+The Secure Notes editor **will never write your notes to disk**. It uses a
+special `buftype` option, `buftype=acwrite`, which allows `op.nvim` to
+intercept the `:w` and `:e` commands by setting up an `autocmd BufWriteCmd`
+and `autocmd BufReadCmd`, respectively, which then allows `op.nvim` to
+completely handle "writing" and "reading" the Secure Note by updating it via
+the 1Password CLI.
 
 Note that in order to write the contents back to the correct item, `op.nvim`
 associates buffer IDs with `{ uuid, vault_uuid }` pairs. **`op.nvim` does not
-store the note title or anything other than the UUID and vault UUID in the edit
-session**.
+store the note title or anything other than the UUID and vault UUID in the
+edit session**.
 
-SIDEBAR ~
+
+                                                                              
+SIDEBAR                                                           *op-sidebar*
 
 `op.nvim` can show a sidebar listing your favorites, Secure Notes, or both.
 Keymappings can be added to open, view, etc. the items in the sidebar. See
 screenshot in the Wiki
 <https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs#sidebar>.
 
-                                                      *op-Highlighting-Groups*
 
-Highlighting Groups                    For colorscheme authors, you can use the
-                                       following highlighting group names:
+                                                                              
+HIGHLIGHTING GROUPS                                   *op-highlighting-groups*
 
-
+For colorscheme authors, you can use the following highlighting group names:
 
 - `OpSidebarHeader` - the section header text
 - `OpSidebarItem` - the text for items under a section header
-- `OpSidebarFavoriteIcon` - the star icon used for the 'Favorites' section header
-- `OpSidebarIconDefault` - all other icons in the sidebar (e.g. item category icons)
+- `OpSidebarFavoriteIcon` - the star icon used for the 'Favorites' section
+  header
+- `OpSidebarIconDefault` - all other icons in the sidebar (e.g. item category
+  icons)
+
+                                                                              
+SIDEBAR SECURITY                                         *op-sidebar-security*
+
+In order to implement key mappings on the sidebar, the item's title, ID, vault
+ID, category, and primary URL are stored in memory to render the sidebar. **No
+other data is stored, and this data is stored internally to the plugin and
+never exported**. Other Lua code should not be able to access this data.
+However, this data is passed to functions which are setup as sidebar
+keymappings (see `sidebar.mappings` section under Configuration
+<#configuration>).
 
 
-                                                                 *op-Security*
-
-Security                               In order to implement key mappings on
-                                       the sidebar, the item’s title, ID,
-                                       vault ID, category, and primary URL are
-                                       stored in memory to render the sidebar.
-                                       **No other data is stored, and this data
-                                       is stored internally to the plugin and
-                                       never exported**. Other Lua code should
-                                       not be able to access this data.
-                                       However, this data is passed to
-                                       functions which are setup as sidebar
-                                       keymappings (see `sidebar.mappings`
-                                       section under |op-configuration|).
-
-
-STATUSLINE ~
+                                                                              
+STATUSLINE                                                     *op-statusline*
 
 `op.nvim` provides a statusline component as a function that returns a string.
 The statusline component updates asynchronously using goroutines
-<https://go.dev/tour/concurrency/1>, and will either show "1Password: No active
-session" when you do not have an active 1Password CLI session, or "1Password:
-Account Name" after you’ve started a session.
+<https://go.dev/tour/concurrency/1>, and will either show "1Password: No
+active session" when you do not have an active 1Password CLI session, or
+"1Password: Account Name" after you've started a session.
 
+See screenshots below.
+
+statusline when not signed in
+<https://user-images.githubusercontent.com/8648891/207424571-a365d556-8c70-428d-b1f2-131073c1a4fb.png>
+
+statusline when signed in
+<https://user-images.githubusercontent.com/8648891/207424690-88d17f9b-4b2b-422f-99fe-078c63e451b1.png>
+
+
+------------------------------------------------------------------------------
 API                                                                   *op-api*
 
-All commands are also available as a Lua API as described below:
 
+All commands are also available as a Lua API as described below:
 
 - `require('op').op_signin(account_identifier: string | nil)`
 - `require('op').signout()`
@@ -334,18 +397,17 @@ All commands are also available as a Lua API as described below:
 - `require('op').op_note(create_new: boolean)`
 - `require('op').op_sidebar(should_refresh: boolean)`
 - `require('op').op_analyze_buffer()`
-
-
-Additionally, part of `op.nvim`’s design includes complete bindings to the
-CLI that you can use for scripting with Lua. This API is available in the
-`op.api` module. This module returns a table that matches the hierarchy of the
+Additionally, part of `op.nvim`'s design includes complete bindings to the CLI
+that you can use for scripting with Lua. This API is available in the `op.api`
+module. This module returns a table that matches the hierarchy of the
 1Password CLI commands. The only exception is that `op events-api` is
-reformatted as `op.eventsApi`, for obvious reasons. Each command is accessed as
-a function that takes the command flags and arguments as a list. The functions
-all return three values, which are the `STDOUT` as a list of lines, `STDERR` as
-a list of lines, and the exit code as a number. Some examples are below:
+reformatted as `op.eventsApi`, for obvious reasons. Each command is accessed
+as a function that takes the command flags and arguments as a list. The
+functions all return three values, which are the `STDOUT` as a list of lines,
+`STDERR` as a list of lines, and the exit code as a number. Some examples are
+below:
 
->
+>lua
     local op = require('op.api')
     local stdout, stderr, exit_code = op.signin()
     local stdout, stderr, exit_code = op.account.get({ '--format', 'json' })
@@ -359,8 +421,6 @@ a list of lines, and the exit code as a number. Some examples are below:
       -- do stuff with stdout, stderr, exit_code
     end)
 <
-
-
 If you implement a cool feature using the API, please consider contributing it
 to this plugin in a PR!
 
@@ -368,6 +428,5 @@ See lua/op/types.lua <./lua/op/types.lua> for type annotations describing the
 `require('op.api')` table. This file should also provide type information and
 completions when using `lua-language-server`.
 
-Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
 
-vim:tw=78:ts=8:noet:ft=help:norl:
+vim:tw=78:ts=8:ft=help:norl:

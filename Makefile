@@ -25,6 +25,27 @@ clean:
 test:
 	@cd go && go test -v && cd ..
 
+.PHONY: ensure-doc-deps
+ensure-doc-deps:
+	@mkdir -p vendor
+	@if test ! -d ./vendor/ts-vimdoc.nvim; then git clone  git@github.com:ibhagwan/ts-vimdoc.nvim.git ./vendor/ts-vimdoc.nvim/; fi
+	@if test ! -d ./vendor/nvim-treesitter; then git clone git@github.com:nvim-treesitter/nvim-treesitter.git ./vendor/nvim-treesitter/; fi
+
+.PHONY: update-doc-deps
+update-doc-deps: ensure-doc-deps
+	@echo "Updating ts-vimdoc.nvim..."
+	@cd ./vendor/ts-vimdoc.nvim/ && git pull && cd ..
+	@echo "updating nvim-treesitter..."
+	@cd ./vendor/nvim-treesitter/ && git pull && cd ..
+
+.PHONY: gen-vimdoc
+gen-vimdoc: update-doc-deps
+	@echo 'Installing Treesitter parsers...'
+	@nvim --headless -u ./vimdocrc.lua -c 'TSUpdateSync markdown' -c 'TSUpdateSync markdown_inline' -c 'qa'
+	@echo 'Generating vimdocs...'
+	@nvim --headless -u ./vimdocrc.lua -c 'luafile ./vimdoc-gen.lua' -c 'qa'
+	@nvim --headless -u ./vimdocrc.lua -c 'helptags doc' -c 'qa'
+
 .PHONY: update-remote-plugin-manifest
 update-remote-plugin-manifest: all install
 	./bin/op-nvim --manifest op-nvim --location ./plugin/op.vim

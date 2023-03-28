@@ -254,7 +254,7 @@ or similar. It will not change the title of your Secure Note in 1Password.
 
 Running `:w` will update the Secure Note in 1Password, and `:e` will sync the current Secure Note from 1Password into the buffer.
 
-#### Security
+#### Notes Editor Security
 
 The Secure Notes editor **will never write your notes to disk**. It uses a special `buftype` option, `buftype=acwrite`,
 which allows `op.nvim` to intercept the `:w` and `:e` commands by setting up an `autocmd BufWriteCmd` and `autocmd BufReadCmd`,
@@ -277,7 +277,7 @@ For colorscheme authors, you can use the following highlighting group names:
 - `OpSidebarFavoriteIcon` - the star icon used for the 'Favorites' section header
 - `OpSidebarIconDefault` - all other icons in the sidebar (e.g. item category icons)
 
-#### Security
+#### Sidebar Security
 
 In order to implement key mappings on the sidebar, the item's title, ID, vault ID, category, and primary URL are stored in memory
 to render the sidebar. **No other data is stored, and this data is stored internally to the plugin and never exported**. Other Lua
