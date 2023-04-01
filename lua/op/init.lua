@@ -253,4 +253,33 @@ function M.op_analyze_buffer()
   diagnostics.analyze_buffer(0, true)
 end
 
+---Utility method to get a secret in 1 line of code.
+---@param item_name string the name of the item in 1Password to get the secret from
+---@param field_name string the name of the field on the 1Password item that holds the secret
+---@return string|nil the secret if successful, nil otherwise
+function M.get_secret(item_name, field_name)
+  local args = { item_name, '--fields', field_name }
+  local stdout, _ = require('op.api').item.get(args)
+  if not stdout or #stdout == 0 then
+    return nil
+  end
+
+  return stdout[1]
+end
+
+---Utility method to asynchronously get a secret in 1 line of code.
+---@param item_name string the name of the item in 1Password to get the secret from
+---@param field_name string the name of the field on the 1Password item that holds the secret
+---@param callback fun(secret:string|nil) callback to call with the secret on success, or nil otherwise
+function M.get_secret_async(item_name, field_name, callback)
+  local args = { async = true, item_name, '--fields', field_name }
+  require('op.api').item.get(args, function(stdout)
+    if not stdout or #stdout == 0 then
+      callback(nil)
+    else
+      callback(stdout[1])
+    end
+  end)
+end
+
 return M
