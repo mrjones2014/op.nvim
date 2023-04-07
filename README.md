@@ -52,7 +52,7 @@ directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric
 **Optional, but recommended:**
 
 - [1Password 8 desktop app](https://1password.com/downloads/) (required to use biometric unlock for CLI)
-- [Biometric unlock for CLI](https://developer.1password.com/docs/cli/get-started#turn-on-biometric-unlock) enabled (see [Using Token-Based Sessions](#using-token-based-sessions) if you do not use biometric unlock for CLI)
+- [Biometric unlock for CLI](https://developer.1password.com/docs/cli/app-integration) enabled (see [Using Token-Based Sessions](#using-token-based-sessions) if you do not use biometric unlock for CLI)
 - A Neovim plugin to handle `vim.ui.select()` and `vim.ui.input()` &mdash; I recommend [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) paired with [dressing.nvim](https://github.com/stevearc/dressing.nvim)
 
 ### Windows Support

@@ -4,6 +4,7 @@ endif
 
 let s:path = expand('<sfile>:p:h')
 let s:bin_path = s:path . '/../bin/op-nvim'
+let g:op_nvim_bin_path = s:bin_path
 
 function! s:RequireOp(host) abort
     if !filereadable(s:bin_path)
