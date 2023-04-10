@@ -1,4 +1,4 @@
-*op.txt*                                            Last change: 2023 April 07
+*op.txt*                                            Last change: 2023 April 10
 
 ==============================================================================
 Table of Contents                                       *op-table-of-contents*
@@ -59,6 +59,8 @@ Secret Detection diagnostics
 
 More screenshots and demo gifs in the Wiki
 <https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs>!
+
+Featured on the 1Password Blog! <https://blog.1password.com/1password-neovim/>
 
 
 ------------------------------------------------------------------------------
