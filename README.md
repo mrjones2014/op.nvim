@@ -43,6 +43,8 @@ directly from Neovim. Edit Secure Notes directly in Neovim. Works with biometric
 
 [More screenshots and demo gifs in the Wiki](https://github.com/mrjones2014/op.nvim/wiki/Screenshots-and-Gifs)!
 
+[Featured on the 1Password Blog!](https://blog.1password.com/1password-neovim/)
+
 ## Prerequisites
 
 **Required:**
