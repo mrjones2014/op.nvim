@@ -1,7 +1,7 @@
 vim.cmd([[
   set rtp+=.
-  set rtp+=vendor/nvim-treesitter
-  set rtp+=vendor/ts-vimdoc.nvim
+  set rtp+=lua-vendor/nvim-treesitter
+  set rtp+=lua-vendor/ts-vimdoc.nvim
   runtime plugin/nvim-treesitter.lua
 ]])
 

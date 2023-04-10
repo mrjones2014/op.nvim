@@ -27,16 +27,16 @@ test:
 
 .PHONY: ensure-doc-deps
 ensure-doc-deps:
-	@mkdir -p vendor
-	@if test ! -d ./vendor/ts-vimdoc.nvim; then git clone  git@github.com:ibhagwan/ts-vimdoc.nvim.git ./vendor/ts-vimdoc.nvim/; fi
-	@if test ! -d ./vendor/nvim-treesitter; then git clone git@github.com:nvim-treesitter/nvim-treesitter.git ./vendor/nvim-treesitter/; fi
+	@mkdir -p lua-vendor
+	@if test ! -d ./lua-vendor/ts-vimdoc.nvim; then git clone  git@github.com:ibhagwan/ts-vimdoc.nvim.git ./lua-vendor/ts-vimdoc.nvim/; fi
+	@if test ! -d ./lua-vendor/nvim-treesitter; then git clone git@github.com:nvim-treesitter/nvim-treesitter.git ./lua-vendor/nvim-treesitter/; fi
 
 .PHONY: update-doc-deps
 update-doc-deps: ensure-doc-deps
 	@echo "Updating ts-vimdoc.nvim..."
-	@cd ./vendor/ts-vimdoc.nvim/ && git pull && cd ..
+	@cd ./lua-vendor/ts-vimdoc.nvim/ && git pull && cd ..
 	@echo "updating nvim-treesitter..."
-	@cd ./vendor/nvim-treesitter/ && git pull && cd ..
+	@cd ./lua-vendor/nvim-treesitter/ && git pull && cd ..
 
 .PHONY: gen-vimdoc
 gen-vimdoc: update-doc-deps
