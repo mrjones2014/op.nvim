@@ -4,7 +4,7 @@ local lazyrequire = require('op.lazyrequire').require_on_index
 -- aliasing require like this keeps type intelligence
 -- and LSP go-to-definition etc. working
 local require = lazyrequire
----@type Api
+---@type OpApi
 local op = require('op.api')
 local utils = require('op.utils')
 local ts = require('op.treesitter')

@@ -1,6 +1,8 @@
 --- types This module just provides type annotations for the Lua language server
 --- to provide better help in completions and signature help. Provides no functionality.
 
+-- luacheck: push ignore 211
+
 -- Diagnostic request and response types
 
 ---@class OpLineDiagnostic
@@ -21,119 +23,121 @@ local OpLineDiagnosticRequest
 
 ---`args` is a list-like table of CLI arguments, with one optional configuration field: `async: boolean`.
 ---`async` defaults to false, you can set `{ async = true, ... }` to run the CLI asynchronously.
----@alias ApiFunc fun(args:table|nil, on_done:fun(stdout:table, stderr:table, exit_code:number)|nil)
+---@alias OpApiFunc fun(args:table|nil, on_done:fun(stdout:table, stderr:table, exit_code:number)|nil)
 
----@class AccountApi
----@field add ApiFunc
----@field get ApiFunc
----@field list ApiFunc
----@field forget ApiFunc
+---@class OpAccountApi
+---@field add OpApiFunc
+---@field get OpApiFunc
+---@field list OpApiFunc
+---@field forget OpApiFunc
 local AccountApi
 
 ---@class ConnectGroupApi
----@field grant ApiFunc
----@field revoke ApiFunc
+---@field grant OpApiFunc
+---@field revoke OpApiFunc
 local ConnectGroupApi
 
 ---@class ConnectServerApi
----@field create ApiFunc
----@field get ApiFunc
----@field edit ApiFunc
----@field delete ApiFunc
----@field list ApiFunc
+---@field create OpApiFunc
+---@field get OpApiFunc
+---@field edit OpApiFunc
+---@field delete OpApiFunc
+---@field list OpApiFunc
 local ConnectServerApi
 
 ---@class ConnectTokenApi
----@field create ApiFunc
----@field edit ApiFunc
----@field delete ApiFunc
----@field list ApiFunc
+---@field create OpApiFunc
+---@field edit OpApiFunc
+---@field delete OpApiFunc
+---@field list OpApiFunc
 local ConnectTokenApi
 
 ---@class ConnectVaultApi
----@field grant ApiFunc
----@field revoke ApiFunc
+---@field grant OpApiFunc
+---@field revoke OpApiFunc
 local ConnectVaultApi
 
----@class ConnectApi
+---@class OpConnectApi
 ---@field group ConnectGroupApi
 ---@field server ConnectServerApi
 ---@field token ConnectTokenApi
 ---@field vault ConnectVaultApi
 local ConnectApi
 
----@class DocumentApi
----@field create ApiFunc
----@field get ApiFunc
----@field edit ApiFunc
----@field delete ApiFunc
----@field list ApiFunc
+---@class OpDocumentApi
+---@field create OpApiFunc
+---@field get OpApiFunc
+---@field edit OpApiFunc
+---@field delete OpApiFunc
+---@field list OpApiFunc
 local DocumentApi
 
----@class EventsApi
----@field create ApiFunc
+---@class OpEventsApi
+---@field create OpApiFunc
 local EventsApi
 
 ---@class GroupUserApi
----@field grant ApiFunc
----@field revoke ApiFunc
----@field list ApiFunc
+---@field grant OpApiFunc
+---@field revoke OpApiFunc
+---@field list OpApiFunc
 local GroupUserApi
 
----@class GroupApi
+---@class OpGroupApi
 ---@field user GroupUserApi
----@field create ApiFunc
----@field get ApiFunc
----@field edit ApiFunc
----@field delete ApiFunc
----@field list ApiFunc
+---@field create OpApiFunc
+---@field get OpApiFunc
+---@field edit OpApiFunc
+---@field delete OpApiFunc
+---@field list OpApiFunc
 local GroupApi
 
----@class ItemApi
----@field create ApiFunc
----@field get ApiFunc
----@field edit ApiFunc
----@field delete ApiFunc
----@field list ApiFunc
----@field share ApiFunc
+---@class OpItemApi
+---@field create OpApiFunc
+---@field get OpApiFunc
+---@field edit OpApiFunc
+---@field delete OpApiFunc
+---@field list OpApiFunc
+---@field share OpApiFunc
 local ItemApi
 
----@class UserApi
----@field create ApiFunc
----@field get ApiFunc
----@field edit ApiFunc
----@field delete ApiFunc
----@field list ApiFunc
----@field provision ApiFunc
----@field confirm ApiFunc
----@field suspend ApiFunc
----@field reactivate ApiFunc
+---@class OpUserApi
+---@field create OpApiFunc
+---@field get OpApiFunc
+---@field edit OpApiFunc
+---@field delete OpApiFunc
+---@field list OpApiFunc
+---@field provision OpApiFunc
+---@field confirm OpApiFunc
+---@field suspend OpApiFunc
+---@field reactivate OpApiFunc
 local UserApi
 
----@class VaultApi
----@field create ApiFunc
----@field get ApiFunc
----@field edit ApiFunc
----@field delete ApiFunc
----@field list ApiFunc
+---@class OpVaultApi
+---@field create OpApiFunc
+---@field get OpApiFunc
+---@field edit OpApiFunc
+---@field delete OpApiFunc
+---@field list OpApiFunc
 local VaultApi
 
----@class Api
----@field inject ApiFunc
----@field read ApiFunc
----@field run ApiFunc
----@field signin ApiFunc
----@field signout ApiFunc
----@field update ApiFunc
----@field whoami ApiFunc
----@field account AccountApi
----@field connect ConnectApi
----@field document DocumentApi
----@field eventsApi EventsApi
----@field group GroupApi
----@field item ItemApi
----@field user UserApi
----@field vault VaultApi
-local Api
+---@class OpApi
+---@field inject OpApiFunc
+---@field read OpApiFunc
+---@field run OpApiFunc
+---@field signin OpApiFunc
+---@field signout OpApiFunc
+---@field update OpApiFunc
+---@field whoami OpApiFunc
+---@field account OpAccountApi
+---@field connect OpConnectApi
+---@field document OpDocumentApi
+---@field eventsApi OpEventsApi
+---@field group OpGroupApi
+---@field item OpItemApi
+---@field user OpUserApi
+---@field vault OpVaultApi
+local OpApi -- luacheck: ignore 221
 
-return Api
+-- luacheck: pop
+
+return OpApi

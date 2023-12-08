@@ -5,7 +5,7 @@ local lazyrequire = require('op.lazyrequire').require_on_index
 -- and LSP go-to-definition etc. working
 local require = lazyrequire
 
----@type Api
+---@type OpApi
 local op = require('op.api')
 local config = require('op.config')
 local msg = require('op.msg')

@@ -167,6 +167,6 @@ local function build_api(command_map, parent_key)
   return api
 end
 
----@type Api
+---@type OpApi
 local API = build_api(OP_COMMANDS)
 return API
