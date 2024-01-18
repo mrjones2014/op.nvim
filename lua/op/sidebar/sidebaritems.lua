@@ -129,7 +129,7 @@ end
 local default_hl_setup = false
 function M.setup_default_highlights()
   local normal_fg = '#ffffff'
-  local default_normal_hl = vim.api.nvim_get_hl_by_name('Normal', true)
+  local default_normal_hl = vim.api.nvim_get_hl(0, { name = 'Normal' })
   if default_normal_hl and default_normal_hl.foreground then
     normal_fg = string.format('#%06x', default_normal_hl.foreground)
   end

@@ -23,11 +23,11 @@ local function build_queries()
   local node_name = treesitter_string_nodes[vim.bo.filetype] or treesitter_string_nodes.default
 
   if type(node_name) == 'string' then
-    return { vim.treesitter.query.parse_query(vim.bo.filetype, string.format('(%s) @strings', node_name)) }
+    return { vim.treesitter.query.parse(vim.bo.filetype, string.format('(%s) @strings', node_name)) }
   end
 
   return vim.tbl_map(function(query)
-    return vim.treesitter.query.parse_query(vim.bo.filetype, string.format('(%s) @strings', query))
+    return vim.treesitter.query.parse(vim.bo.filetype, string.format('(%s) @strings', query))
   end, node_name)
 end
 
@@ -83,8 +83,8 @@ function M.get_all_strings()
   local root = ast:root()
   local strings = {}
   for _, query in pairs(queries) do
-    for _, node in query:iter_captures(root, 0) do
-      table.insert(strings, extract_string_value(vim.treesitter.query.get_node_text(node, 0)))
+    for _, node in query:iter_captures(root, 0) do ---@diagnostic disable-line: missing-parameter
+      table.insert(strings, extract_string_value(vim.treesitter.get_node_text(node, 0)))
     end
   end
 

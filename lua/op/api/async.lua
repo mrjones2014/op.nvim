@@ -29,7 +29,7 @@ function M.callback(request_id, json, err)
   if type(json) == 'string' then
     local callbackfn = requests[request_id]
     if type(callbackfn) == 'function' then
-      local fn = vim.deepcopy(callbackfn)
+      local fn = callbackfn
       requests[request_id] = nil
       fn(json)
     end

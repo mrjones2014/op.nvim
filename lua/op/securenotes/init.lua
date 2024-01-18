@@ -91,7 +91,7 @@ local function setup_secure_note_buf(win_id, note)
         end
 
         vim.api.nvim_buf_set_option(buf, 'modified', false)
-        vim.b.op_nvim_secure_note_initialized = true
+        vim.b.op_nvim_secure_note_initialized = true -- luacheck:ignore 122
       end,
     },
     {
@@ -142,7 +142,7 @@ function M.load_note_changes()
       vim.defer_fn(function()
         vim.api.nvim_buf_set_option(buf_id, 'modified', false)
         -- reset filetype to restore highlighting
-        vim.bo.filetype = 'markdown'
+        vim.bo.filetype = 'markdown' -- luacheck: ignore 122
       end, 1)
     end
   end
