@@ -5,7 +5,7 @@ vim.cmd([[
   runtime plugin/nvim-treesitter.lua
 ]])
 
-require('nvim-treesitter.configs').setup({
+require('nvim-treesitter.configs').setup({ ---@diagnostic disable-line: missing-fields
   ensure_installed = {
     'markdown',
     'markdown_inline',
