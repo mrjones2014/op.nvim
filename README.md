@@ -231,8 +231,8 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 
 All commands are also available as a Lua API, see [API](#api). Additionally there are two utility methods for grabbing secrets to use in scripting:
 
-- `require('op').get_secret(item_name: string, field_name: string): string|nil`
-- `require('op').get_secret_async(item_name: string, field_name: string, callback: fun(secret: string | nil))`
+- `require('op').get_secret(item_name: string, field_name: string): string|nil, string|nil`
+- `require('op').get_secret_async(item_name: string, field_name: string, callback: fun(secret: string|nil, stderr: string|nil))`
 
 ## Features
 
@@ -324,8 +324,8 @@ All commands are also available as a Lua API as described below:
 
 Additionally there are two utility methods for grabbing secrets to use in scripting:
 
-- `require('op').get_secret(item_name: string, field_name: string): string|nil`
-- `require('op').get_secret_async(item_name: string, field_name: string, callback: fun(secret: string | nil))`
+- `require('op').get_secret(item_name: string, field_name: string): string|nil, string|nil`
+- `require('op').get_secret_async(item_name: string, field_name: string, callback: fun(secret: string|nil, stderr: string|nil))`
 
 Additionally, part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
 is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.
