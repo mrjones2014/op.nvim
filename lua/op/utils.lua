@@ -385,25 +385,10 @@ function M.find_and_open_desktop_app_url(action)
         end
 
         local url = string.format('onepassword://%s-item?a=%s&v=%s&i=%s', action, account_uuid, item.vault.id, item.id)
-        M.open_url(url)
+        vim.ui.open(url)
       end, { async = true })
     end)
   end
-end
-
----Open URL in default handler
-function M.open_url(url)
-  local cmd = config.get_config_immutable().url_open_command
-  if type(cmd) == 'function' then
-    cmd = cmd()
-  end
-
-  if not cmd then
-    msg.error('op.nvim: config.url_open_command must return a string value')
-    return
-  end
-
-  vim.fn.jobstart({ cmd, url }, { detach = true })
 end
 
 local random_seeded = false
@@ -448,7 +433,7 @@ function M.open_and_fill(url, uuid)
     url_with_params = string.format('%s?%s', url, key_value)
   end
 
-  M.open_url(M.fqurl(url_with_params))
+  vim.ui.open(M.fqurl(url_with_params))
 end
 
 return M

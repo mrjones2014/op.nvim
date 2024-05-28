@@ -105,16 +105,6 @@ require('op').setup({
   -- set to false if you do not use a NerdFont or just
   -- don't want icons
   use_icons = true,
-  -- command to use for opening URLs,
-  -- can be a function or a string
-  url_open_command = function()
-    if vim.fn.has('mac') == 1 then
-      return 'open'
-    elseif vim.fn.has('unix') == 1 then
-      return 'xdg-open'
-    end
-    return nil
-  end,
   -- settings for op.nvim sidebar
   sidebar = {
     -- sections to include in the sidebar

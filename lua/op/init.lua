@@ -16,6 +16,18 @@ local sidebar = require('op.sidebar')
 local state = require('op.state')
 local diagnostics = require('op.diagnostics')
 
+-- polyfill vim.ui.open
+vim.ui.open = vim.ui.open
+  or function(url)
+    if vim.fn.has('mac') == 1 then
+      vim.fn.jobstart({ 'open', url }, { detach = true })
+    elseif vim.fn.has('unix') == 1 then
+      vim.fn.jobstart({ 'xdg-open', url }, { detach = true })
+    else
+      vim.notify('Could not open URL, unknown platform', vim.log.levels.ERROR)
+    end
+  end
+
 function M.setup(user_config)
   cfg.setup(user_config)
 end

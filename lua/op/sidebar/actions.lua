@@ -42,7 +42,7 @@ function M.open_in_desktop_app(sidebar_item)
       sidebar_item.data.vault_uuid,
       sidebar_item.data.uuid
     )
-    utils.open_url(url)
+    vim.ui.open(url)
   end
 end
 
@@ -60,7 +60,7 @@ function M.edit_in_desktop_app(sidebar_item)
       sidebar_item.data.vault_uuid,
       sidebar_item.data.uuid
     )
-    utils.open_url(url)
+    vim.ui.open(url)
   end
 end
 
