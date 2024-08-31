@@ -270,7 +270,7 @@ end
 ---@param field_name string the name of the field on the 1Password item that holds the secret
 ---@return string|nil secret, string|nil stderr secret if successful, nil and the `STDERR` otherwise
 function M.get_secret(item_name, field_name)
-  local args = { item_name, '--fields', field_name }
+  local args = { item_name, '--reveal', '--fields', field_name }
   local stdout, stderr = require('op.api').item.get(args)
   if not stdout or #stdout == 0 then
     return nil, table.concat(stderr, '\n')
@@ -284,7 +284,7 @@ end
 ---@param field_name string the name of the field on the 1Password item that holds the secret
 ---@param callback fun(secret:string|nil, stderr:string|nil) callback to call with the secret on success, else `STDERR`
 function M.get_secret_async(item_name, field_name, callback)
-  local args = { async = true, item_name, '--fields', field_name }
+  local args = { async = true, item_name, '--reveal', '--fields', field_name }
   require('op.api').item.get(args, function(stdout, stderr)
     if not stdout or #stdout == 0 then
       callback(nil, table.concat(stderr, '\n'))
