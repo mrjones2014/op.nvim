@@ -262,7 +262,7 @@ local function quick_uuid_check(uuid)
 end
 
 function M.with_account_uuid(callback, opts)
-  local global_args = config.get_config_immutable.global_args or {}
+  local global_args = config.get_config_immutable().global_args or {}
   for idx, arg in pairs(global_args) do
     if arg == '--account' then
       -- next arg should be the account UUID
