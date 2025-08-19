@@ -275,7 +275,7 @@ function M.get_secret(item_reference, account)
     table.insert(args, '--account')
     table.insert(args, account)
   end
-  local stdout, stderr = require('op.api').read()
+  local stdout, stderr = require('op.api').read(args)
   if not stdout or #stdout == 0 then
     return nil, table.concat(stderr, '\n')
   end
