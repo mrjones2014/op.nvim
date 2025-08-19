@@ -266,12 +266,10 @@ function M.op_analyze_buffer()
 end
 
 ---Utility method to get a secret in 1 line of code.
----@param item_name string the name of the item in 1Password to get the secret from
----@param field_name string the name of the field on the 1Password item that holds the secret
+---@param item_reference string The `op://` item reference; perfer using UUIDs if you have multiple accounts
 ---@return string|nil secret, string|nil stderr secret if successful, nil and the `STDERR` otherwise
-function M.get_secret(item_name, field_name)
-  local args = { item_name, '--reveal', '--fields', field_name }
-  local stdout, stderr = require('op.api').item.get(args)
+function M.get_secret(item_reference)
+  local stdout, stderr = require('op.api').read({ item_reference })
   if not stdout or #stdout == 0 then
     return nil, table.concat(stderr, '\n')
   end
@@ -280,12 +278,11 @@ function M.get_secret(item_name, field_name)
 end
 
 ---Utility method to asynchronously get a secret in 1 line of code.
----@param item_name string the name of the item in 1Password to get the secret from
----@param field_name string the name of the field on the 1Password item that holds the secret
+---@param item_reference string The `op://` item reference; prefer using UUIDs if you have multiple accounts
 ---@param callback fun(secret:string|nil, stderr:string|nil) callback to call with the secret on success, else `STDERR`
-function M.get_secret_async(item_name, field_name, callback)
-  local args = { async = true, item_name, '--reveal', '--fields', field_name }
-  require('op.api').item.get(args, function(stdout, stderr)
+function M.get_secret_async(item_reference, callback)
+  local args = { async = true, item_reference }
+  require('op.api').read(args, function(stdout, stderr)
     if not stdout or #stdout == 0 then
       callback(nil, table.concat(stderr, '\n'))
     else

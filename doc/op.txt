@@ -1,4 +1,4 @@
-*op.txt*                                            Last change: 2024 March 18
+*op.txt*                                              Last change: 2024 May 28
 
 ==============================================================================
 Table of Contents                                       *op-table-of-contents*
@@ -266,10 +266,16 @@ COMMANDS                                                         *op-commands*
 All commands are also available as a Lua API, see API <#api>. Additionally
 there are two utility methods for grabbing secrets to use in scripting:
 
-- `require('op').get_secret(item_name: string, field_name: string):
-  string|nil, string|nil`
-- `require('op').get_secret_async(item_name: string, field_name: string,
-  callback: fun(secret: string|nil, stderr: string|nil))`
+- `require('op').get_secret(item_reference: string): string|nil, string|nil`
+- `require('op').get_secret_async(item_reference: string, callback:
+  fun(secret: string|nil, stderr: string|nil))`
+If the CLI integration is enabled in the 1Password desktop app, the field
+action menu will have an item to "Copy secret reference". You can also go to
+Settings -> Developer and "Show 1Password Developer experience" to enable the
+"Copy UUID" actions in the field and item action menus and the right click
+menu on vaults. To get an account UUID, run `op account list` and copy the
+`USER ID` field.
+
 
 ------------------------------------------------------------------------------
 FEATURES                                                         *op-features*
@@ -397,10 +403,9 @@ All commands are also available as a Lua API as described below:
 Additionally there are two utility methods for grabbing secrets to use in
 scripting:
 
-- `require('op').get_secret(item_name: string, field_name: string):
-  string|nil, string|nil`
-- `require('op').get_secret_async(item_name: string, field_name: string,
-  callback: fun(secret: string|nil, stderr: string|nil))`
+- `require('op').get_secret(item_reference: string): string|nil, string|nil`
+- `require('op').get_secret_async(item_reference: string, callback:
+  fun(secret: string|nil, stderr: string|nil))`
 Additionally, part of `op.nvim`'s design includes complete bindings to the CLI
 that you can use for scripting with Lua. This API is available in the `op.api`
 module. This module returns a table that matches the hierarchy of the
