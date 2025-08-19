@@ -221,8 +221,8 @@ able to access the session. You also **must** configure `op.nvim` with `biometri
 
 All commands are also available as a Lua API, see [API](#api). Additionally there are two utility methods for grabbing secrets to use in scripting:
 
-- `require('op').get_secret(item_reference: string): string|nil, string|nil`
-- `require('op').get_secret_async(item_reference: string, callback: fun(secret: string|nil, stderr: string|nil))`
+- `require('op').get_secret(item_reference: string, account: string|nil): string|nil, string|nil`
+- `require('op').get_secret_async(item_reference: string, account: string|nil, callback: fun(secret: string|nil, stderr: string|nil))`
 
 If the CLI integration is enabled in the 1Password desktop app, the field action menu will have an item to "Copy secret reference".
 You can also go to Settings -> Developer and "Show 1Password Developer experience" to enable the "Copy UUID" actions in the field and item action
@@ -318,8 +318,8 @@ All commands are also available as a Lua API as described below:
 
 Additionally there are two utility methods for grabbing secrets to use in scripting:
 
-- `require('op').get_secret(item_reference: string): string|nil, string|nil`
-- `require('op').get_secret_async(item_reference: string, callback: fun(secret: string|nil, stderr: string|nil))`
+- `require('op').get_secret(item_reference: string, account: string|nil): string|nil, string|nil`
+- `require('op').get_secret_async(item_reference: string, account: string|nil, callback: fun(secret: string|nil, stderr: string|nil))`
 
 Additionally, part of `op.nvim`'s design includes complete bindings to the CLI that you can use for scripting with Lua. This API
 is available in the `op.api` module. This module returns a table that matches the hierarchy of the 1Password CLI commands.

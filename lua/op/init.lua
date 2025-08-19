@@ -267,9 +267,15 @@ end
 
 ---Utility method to get a secret in 1 line of code.
 ---@param item_reference string The `op://` item reference; perfer using UUIDs if you have multiple accounts
+---@param account string|nil The account specifier if you have multiple accounts
 ---@return string|nil secret, string|nil stderr secret if successful, nil and the `STDERR` otherwise
-function M.get_secret(item_reference)
-  local stdout, stderr = require('op.api').read({ item_reference })
+function M.get_secret(item_reference, account)
+  local args = { item_reference }
+  if account then
+    table.insert(args, '--account')
+    table.insert(args, account)
+  end
+  local stdout, stderr = require('op.api').read()
   if not stdout or #stdout == 0 then
     return nil, table.concat(stderr, '\n')
   end
@@ -279,9 +285,14 @@ end
 
 ---Utility method to asynchronously get a secret in 1 line of code.
 ---@param item_reference string The `op://` item reference; prefer using UUIDs if you have multiple accounts
+---@param account string|nil The account specifier if you have multiple accounts
 ---@param callback fun(secret:string|nil, stderr:string|nil) callback to call with the secret on success, else `STDERR`
-function M.get_secret_async(item_reference, callback)
+function M.get_secret_async(item_reference, account, callback)
   local args = { async = true, item_reference }
+  if account then
+    table.insert(args, '--account')
+    table.insert(args, account)
+  end
   require('op.api').read(args, function(stdout, stderr)
     if not stdout or #stdout == 0 then
       callback(nil, table.concat(stderr, '\n'))
