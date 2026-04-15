@@ -3,6 +3,7 @@ local M = {}
 ---@class OpNvimConfig
 local config = {
   op_cli_path = 'op',
+  command_timeout = 30000,
   biometric_unlock = true,
   signin_on_start = false,
   use_icons = true,
@@ -71,6 +72,10 @@ local function handle_setup()
   -- only update in remote plugin if not default
   if config.op_cli_path ~= 'op' then
     vim.fn.OpSetup(config.op_cli_path)
+  end
+
+  if config.command_timeout ~= 30000 then
+    vim.fn.OpSetTimeout(tostring(config.command_timeout))
   end
 end
 

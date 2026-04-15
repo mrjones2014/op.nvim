@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Output and return code from CLI along with the return code
@@ -20,6 +23,7 @@ type OpAccount struct {
 
 var opCliPath string = "op"
 var opCliPathValid = false
+var opCmdTimeout = 30 * time.Second
 
 func opCmdAsync(requestId string, args []string) {
 	json, err := OpCmd(args)
@@ -49,7 +53,9 @@ func OpSetup(args []string) (*string, error) {
 // Returns the output and exit code serialized to a JSON string.
 func OpCmd(args []string) (*string, error) {
 	if !opCliPathValid {
-		if err := exec.Command(opCliPath, "--version").Run(); err != nil {
+		versionCtx, versionCancel := context.WithTimeout(context.Background(), opCmdTimeout)
+		defer versionCancel()
+		if err := exec.CommandContext(versionCtx, opCliPath, "--version").Run(); err != nil {
 			output := CliOutput{
 				Output:     fmt.Sprintf("[ERROR] Configured 1Password CLI path (\"%s\") is not executable!", opCliPath),
 				ReturnCode: 1,
@@ -66,7 +72,9 @@ func OpCmd(args []string) (*string, error) {
 		}
 	}
 
-	cmd := exec.Command(opCliPath, args...)
+	ctx, cancel := context.WithTimeout(context.Background(), opCmdTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, opCliPath, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil && !strings.HasPrefix(err.Error(), "exit status") {
 		return nil, err
@@ -89,6 +97,22 @@ func OpCmd(args []string) (*string, error) {
 
 	json := string(value)
 	return &json, nil
+}
+
+// Set the command timeout in milliseconds.
+func OpSetTimeout(args []string) error {
+	arg, validationErr := ValidateOnlyOneArg(args)
+	if validationErr != nil {
+		return validationErr
+	}
+
+	ms, err := strconv.Atoi(*arg)
+	if err != nil {
+		return fmt.Errorf("invalid timeout value: %s", *arg)
+	}
+
+	opCmdTimeout = time.Duration(ms) * time.Millisecond
+	return nil
 }
 
 func OpCmdAsync(args []string) error {

@@ -24,6 +24,10 @@ var Handlers = []HandlerDefinition{
 		Handler: OpSetup,
 	},
 	{
+		Options: &plugin.FunctionOptions{Name: "OpSetTimeout"},
+		Handler: OpSetTimeout,
+	},
+	{
 		Options: &plugin.FunctionOptions{Name: "OpDesignateField"},
 		Handler: OpDesignateField,
 	},

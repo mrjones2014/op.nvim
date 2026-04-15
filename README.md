@@ -67,38 +67,29 @@ ongoing maintenance from the PR author.
 
 This project uses git tags to adhere to [Semantic Versioning](https://semver.org/).
 
-`packer.nvim`
-
 ```lua
--- if you want to update without pinning to a version
-use({ 'mrjones2014/op.nvim', run = 'make install' })
--- if you'd like to use a specific version
-use({ 'mrjones2014/op.nvim', run = 'make install', tag = 'v1.0.0' })
+-- lazy.nvim
+{
+  'mrjones2014/op.nvim',
+  build = 'make install',
+}
 ```
 
-`vim-plug`
-
-```VimL
-" if you want to update without pinning to a version
-Plug 'mrjones2014/op.nvim', { 'do': 'make install' }
-" if you'd like to use a specific version
-Plug 'mrjones2014/op.nvim', { 'do': 'make install', 'tag': 'v1.0.0' }
-```
-
-No other setup is required if using biometric unlock for the 1Password CLI,
-however there are a few settings you can change if needed. See [Configuration](#configuration).
+No other setup is required if using biometric unlock for the 1Password CLI.
+`require('op').setup()` is optional and only needed to override defaults. See [Configuration](#configuration).
 
 ## Configuration
 
-Configuration can be set by calling `require('op').setup(config_table)`.
-
-**The `require('op').setup()` function is idempotent** (i.e. can be called multiple times without side effects).
+Configuration is optional. Call `require('op').setup()` only if you need to override defaults.
+The setup function is idempotent (can be called multiple times without side effects).
 
 ```lua
 require('op').setup({
   -- you can change this to a full path if `op`
   -- is not on your $PATH
   op_cli_path = 'op',
+  -- max time in ms to wait for a CLI command to complete
+  command_timeout = 30000,
   -- Whether to sign in on start.
   signin_on_start = false,
   -- show NerdFont icons in `vim.ui.select()` interfaces,
